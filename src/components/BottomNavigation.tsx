@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ShoppingBag, Ruler, ShoppingCart, User, Heart } from 'lucide-react';
+import { Home, ShoppingBag, Ruler, ShoppingCart, User } from 'lucide-react'; // Removed Heart icon
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge'; // Import Badge component
+import { Badge } from '@/components/ui/badge';
 import { useFavoritesCount } from '@/hooks/use-favorites-count';
 import { useCartCount } from '@/hooks/use-cart-count';
 
@@ -10,18 +10,18 @@ const navItems = [
   { name: 'Home', icon: Home, path: '/' },
   { name: 'Orders', icon: ShoppingBag, path: '/orders' },
   { name: 'Measurement', icon: Ruler, path: '/measurement' },
-  { name: 'Favorites', icon: Heart, path: '/favorites', showCount: true }, // Added showCount for badge
-  { name: 'Cart', icon: ShoppingCart, path: '/cart', showCount: true }, // Added showCount for badge
+  // { name: 'Favorites', icon: Heart, path: '/favorites', showCount: true }, // Removed Favorites item
+  { name: 'Cart', icon: ShoppingCart, path: '/cart', showCount: true },
   { name: 'Profile', icon: User, path: '/profile' },
 ];
 
 const BottomNavigation: React.FC = () => {
   const location = useLocation();
-  const favoritesCount = useFavoritesCount();
+  const favoritesCount = useFavoritesCount(); // Still need this for Header, but not directly used here anymore
   const cartCount = useCartCount();
 
   const getCount = (itemName: string) => {
-    if (itemName === 'Favorites') return favoritesCount;
+    if (itemName === 'Favorites') return favoritesCount; // This case won't be hit for navItems anymore
     if (itemName === 'Cart') return cartCount;
     return 0;
   };
