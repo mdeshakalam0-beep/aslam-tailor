@@ -20,6 +20,15 @@ const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Function to get the current page title based on the path
+  const getPageTitle = () => {
+    const currentPath = location.pathname;
+    const activeItem = navItems.find(item => 
+      currentPath === item.path || (item.path !== '/admin' && currentPath.startsWith(item.path + '/'))
+    );
+    return activeItem ? activeItem.name : 'Admin Panel';
+  };
+
   // Redirect if not authenticated or not admin
   React.useEffect(() => {
     if (!session) {
