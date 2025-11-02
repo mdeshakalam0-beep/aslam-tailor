@@ -15,7 +15,9 @@ const Header: React.FC = () => {
         </Link>
       </div>
       <div className="flex items-center space-x-4">
-        <Heart className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
+        <Link to="/favorites"> {/* Link Heart icon to Favorites page */}
+          <Heart className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
+        </Link>
         <Bell className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
       </div>
     </header>

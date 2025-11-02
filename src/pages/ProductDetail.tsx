@@ -1,83 +1,43 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Star } from 'lucide-react';
+import { ArrowLeft, Star, Heart as HeartIconFilled, Heart as HeartIconOutline } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import ProductCard from '@/components/ProductCard'; // Reusing ProductCard for recommendations
-import MeasurementForm from '@/components/MeasurementForm'; // New measurement form
-import { addToCart } from '@/utils/cart'; // Import addToCart utility
+import ProductCard from '@/components/ProductCard';
+import MeasurementForm from '@/components/MeasurementForm';
+import { addToCart } from '@/utils/cart';
 import { showError } from '@/utils/toast';
-
-// Sample detailed product data (replace with actual API fetch in a real app)
-const sampleProductDetail = {
-  id: '1',
-  name: 'Stylish Cotton Shirt',
-  description: 'A comfortable and stylish cotton shirt perfect for casual and semi-formal occasions. Made from high-quality, breathable fabric. Available in various sizes and colors.',
-  price: 899,
-  originalPrice: 1299,
-  discount: 30,
-  rating: 4.5,
-  reviewsCount: 120,
-  boughtByUsers: 500,
-  sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-  images: [
-    'https://picsum.photos/seed/shirt1_detail1/800/600',
-    'https://picsum.photos/seed/shirt1_detail2/800/600',
-    'https://picsum.photos/seed/shirt1_detail3/800/600',
-    'https://picsum.photos/seed/shirt1_detail4/800/600',
-  ],
-};
-
-// Sample recommended products (can be fetched from an API)
-const recommendedProducts = [
-  {
-    id: '2',
-    name: 'Premium Linen Pants',
-    imageUrl: 'https://picsum.photos/seed/pant1/300/300',
-    price: 1499,
-    originalPrice: 1999,
-    discount: 25,
-    rating: 4.2,
-    reviewsCount: 85,
-  },
-  {
-    id: '3',
-    name: 'Elegant Waistcoat',
-    imageUrl: 'https://picsum.photos/seed/waistcoat1/300/300',
-    price: 1199,
-    originalPrice: 1599,
-    discount: 25,
-    rating: 4.7,
-    reviewsCount: 60,
-  },
-  {
-    id: '4',
-    name: 'Traditional Kurta',
-    imageUrl: 'https://picsum.photos/seed/kurta1/300/300',
-    price: 999,
-    originalPrice: 1499,
-    discount: 33,
-    rating: 4.3,
-    reviewsCount: 95,
-  },
-];
+import { getProductById, getRecommendedProducts } from '@/utils/products'; // Import centralized product data
+import { isProductFavorited, addFavorite, removeFavorite } from '@/utils/favorites';
+import { useSession } from '@/components/SessionContextProvider';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { session } = useSession();
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
+  const [isFavorited, setIsFavorited] = useState(false);
 
-  // In a real app, you'd fetch product details based on 'id'
-  // For now, we'll use the sampleProductDetail and assume the ID matches for demonstration
-  const product = sampleProductDetail; // In a real app, this would be dynamic based on 'id'
+  const product = id ? getProductById(id) : undefined;
+  const recommendedProducts = id ? getRecommendedProducts(id) : [];
 
   const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
   );
+
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (session?.user && product?.id) {
+        const favorited = await isProductFavorited(session.user.id, product.id);
+        setIsFavorited(favorited);
+      }
+    };
+    checkFavoriteStatus();
+  }, [session, product?.id]);
 
   if (!product) {
     return (
@@ -95,10 +55,24 @@ const ProductDetail: React.FC = () => {
     addToCart({
       id: product.id,
       name: product.name,
-      imageUrl: product.images[0], // Use the first image for cart display
+      imageUrl: product.images[0],
       price: product.price,
       selectedSize: selectedSize,
     });
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!session?.user) {
+      showError('Please log in to favorite products.');
+      return;
+    }
+    if (isFavorited) {
+      const success = await removeFavorite(session.user.id, product.id);
+      if (success) setIsFavorited(false);
+    } else {
+      const success = await addFavorite(session.user.id, product.id);
+      if (success) setIsFavorited(true);
+    }
   };
 
   return (
@@ -141,7 +115,16 @@ const ProductDetail: React.FC = () => {
 
           {/* Product Details */}
           <div>
-            <h2 className="text-3xl font-bold text-foreground mb-2">{product.name}</h2>
+            <div className="flex justify-between items-start mb-2">
+              <h2 className="text-3xl font-bold text-foreground">{product.name}</h2>
+              <Button variant="ghost" size="icon" onClick={handleToggleFavorite} className="text-primary">
+                {isFavorited ? (
+                  <HeartIconFilled className="h-7 w-7 fill-primary" />
+                ) : (
+                  <HeartIconOutline className="h-7 w-7" />
+                )}
+              </Button>
+            </div>
             <div className="flex items-baseline space-x-2 mb-2">
               <span className="text-2xl font-bold text-primary">₹{product.price.toLocaleString()}</span>
               {product.originalPrice && (

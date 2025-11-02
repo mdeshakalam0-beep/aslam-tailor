@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ShoppingBag, Ruler, ShoppingCart, User } from 'lucide-react';
+import { Home, ShoppingBag, Ruler, ShoppingCart, User, Heart } from 'lucide-react'; // Import Heart icon
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { name: 'Home', icon: Home, path: '/' },
   { name: 'Orders', icon: ShoppingBag, path: '/orders' },
   { name: 'Measurement', icon: Ruler, path: '/measurement' },
+  { name: 'Favorites', icon: Heart, path: '/favorites' }, // Added Favorites
   { name: 'Cart', icon: ShoppingCart, path: '/cart' },
   { name: 'Profile', icon: User, path: '/profile' },
 ];
