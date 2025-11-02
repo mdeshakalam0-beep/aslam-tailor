@@ -61,9 +61,9 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
         .from('measurements')
         .select('id')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
-      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 means no rows found
+      if (fetchError) { // This will now only catch actual database errors
         throw fetchError;
       }
 

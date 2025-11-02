@@ -29,13 +29,13 @@ const Measurement: React.FC = () => {
 
     try {
       setLoading(true);
-      const { data, error: fetchError, status } = await supabase
+      const { data, error: fetchError } = await supabase // Removed 'status' as it's not needed with maybeSingle
         .from('measurements')
         .select('chest, waist, sleeve_length, shoulder, neck')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
-      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 means no rows found
+      if (fetchError) { // This will now only catch actual database errors
         throw fetchError;
       }
 

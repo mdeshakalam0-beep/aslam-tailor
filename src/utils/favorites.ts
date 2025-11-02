@@ -8,17 +8,15 @@ export const isProductFavorited = async (userId: string, productId: string): Pro
       .select('id')
       .eq('user_id', userId)
       .eq('product_id', productId)
-      .single();
+      .maybeSingle(); // Changed from .single() to .maybeSingle()
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 means no rows found, which is expected if not favorited
+    if (error) {
+      // This will now only catch actual database errors, not 'no rows found'
       throw error;
     }
-    return !!data; // If data exists, it's favorited; otherwise, it's not.
+    return !!data; // data will be null if no row found, so !!data will be false
   } catch (error) {
-    // Only log actual errors, not the expected 'no rows found'
-    if ((error as any).code !== 'PGRST116') {
-      console.error('Error checking favorite status:', error);
-    }
+    console.error('Error checking favorite status:', error); // Only log actual errors
     return false;
   }
 };
