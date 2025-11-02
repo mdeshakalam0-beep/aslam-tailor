@@ -1,6 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
 import { showSuccess, showError } from '@/utils/toast';
 
+// Custom event for favorites updates
+const dispatchFavoritesUpdate = () => {
+  window.dispatchEvent(new CustomEvent('favorites-updated'));
+};
+
 export const isProductFavorited = async (userId: string, productId: string): Promise<boolean> => {
   try {
     const { data, error } = await supabase
@@ -8,15 +13,14 @@ export const isProductFavorited = async (userId: string, productId: string): Pro
       .select('id')
       .eq('user_id', userId)
       .eq('product_id', productId)
-      .maybeSingle(); // Changed from .single() to .maybeSingle()
+      .maybeSingle();
 
     if (error) {
-      // This will now only catch actual database errors, not 'no rows found'
       throw error;
     }
-    return !!data; // data will be null if no row found, so !!data will be false
+    return !!data;
   } catch (error) {
-    console.error('Error checking favorite status:', error); // Only log actual errors
+    console.error('Error checking favorite status:', error);
     return false;
   }
 };
@@ -31,6 +35,7 @@ export const addFavorite = async (userId: string, productId: string) => {
       throw error;
     }
     showSuccess('Added to favorites!');
+    dispatchFavoritesUpdate(); // Dispatch event on update
     return true;
   } catch (error) {
     console.error('Error adding to favorites:', error);
@@ -51,6 +56,7 @@ export const removeFavorite = async (userId: string, productId: string) => {
       throw error;
     }
     showSuccess('Removed from favorites!');
+    dispatchFavoritesUpdate(); // Dispatch event on update
     return true;
   } catch (error) {
     console.error('Error removing from favorites:', error);
@@ -74,5 +80,22 @@ export const getFavorites = async (userId: string): Promise<string[]> => {
     console.error('Error fetching favorites:', error);
     showError('Failed to load favorites.');
     return [];
+  }
+};
+
+export const getFavoritesCount = async (userId: string): Promise<number> => {
+  try {
+    const { count, error } = await supabase
+      .from('favorites')
+      .select('id', { count: 'exact' })
+      .eq('user_id', userId);
+
+    if (error) {
+      throw error;
+    }
+    return count || 0;
+  } catch (error) {
+    console.error('Error fetching favorites count:', error);
+    return 0;
   }
 };

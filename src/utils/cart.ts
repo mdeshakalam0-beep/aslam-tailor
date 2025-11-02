@@ -11,6 +11,11 @@ export interface CartItem {
 
 const CART_STORAGE_KEY = 'aslam_tailor_cart';
 
+// Custom event for cart updates
+const dispatchCartUpdate = () => {
+  window.dispatchEvent(new CustomEvent('cart-updated'));
+};
+
 export const getCartItems = (): CartItem[] => {
   try {
     const storedCart = localStorage.getItem(CART_STORAGE_KEY);
@@ -24,6 +29,7 @@ export const getCartItems = (): CartItem[] => {
 export const saveCartItems = (cartItems: CartItem[]) => {
   try {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+    dispatchCartUpdate(); // Dispatch event on update
   } catch (error) {
     console.error('Failed to save cart to local storage:', error);
   }
@@ -75,5 +81,11 @@ export const removeCartItem = (itemId: string, selectedSize: string | undefined)
 
 export const clearCart = () => {
   localStorage.removeItem(CART_STORAGE_KEY);
+  dispatchCartUpdate(); // Dispatch event on update
   showSuccess('Cart cleared.');
+};
+
+export const getCartTotalItemsCount = (): number => {
+  const cartItems = getCartItems();
+  return cartItems.reduce((total, item) => total + item.quantity, 0);
 };
