@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
+// import AdminLayout from '@/components/admin/AdminLayout'; // Removed this import
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -82,7 +82,7 @@ const ProductManagement: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
+    <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold text-foreground">Product Management</h2>
         <Button onClick={handleAddProduct} className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -169,7 +169,7 @@ const ProductManagement: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AdminLayout>
+    </div>
   );
 };
 
