@@ -9,7 +9,9 @@ import Cart from "./pages/Cart";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import ProductDetail from "./pages/ProductDetail";
-import Favorites from "./pages/Favorites"; // Import the new Favorites page
+import Favorites from "./pages/Favorites";
+import CheckoutAddress from "./pages/CheckoutAddress"; // Import new checkout address page
+import CheckoutPayment from "./pages/CheckoutPayment"; // Import new checkout payment page
 import { SessionContextProvider } from "./components/SessionContextProvider";
 
 const queryClient = new QueryClient();
@@ -27,7 +29,9 @@ const App = () => (
             <Route path="/cart" element={<Cart />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/favorites" element={<Favorites />} /> {/* New route for favorites */}
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/checkout/address" element={<CheckoutAddress />} /> {/* New route */}
+            <Route path="/checkout/payment" element={<CheckoutPayment />} /> {/* New route */}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
