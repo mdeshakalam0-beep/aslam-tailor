@@ -6,6 +6,7 @@ import CategoryChips from '@/components/CategoryChips';
 import ProductCard from '@/components/ProductCard';
 import BottomNavigation from '@/components/BottomNavigation';
 import { MadeWithDyad } from "@/components/made-with-dyad";
+import { Link } from 'react-router-dom'; // Import Link
 
 const sampleProducts = [
   {
@@ -90,7 +91,9 @@ const Index: React.FC = () => {
             <h2 className="text-2xl font-bold mb-4 text-foreground">Popular Products</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {sampleProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <Link to={`/products/${product.id}`} key={product.id} className="block">
+                  <ProductCard product={product} />
+                </Link>
               ))}
             </div>
           </section>
