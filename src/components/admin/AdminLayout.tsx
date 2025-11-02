@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'; // Import Outlet
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { Home, Package, ShoppingBag, Users, Settings, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ const navItems = [
   { name: 'App Settings', icon: Settings, path: '/admin/settings' },
 ];
 
-const AdminLayout: React.FC = () => { // Removed AdminLayoutProps as children is no longer directly used
+const AdminLayout: React.FC = () => {
   const { session, userRole } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,25 +30,32 @@ const AdminLayout: React.FC = () => { // Removed AdminLayoutProps as children is
   }, [session, userRole, navigate]);
 
   const handleLogout = async () => {
+    // If there's no active session according to our context,
+    // the user is effectively logged out or their session expired.
+    if (!session) {
+      showSuccess('You are already logged out.');
+      navigate('/login');
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        // If the error indicates a missing session, treat it as a successful logout
+        // as the user is no longer authenticated from the client's perspective.
+        if (error.message.includes('Auth session missing')) {
+          showSuccess('Logged out successfully!');
+          navigate('/login');
+          return;
+        }
+        throw error;
+      }
       showSuccess('Logged out successfully!');
       navigate('/login');
     } catch (error) {
       console.error('Error logging out:', error);
       showError('Failed to log out.');
     }
-  };
-
-  const getPageTitle = () => {
-    const currentPath = location.pathname;
-    const activeItem = navItems.find(item => 
-      item.path === currentPath || 
-      (item.path !== '/admin' && currentPath.startsWith(item.path + '/')) ||
-      (item.path === '/admin' && currentPath === '/admin')
-    );
-    return activeItem ? activeItem.name : 'Admin Dashboard';
   };
 
   if (!session || userRole !== 'admin') {
@@ -110,7 +117,7 @@ const AdminLayout: React.FC = () => { // Removed AdminLayoutProps as children is
           </div>
         </header>
         <main className="flex-1 p-6 overflow-auto">
-          <Outlet /> {/* This will render the matched child route component */}
+          <Outlet />
         </main>
       </div>
     </div>
