@@ -35,6 +35,27 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   useEffect(() => {
+    const getInitialSession = async () => {
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      setSession(initialSession);
+
+      if (initialSession) {
+        const role = await fetchUserRole(initialSession.user.id);
+        setUserRole(role);
+        if (location.pathname === '/login') {
+          navigate('/');
+        }
+      } else {
+        setUserRole(null);
+        if (location.pathname !== '/login') {
+          navigate('/login');
+        }
+      }
+      setLoading(false); // Set loading to false after initial session and role are determined
+    };
+
+    getInitialSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
       setSession(currentSession);
 
@@ -42,23 +63,18 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
         const role = await fetchUserRole(currentSession.user.id);
         setUserRole(role);
         if (location.pathname === '/login') {
-          navigate('/'); // Redirect authenticated users from login page to home
+          navigate('/');
         }
       } else {
-        setUserRole(null); // Clear role on sign out
+        setUserRole(null);
         if (location.pathname !== '/login') {
-          navigate('/login'); // Redirect unauthenticated users to login page
+          navigate('/login');
         }
-      }
-      // Set loading to false only after the initial session and role are determined
-      // This ensures child components don't render before session/role is ready
-      if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-        setLoading(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, location.pathname]); // Dependencies should be stable
+  }, [navigate, location.pathname]);
 
   if (loading) {
     return (
@@ -71,7 +87,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   return (
     <SessionContext.Provider value={{ session, userRole }}>
       {children}
-      <Toaster /> {/* Ensure Toaster is available for notifications */}
+      <Toaster />
     </SessionContext.Provider>
   );
 };
