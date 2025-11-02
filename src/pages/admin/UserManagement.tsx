@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { showError } from '@/utils/toast';
+import { format } from 'date-fns'; // Added this import
 
 interface UserProfile {
   id: string;
