@@ -1,32 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { showSuccess, showError } from '@/utils/toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useSession } from '@/components/SessionContextProvider';
 
-const MeasurementForm: React.FC = () => {
-  const [chest, setChest] = useState('');
-  const [waist, setWaist] = useState('');
-  const [sleeveLength, setSleeveLength] = useState('');
-  const [shoulder, setShoulder] = useState('');
-  const [neck, setNeck] = useState('');
+interface MeasurementFormProps {
+  initialMeasurements?: {
+    chest?: number;
+    waist?: number;
+    sleeve_length?: number;
+    shoulder?: number;
+    neck?: number;
+  };
+  onSaveSuccess?: () => void;
+}
+
+const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, onSaveSuccess }) => {
+  const { session } = useSession();
+  const [chest, setChest] = useState<string>('');
+  const [waist, setWaist] = useState<string>('');
+  const [sleeveLength, setSleeveLength] = useState<string>('');
+  const [shoulder, setShoulder] = useState<string>('');
+  const [neck, setNeck] = useState<string>('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialMeasurements) {
+      setChest(initialMeasurements.chest?.toString() || '');
+      setWaist(initialMeasurements.waist?.toString() || '');
+      setSleeveLength(initialMeasurements.sleeve_length?.toString() || '');
+      setShoulder(initialMeasurements.shoulder?.toString() || '');
+      setNeck(initialMeasurements.neck?.toString() || '');
+    }
+  }, [initialMeasurements]);
 
   const handleSaveMeasurements = async (event: React.FormEvent) => {
     event.preventDefault();
-    setLoading(true);
-    // In a real application, you would save these measurements to Supabase
-    // For now, we'll just simulate a save and show a toast.
-    console.log('Saving measurements:', { chest, waist, sleeveLength, shoulder, neck });
+    if (!session?.user) {
+      showError('You must be logged in to save measurements.');
+      return;
+    }
 
+    setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const updates = {
+        user_id: session.user.id,
+        chest: chest ? parseFloat(chest) : null,
+        waist: waist ? parseFloat(waist) : null,
+        sleeve_length: sleeveLength ? parseFloat(sleeveLength) : null,
+        shoulder: shoulder ? parseFloat(shoulder) : null,
+        neck: neck ? parseFloat(neck) : null,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Check if measurements already exist for the user
+      const { data: existingMeasurements, error: fetchError } = await supabase
+        .from('measurements')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 means no rows found
+        throw fetchError;
+      }
+
+      let error;
+      if (existingMeasurements) {
+        // Update existing measurements
+        const { error: updateError } = await supabase
+          .from('measurements')
+          .update(updates)
+          .eq('user_id', session.user.id);
+        error = updateError;
+      } else {
+        // Insert new measurements
+        const { error: insertError } = await supabase
+          .from('measurements')
+          .insert(updates);
+        error = insertError;
+      }
+
+      if (error) {
+        throw error;
+      }
+
       showSuccess('Measurements saved successfully!');
-      // Optionally clear form or update user profile
-    } catch (error) {
-      console.error('Failed to save measurements:', error);
+      onSaveSuccess?.(); // Call callback if provided
+    } catch (err) {
+      console.error('Failed to save measurements:', err);
       showError('Failed to save measurements.');
     } finally {
       setLoading(false);

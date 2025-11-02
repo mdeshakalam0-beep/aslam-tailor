@@ -10,6 +10,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ProductCard from '@/components/ProductCard'; // Reusing ProductCard for recommendations
 import MeasurementForm from '@/components/MeasurementForm'; // New measurement form
+import { addToCart } from '@/utils/cart'; // Import addToCart utility
+import { showError } from '@/utils/toast';
 
 // Sample detailed product data (replace with actual API fetch in a real app)
 const sampleProductDetail = {
@@ -84,6 +86,20 @@ const ProductDetail: React.FC = () => {
       </div>
     );
   }
+
+  const handleAddToCart = () => {
+    if (!selectedSize) {
+      showError('Please select a size before adding to cart.');
+      return;
+    }
+    addToCart({
+      id: product.id,
+      name: product.name,
+      imageUrl: product.images[0], // Use the first image for cart display
+      price: product.price,
+      selectedSize: selectedSize,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
@@ -165,7 +181,7 @@ const ProductDetail: React.FC = () => {
             </RadioGroup>
           </div>
 
-          <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+          <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleAddToCart}>
             Add to Cart
           </Button>
 
