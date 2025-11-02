@@ -14,7 +14,7 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null); // State for user role
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Keep this true initially
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -27,20 +27,20 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
         .single();
 
       if (error) throw error;
-      setUserRole(data.role);
+      return data.role; // Return the role
     } catch (error) {
       console.error('Error fetching user role:', error);
-      setUserRole(null);
+      return null; // Return null on error
     }
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
       setSession(currentSession);
-      setLoading(false);
 
       if (currentSession) {
-        await fetchUserRole(currentSession.user.id); // Fetch role when session is active
+        const role = await fetchUserRole(currentSession.user.id);
+        setUserRole(role);
         if (location.pathname === '/login') {
           navigate('/'); // Redirect authenticated users from login page to home
         }
@@ -50,27 +50,15 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
           navigate('/login'); // Redirect unauthenticated users to login page
         }
       }
-    });
-
-    // Initial session check
-    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
-      setSession(initialSession);
-      if (initialSession) {
-        await fetchUserRole(initialSession.user.id);
-        if (location.pathname === '/login') {
-          navigate('/');
-        }
-      } else {
-        setUserRole(null);
-        if (location.pathname !== '/login') {
-          navigate('/login');
-        }
+      // Set loading to false only after the initial session and role are determined
+      // This ensures child components don't render before session/role is ready
+      if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, location.pathname]);
+  }, [navigate, location.pathname]); // Dependencies should be stable
 
   if (loading) {
     return (
