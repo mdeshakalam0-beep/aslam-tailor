@@ -13,8 +13,12 @@ import Favorites from "./pages/Favorites";
 import CheckoutAddress from "./pages/CheckoutAddress";
 import CheckoutPayment from "./pages/CheckoutPayment";
 import { SessionContextProvider } from "./components/SessionContextProvider";
-import AdminLayout from "./components/admin/AdminLayout"; // Import AdminLayout
-import ProductManagement from "./pages/admin/ProductManagement"; // Import ProductManagement
+import AdminLayout from "./components/admin/AdminLayout";
+import ProductManagement from "./pages/admin/ProductManagement";
+import AdminDashboard from "./pages/admin/Dashboard"; // Import new admin dashboard
+import OrderManagement from "./pages/admin/OrderManagement"; // Import new admin order management
+import UserManagement from "./pages/admin/UserManagement"; // Import new admin user management
+import AppSettings from "./pages/admin/AppSettings"; // Import new admin app settings
 
 const queryClient = new QueryClient();
 
@@ -37,9 +41,11 @@ const App = () => (
 
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<ProductManagement />} /> {/* Default admin page */}
+              <Route index element={<AdminDashboard />} /> {/* Default admin page */}
               <Route path="products" element={<ProductManagement />} />
-              {/* Add other admin sub-routes here as they are created */}
+              <Route path="orders" element={<OrderManagement />} /> {/* New admin order route */}
+              <Route path="users" element={<UserManagement />} /> {/* New admin user route */}
+              <Route path="settings" element={<AppSettings />} /> {/* New admin settings route */}
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

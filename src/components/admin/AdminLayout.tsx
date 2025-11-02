@@ -45,6 +45,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     }
   };
 
+  const getPageTitle = () => {
+    const currentPath = location.pathname;
+    const activeItem = navItems.find(item => 
+      item.path === currentPath || 
+      (item.path !== '/admin' && currentPath.startsWith(item.path + '/')) ||
+      (item.path === '/admin' && currentPath === '/admin')
+    );
+    return activeItem ? activeItem.name : 'Admin Dashboard';
+  };
+
   if (!session || userRole !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -70,7 +80,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               to={item.path}
               className={cn(
                 "flex items-center space-x-3 p-2 rounded-md transition-colors duration-200",
-                location.pathname === item.path || (item.path === '/admin' && location.pathname === '/admin')
+                location.pathname === item.path || (item.path !== '/admin' && location.pathname.startsWith(item.path + '/')) || (item.path === '/admin' && location.pathname === '/admin')
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               )}
@@ -96,7 +106,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <div className="flex-1 flex flex-col">
         <header className="bg-card p-4 border-b border-border flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">
-            {navItems.find(item => location.pathname.startsWith(item.path))?.name || 'Admin Dashboard'}
+            {getPageTitle()}
           </h1>
           <div className="flex items-center space-x-2">
             <span className="text-muted-foreground">Welcome, Admin!</span>
