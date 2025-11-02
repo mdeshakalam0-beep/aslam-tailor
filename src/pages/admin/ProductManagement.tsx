@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// import AdminLayout from '@/components/admin/AdminLayout'; // Removed this import
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -11,7 +10,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import ProductForm from '@/components/admin/ProductForm';
 import { getProducts, createProduct, updateProduct, deleteProduct, Product } from '@/utils/products';

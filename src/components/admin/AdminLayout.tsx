@@ -1,15 +1,11 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'; // Import Outlet
 import { Home, Package, ShoppingBag, Users, Settings, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/components/SessionContextProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { showError, showSuccess } from '@/utils/toast';
-
-interface AdminLayoutProps {
-  children: React.ReactNode;
-}
 
 const navItems = [
   { name: 'Dashboard', icon: Home, path: '/admin' },
@@ -19,7 +15,7 @@ const navItems = [
   { name: 'App Settings', icon: Settings, path: '/admin/settings' },
 ];
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+const AdminLayout: React.FC = () => { // Removed AdminLayoutProps as children is no longer directly used
   const { session, userRole } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
@@ -114,7 +110,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
         </header>
         <main className="flex-1 p-6 overflow-auto">
-          {children}
+          <Outlet /> {/* This will render the matched child route component */}
         </main>
       </div>
     </div>
