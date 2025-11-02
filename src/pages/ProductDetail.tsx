@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom'; // Import useNavigate
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
@@ -12,13 +12,14 @@ import ProductCard from '@/components/ProductCard';
 import MeasurementForm from '@/components/MeasurementForm';
 import { addToCart } from '@/utils/cart';
 import { showError } from '@/utils/toast';
-import { getProductById, getRecommendedProducts } from '@/utils/products'; // Import centralized product data
+import { getProductById, getRecommendedProducts } from '@/utils/products';
 import { isProductFavorited, addFavorite, removeFavorite } from '@/utils/favorites';
 import { useSession } from '@/components/SessionContextProvider';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { session } = useSession();
+  const navigate = useNavigate(); // Initialize useNavigate
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [isFavorited, setIsFavorited] = useState(false);
 
@@ -59,6 +60,21 @@ const ProductDetail: React.FC = () => {
       price: product.price,
       selectedSize: selectedSize,
     });
+  };
+
+  const handleBuyNow = () => {
+    if (!selectedSize) {
+      showError('Please select a size before buying.');
+      return;
+    }
+    addToCart({
+      id: product.id,
+      name: product.name,
+      imageUrl: product.images[0],
+      price: product.price,
+      selectedSize: selectedSize,
+    });
+    navigate('/cart'); // Redirect to cart page
   };
 
   const handleToggleFavorite = async () => {
@@ -164,9 +180,15 @@ const ProductDetail: React.FC = () => {
             </RadioGroup>
           </div>
 
-          <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleAddToCart}>
-            Add to Cart
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            <Button className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleAddToCart}>
+              Add to Cart
+            </Button>
+            <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleBuyNow}>
+              Buy Now
+            </Button>
+          </div>
 
           {/* Measurement Form */}
           <MeasurementForm />
