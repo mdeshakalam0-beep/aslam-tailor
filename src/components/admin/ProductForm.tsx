@@ -4,7 +4,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Product } from '@/utils/products'; // Import Product interface
+import { Product } from '@/utils/products';
+import { showSuccess, showError } from '@/utils/toast';
+import { supabase } from '@/integrations/supabase/client';
+import { Switch } from '@/components/ui/switch'; // Import Switch component
+import { Loader2, Image as ImageIcon } from 'lucide-react'; // Import icons
 
 interface ProductFormProps {
   initialData?: Product;
@@ -22,6 +26,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
   const [imageUrls, setImageUrls] = useState(initialData?.images.join('\n') || '');
   const [sizes, setSizes] = useState(initialData?.sizes.join(', ') || '');
 
+  const [useUrlInput, setUseUrlInput] = useState(true); // State to toggle between URL and file upload
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
+
   useEffect(() => {
     if (initialData) {
       setName(initialData.name);
@@ -32,11 +40,84 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       setRating(initialData.rating?.toString() || '');
       setImageUrls(initialData.images.join('\n'));
       setSizes(initialData.sizes.join(', '));
+      // If initialData has images, assume URL input was used or display them as URLs
+      setUseUrlInput(true); 
+      setSelectedFiles([]); // Clear selected files on edit
+    } else {
+      // Reset for new product
+      setUseUrlInput(true);
+      setSelectedFiles([]);
     }
   }, [initialData]);
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setSelectedFiles(Array.from(event.target.files));
+    }
+  };
+
+  const uploadFilesToSupabase = async (files: File[]): Promise<string[]> => {
+    setUploadingImages(true);
+    const uploadedUrls: string[] = [];
+    try {
+      for (const file of files) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+        const filePath = `public/${fileName}`; // Store in a 'public' subfolder within the bucket
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false,
+          });
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data } = supabase.storage.from('product-images').getPublicUrl(filePath);
+        uploadedUrls.push(data.publicUrl);
+      }
+      showSuccess('Images uploaded successfully!');
+      return uploadedUrls;
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      showError('Failed to upload images.');
+      return [];
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    let finalImageUrls: string[] = [];
+
+    if (useUrlInput) {
+      finalImageUrls = imageUrls.split('\n').map(url => url.trim()).filter(url => url !== '');
+    } else {
+      if (selectedFiles.length > 0) {
+        finalImageUrls = await uploadFilesToSupabase(selectedFiles);
+        if (finalImageUrls.length === 0) {
+          showError('Image upload failed. Please try again.');
+          return;
+        }
+      } else if (!initialData?.images || initialData.images.length === 0) {
+        // If no new files selected and no initial images, and not using URL input
+        showError('Please upload at least one image or provide image URLs.');
+        return;
+      } else {
+        // If editing and no new files selected, keep existing images
+        finalImageUrls = initialData.images;
+      }
+    }
+
+    if (finalImageUrls.length === 0) {
+      showError('Please provide at least one image for the product.');
+      return;
+    }
 
     const productData = {
       name,
@@ -45,7 +126,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
       discount: discount ? parseInt(discount) : undefined,
       rating: rating ? parseFloat(rating) : undefined,
-      images: imageUrls.split('\n').map(url => url.trim()).filter(url => url !== ''),
+      images: finalImageUrls,
       sizes: sizes.split(',').map(s => s.trim()).filter(s => s !== ''),
     };
 
@@ -136,17 +217,57 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
               />
             </div>
           </div>
-          <div>
-            <Label htmlFor="imageUrls">Image URLs (one per line)</Label>
-            <Textarea
-              id="imageUrls"
-              value={imageUrls}
-              onChange={(e) => setImageUrls(e.target.value)}
-              placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-              rows={5}
-              required
+
+          {/* Image Upload Options */}
+          <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
+            <Label htmlFor="image-upload-toggle" className="flex items-center space-x-2 cursor-pointer">
+              <ImageIcon className="h-5 w-5 text-muted-foreground" />
+              <span>Upload Images via URL</span>
+            </Label>
+            <Switch
+              id="image-upload-toggle"
+              checked={useUrlInput}
+              onCheckedChange={setUseUrlInput}
             />
           </div>
+
+          {useUrlInput ? (
+            <div>
+              <Label htmlFor="imageUrls">Image URLs (one per line)</Label>
+              <Textarea
+                id="imageUrls"
+                value={imageUrls}
+                onChange={(e) => setImageUrls(e.target.value)}
+                placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+                rows={5}
+                required={!initialData || initialData.images.length === 0}
+              />
+            </div>
+          ) : (
+            <div>
+              <Label htmlFor="device-images">Upload Images from Device</Label>
+              <Input
+                id="device-images"
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+                disabled={uploadingImages}
+                className="file:text-primary file:bg-primary-foreground file:border-primary file:hover:bg-primary/90 file:hover:text-primary-foreground"
+              />
+              {selectedFiles.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {selectedFiles.length} file(s) selected.
+                </p>
+              )}
+              {initialData?.images && initialData.images.length > 0 && selectedFiles.length === 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  No new files selected. Existing {initialData.images.length} image(s) will be kept.
+                </p>
+              )}
+            </div>
+          )}
+
           <div>
             <Label htmlFor="sizes">Available Sizes (comma-separated)</Label>
             <Input
@@ -158,8 +279,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
               required
             />
           </div>
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
-            {loading ? 'Saving...' : (initialData ? 'Update Product' : 'Add Product')}
+          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploadingImages}>
+            {loading || uploadingImages ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {uploadingImages ? 'Uploading Images...' : 'Saving...'}
+              </>
+            ) : (initialData ? 'Update Product' : 'Add Product')}
           </Button>
         </form>
       </CardContent>
