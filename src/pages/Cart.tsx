@@ -14,6 +14,14 @@ import AddressForm from '@/components/AddressForm'; // Import AddressForm
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'; // Import Dialog components
 
 interface AppSettings {
   qr_code_url?: string;
@@ -38,6 +46,7 @@ const Cart: React.FC = () => {
   const [transactionId, setTransactionId] = useState<string>('');
   const [donateAmount, setDonateAmount] = useState(false);
   const [appSettings, setAppSettings] = useState<AppSettings>({});
+  const [showOrderSuccessDialog, setShowOrderSuccessDialog] = useState(false); // State for success dialog
 
   useEffect(() => {
     setCartItems(getCartItems());
@@ -155,6 +164,7 @@ const Cart: React.FC = () => {
       setSelectedPaymentMethod('cod');
       setTransactionId('');
       setDonateAmount(false);
+      setShowOrderSuccessDialog(true); // Show success dialog
     } catch (err) {
       console.error('Error placing order:', err);
       showError('Failed to place order. Please try again.');
@@ -364,6 +374,30 @@ const Cart: React.FC = () => {
         )}
       </main>
       <BottomNavigation />
+
+      {/* Order Success Dialog */}
+      <Dialog open={showOrderSuccessDialog} onOpenChange={setShowOrderSuccessDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-center text-green-600 text-2xl font-bold">Order Placed Successfully!</DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground">
+              Your order has been placed and will be processed shortly. Thank you for shopping with us!
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-2 mt-4">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link to="/orders" onClick={() => setShowOrderSuccessDialog(false)}>
+                View Orders
+              </Link>
+            </Button>
+            <Button asChild className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90">
+              <Link to="/" onClick={() => setShowOrderSuccessDialog(false)}>
+                Continue Shopping
+              </Link>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
