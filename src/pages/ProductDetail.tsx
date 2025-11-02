@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
@@ -12,23 +12,40 @@ import ProductCard from '@/components/ProductCard';
 import MeasurementForm from '@/components/MeasurementForm';
 import { addToCart } from '@/utils/cart';
 import { showError } from '@/utils/toast';
-import { getProductById, getRecommendedProducts } from '@/utils/products';
+import { getProductById, getRecommendedProducts, Product } from '@/utils/products'; // Import Product interface
 import { isProductFavorited, addFavorite, removeFavorite } from '@/utils/favorites';
 import { useSession } from '@/components/SessionContextProvider';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { session } = useSession();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
+  const [product, setProduct] = useState<Product | undefined>(undefined);
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [isFavorited, setIsFavorited] = useState(false);
-
-  const product = id ? getProductById(id) : undefined;
-  const recommendedProducts = id ? getRecommendedProducts(id) : [];
 
   const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
   );
+
+  useEffect(() => {
+    const fetchProductData = async () => {
+      if (!id) return;
+      setLoading(true);
+      const fetchedProduct = await getProductById(id);
+      setProduct(fetchedProduct);
+
+      if (fetchedProduct) {
+        const fetchedRecommended = await getRecommendedProducts(fetchedProduct.id);
+        setRecommendedProducts(fetchedRecommended);
+      }
+      setLoading(false);
+    };
+
+    fetchProductData();
+  }, [id]);
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -39,6 +56,14 @@ const ProductDetail: React.FC = () => {
     };
     checkFavoriteStatus();
   }, [session, product?.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-foreground">Loading product details...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (

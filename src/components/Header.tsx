@@ -1,13 +1,15 @@
 import React from 'react';
-import { Heart, Bell, ShoppingCart } from 'lucide-react'; // Import ShoppingCart icon
+import { Heart, Bell, ShoppingCart, UserCog } from 'lucide-react'; // Import ShoppingCart and UserCog icon
 import { Link } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge'; // Import Badge component
+import { Badge } from '@/components/ui/badge';
 import { useFavoritesCount } from '@/hooks/use-favorites-count';
 import { useCartCount } from '@/hooks/use-cart-count';
+import { useSession } from '@/components/SessionContextProvider'; // Import useSession
 
 const Header: React.FC = () => {
   const favoritesCount = useFavoritesCount();
   const cartCount = useCartCount();
+  const { userRole } = useSession(); // Get userRole from session
 
   return (
     <header className="flex items-center justify-between p-4 bg-background border-b border-border sticky top-0 z-10">
@@ -20,6 +22,11 @@ const Header: React.FC = () => {
         </Link>
       </div>
       <div className="flex items-center space-x-4">
+        {userRole === 'admin' && (
+          <Link to="/admin" className="relative">
+            <UserCog className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
+          </Link>
+        )}
         <Link to="/favorites" className="relative">
           <Heart className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
           {favoritesCount > 0 && (
@@ -28,7 +35,7 @@ const Header: React.FC = () => {
             </Badge>
           )}
         </Link>
-        <Link to="/cart" className="relative"> {/* Link ShoppingCart icon to Cart page */}
+        <Link to="/cart" className="relative">
           <ShoppingCart className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
           {cartCount > 0 && (
             <Badge variant="destructive" className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-xs">

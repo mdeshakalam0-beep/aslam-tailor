@@ -10,9 +10,11 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import ProductDetail from "./pages/ProductDetail";
 import Favorites from "./pages/Favorites";
-import CheckoutAddress from "./pages/CheckoutAddress"; // Import new checkout address page
-import CheckoutPayment from "./pages/CheckoutPayment"; // Import new checkout payment page
+import CheckoutAddress from "./pages/CheckoutAddress";
+import CheckoutPayment from "./pages/CheckoutPayment";
 import { SessionContextProvider } from "./components/SessionContextProvider";
+import AdminLayout from "./components/admin/AdminLayout"; // Import AdminLayout
+import ProductManagement from "./pages/admin/ProductManagement"; // Import ProductManagement
 
 const queryClient = new QueryClient();
 
@@ -30,8 +32,16 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/favorites" element={<Favorites />} />
-            <Route path="/checkout/address" element={<CheckoutAddress />} /> {/* New route */}
-            <Route path="/checkout/payment" element={<CheckoutPayment />} /> {/* New route */}
+            <Route path="/checkout/address" element={<CheckoutAddress />} />
+            <Route path="/checkout/payment" element={<CheckoutPayment />} />
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<ProductManagement />} /> {/* Default admin page */}
+              <Route path="products" element={<ProductManagement />} />
+              {/* Add other admin sub-routes here as they are created */}
+            </Route>
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

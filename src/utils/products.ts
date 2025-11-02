@@ -1,122 +1,181 @@
-export const getSampleProducts = () => [
-  {
-    id: '1',
-    name: 'Stylish Cotton Shirt',
-    imageUrl: 'https://picsum.photos/seed/shirt1/300/300',
-    price: 899,
-    originalPrice: 1299,
-    discount: 30,
-    rating: 4.5,
-    reviewsCount: 120,
-    recentPurchase: 'Rahul purchased 5 days ago',
-    images: [
-      'https://picsum.photos/seed/shirt1_detail1/800/600',
-      'https://picsum.photos/seed/shirt1_detail2/800/600',
-      'https://picsum.photos/seed/shirt1_detail3/800/600',
-      'https://picsum.photos/seed/shirt1_detail4/800/600',
-    ],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    description: 'A comfortable and stylish cotton shirt perfect for casual and semi-formal occasions. Made from high-quality, breathable fabric. Available in various sizes and colors.',
-    boughtByUsers: 500,
-  },
-  {
-    id: '2',
-    name: 'Premium Linen Pants',
-    imageUrl: 'https://picsum.photos/seed/pant1/300/300',
-    price: 1499,
-    originalPrice: 1999,
-    discount: 25,
-    rating: 4.2,
-    reviewsCount: 85,
-    recentPurchase: 'Anjali purchased 2 hours ago',
-    images: [
-      'https://picsum.photos/seed/pant1_detail1/800/600',
-      'https://picsum.photos/seed/pant1_detail2/800/600',
-    ],
-    sizes: ['28', '30', '32', '34', '36'],
-    description: 'High-quality linen pants for a sophisticated look.',
-    boughtByUsers: 300,
-  },
-  {
-    id: '3',
-    name: 'Elegant Waistcoat',
-    imageUrl: 'https://picsum.photos/seed/waistcoat1/300/300',
-    price: 1199,
-    originalPrice: 1599,
-    discount: 25,
-    rating: 4.7,
-    reviewsCount: 60,
-    recentPurchase: 'Amit purchased yesterday',
-    images: [
-      'https://picsum.photos/seed/waistcoat1_detail1/800/600',
-      'https://picsum.photos/seed/waistcoat1_detail2/800/600',
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    description: 'An elegant waistcoat to complete your traditional attire.',
-    boughtByUsers: 250,
-  },
-  {
-    id: '4',
-    name: 'Traditional Kurta',
-    imageUrl: 'https://picsum.photos/seed/kurta1/300/300',
-    price: 999,
-    originalPrice: 1499,
-    discount: 33,
-    rating: 4.3,
-    reviewsCount: 95,
-    recentPurchase: 'Pooja purchased 3 days ago',
-    images: [
-      'https://picsum.photos/seed/kurta1_detail1/800/600',
-      'https://picsum.photos/seed/kurta1_detail2/800/600',
-    ],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
-    description: 'Classic traditional kurta for festive occasions.',
-    boughtByUsers: 400,
-  },
-  {
-    id: '5',
-    name: 'Formal Blazer',
-    imageUrl: 'https://picsum.photos/seed/blazer1/300/300',
-    price: 2499,
-    originalPrice: 3499,
-    discount: 28,
-    rating: 4.8,
-    reviewsCount: 45,
-    recentPurchase: 'Vikas purchased 1 week ago',
-    images: [
-      'https://picsum.photos/seed/blazer1_detail1/800/600',
-      'https://picsum.photos/seed/blazer1_detail2/800/600',
-    ],
-    sizes: ['38', '40', '42', '44'],
-    description: 'Sharp and sophisticated formal blazer.',
-    boughtByUsers: 180,
-  },
-  {
-    id: '6',
-    name: 'Casual Denim Shirt',
-    imageUrl: 'https://picsum.photos/seed/denimshirt1/300/300',
-    price: 799,
-    originalPrice: 1099,
-    discount: 27,
-    rating: 4.1,
-    reviewsCount: 110,
-    recentPurchase: 'Neha purchased just now',
-    images: [
-      'https://picsum.photos/seed/denimshirt1_detail1/800/600',
-      'https://picsum.photos/seed/denimshirt1_detail2/800/600',
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    description: 'Comfortable and trendy casual denim shirt.',
-    boughtByUsers: 600,
-  },
-];
+import { supabase } from '@/integrations/supabase/client';
+import { showError, showSuccess } from '@/utils/toast';
 
-export const getProductById = (id: string) => {
-  const products = getSampleProducts();
-  return products.find(product => product.id === id);
+export interface Product {
+  id: string;
+  name: string;
+  imageUrl: string; // Primary image URL
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  rating: number;
+  reviewsCount: number;
+  recentPurchase?: string;
+  images: string[]; // All image URLs
+  sizes: string[];
+  description: string;
+  boughtByUsers: number;
+}
+
+// Fetches all products from Supabase
+export const getProducts = async (): Promise<Product[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map(item => ({
+      id: item.id,
+      name: item.name,
+      imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300', // Use first image as primary
+      price: item.price,
+      originalPrice: item.original_price,
+      discount: item.discount,
+      rating: item.rating,
+      reviewsCount: item.reviews_count,
+      recentPurchase: item.recent_purchase,
+      images: item.image_urls,
+      sizes: item.sizes,
+      description: item.description,
+      boughtByUsers: item.bought_by_users,
+    }));
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    showError('Failed to load products.');
+    return [];
+  }
 };
 
-export const getRecommendedProducts = (currentProductId: string) => {
-  const products = getSampleProducts();
-  return products.filter(product => product.id !== currentProductId).slice(0, 3);
+// Fetches a single product by ID from Supabase
+export const getProductById = async (id: string): Promise<Product | undefined> => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    if (data) {
+      return {
+        id: data.id,
+        name: data.name,
+        imageUrl: data.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
+        price: data.price,
+        originalPrice: data.original_price,
+        discount: data.discount,
+        rating: data.rating,
+        reviewsCount: data.reviews_count,
+        recentPurchase: data.recent_purchase,
+        images: data.image_urls,
+        sizes: data.sizes,
+        description: data.description,
+        boughtByUsers: data.bought_by_users,
+      };
+    }
+    return undefined;
+  } catch (error) {
+    console.error('Error fetching product by ID:', error);
+    showError('Failed to load product details.');
+    return undefined;
+  }
+};
+
+// Gets recommended products (simple implementation for now)
+export const getRecommendedProducts = async (currentProductId: string): Promise<Product[]> => {
+  try {
+    const products = await getProducts();
+    return products.filter(product => product.id !== currentProductId).slice(0, 3);
+  } catch (error) {
+    console.error('Error fetching recommended products:', error);
+    return [];
+  }
+};
+
+// Admin functions for CRUD operations
+export const createProduct = async (productData: Omit<Product, 'id' | 'imageUrl' | 'reviewsCount' | 'boughtByUsers'>) => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .insert({
+        name: productData.name,
+        description: productData.description,
+        price: productData.price,
+        original_price: productData.originalPrice,
+        discount: productData.discount,
+        rating: productData.rating,
+        image_urls: productData.images,
+        sizes: productData.sizes,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+    showSuccess('Product created successfully!');
+    return data;
+  } catch (error) {
+    console.error('Error creating product:', error);
+    showError('Failed to create product.');
+    return null;
+  }
+};
+
+export const updateProduct = async (id: string, productData: Partial<Omit<Product, 'id' | 'imageUrl'>>) => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .update({
+        name: productData.name,
+        description: productData.description,
+        price: productData.price,
+        original_price: productData.originalPrice,
+        discount: productData.discount,
+        rating: productData.rating,
+        image_urls: productData.images,
+        sizes: productData.sizes,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+    showSuccess('Product updated successfully!');
+    return data;
+  } catch (error) {
+    console.error('Error updating product:', error);
+    showError('Failed to update product.');
+    return null;
+  }
+};
+
+export const deleteProduct = async (id: string) => {
+  try {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      throw error;
+    }
+    showSuccess('Product deleted successfully!');
+    return true;
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    showError('Failed to delete product.');
+    return false;
+  }
 };
