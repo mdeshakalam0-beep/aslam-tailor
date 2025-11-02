@@ -29,14 +29,14 @@ const Measurement: React.FC = () => {
 
     try {
       setLoading(true);
-      const { data, error, status } = await supabase
+      const { data, error: fetchError, status } = await supabase
         .from('measurements')
         .select('chest, waist, sleeve_length, shoulder, neck')
         .eq('user_id', session.user.id)
         .single();
 
-      if (error && status !== 406) { // 406 means no rows found
-        throw error;
+      if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 means no rows found
+        throw fetchError;
       }
 
       if (data) {
