@@ -14,7 +14,7 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Keep this true initially
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -38,35 +38,9 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   };
 
   useEffect(() => {
-    let isMounted = true; // Flag to prevent state updates on unmounted component
+    let isMounted = true;
 
-    const initializeSession = async () => {
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
-      if (!isMounted) return;
-
-      setSession(initialSession);
-      let role = null;
-      if (initialSession) {
-        role = await fetchUserRole(initialSession.user.id);
-        if (!isMounted) return;
-        setUserRole(role);
-        if (location.pathname === '/login') {
-          navigate('/');
-        }
-      } else {
-        if (!isMounted) return;
-        setUserRole(null);
-        if (location.pathname !== '/login') {
-          navigate('/login');
-        }
-      }
-      if (!isMounted) return;
-      setLoading(false); // Set loading to false after initial session and role are determined
-    };
-
-    initializeSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+    const handleAuthStateChange = async (currentSession: Session | null) => {
       if (!isMounted) return;
 
       setSession(currentSession);
@@ -85,13 +59,29 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
           navigate('/login');
         }
       }
-      // Ensure loading is false for any subsequent auth state changes as well
-      if (!isMounted) return;
-      setLoading(false);
+    };
+
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+      if (isMounted) {
+        handleAuthStateChange(initialSession).finally(() => {
+          if (isMounted) {
+            setLoading(false); // Set loading to false after initial check and role determination
+          }
+        });
+      }
+    });
+
+    // Listen for subsequent auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
+      if (isMounted) {
+        // Only update session and role, loading is already false after initial check
+        handleAuthStateChange(currentSession);
+      }
     });
 
     return () => {
-      isMounted = false; // Cleanup: set flag to false
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [navigate, location.pathname]);
