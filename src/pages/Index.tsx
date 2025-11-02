@@ -19,6 +19,13 @@ const sampleProducts = [
     rating: 4.5,
     reviewsCount: 120,
     recentPurchase: 'Rahul purchased 5 days ago',
+    images: [ // Added for ProductDetail page
+      'https://picsum.photos/seed/shirt1_detail1/800/600',
+      'https://picsum.photos/seed/shirt1_detail2/800/600',
+    ],
+    sizes: ['S', 'M', 'L', 'XL'], // Added for ProductDetail page
+    description: 'A comfortable and stylish cotton shirt perfect for casual and semi-formal occasions.',
+    boughtByUsers: 500,
   },
   {
     id: '2',
@@ -30,6 +37,13 @@ const sampleProducts = [
     rating: 4.2,
     reviewsCount: 85,
     recentPurchase: 'Anjali purchased 2 hours ago',
+    images: [
+      'https://picsum.photos/seed/pant1_detail1/800/600',
+      'https://picsum.photos/seed/pant1_detail2/800/600',
+    ],
+    sizes: ['28', '30', '32', '34', '36'],
+    description: 'High-quality linen pants for a sophisticated look.',
+    boughtByUsers: 300,
   },
   {
     id: '3',
@@ -41,6 +55,13 @@ const sampleProducts = [
     rating: 4.7,
     reviewsCount: 60,
     recentPurchase: 'Amit purchased yesterday',
+    images: [
+      'https://picsum.photos/seed/waistcoat1_detail1/800/600',
+      'https://picsum.photos/seed/waistcoat1_detail2/800/600',
+    ],
+    sizes: ['S', 'M', 'L', 'XL'],
+    description: 'An elegant waistcoat to complete your traditional attire.',
+    boughtByUsers: 250,
   },
   {
     id: '4',
@@ -52,6 +73,13 @@ const sampleProducts = [
     rating: 4.3,
     reviewsCount: 95,
     recentPurchase: 'Pooja purchased 3 days ago',
+    images: [
+      'https://picsum.photos/seed/kurta1_detail1/800/600',
+      'https://picsum.photos/seed/kurta1_detail2/800/600',
+    ],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    description: 'Classic traditional kurta for festive occasions.',
+    boughtByUsers: 400,
   },
   {
     id: '5',
@@ -63,6 +91,13 @@ const sampleProducts = [
     rating: 4.8,
     reviewsCount: 45,
     recentPurchase: 'Vikas purchased 1 week ago',
+    images: [
+      'https://picsum.photos/seed/blazer1_detail1/800/600',
+      'https://picsum.photos/seed/blazer1_detail2/800/600',
+    ],
+    sizes: ['38', '40', '42', '44'],
+    description: 'Sharp and sophisticated formal blazer.',
+    boughtByUsers: 180,
   },
   {
     id: '6',
@@ -74,6 +109,13 @@ const sampleProducts = [
     rating: 4.1,
     reviewsCount: 110,
     recentPurchase: 'Neha purchased just now',
+    images: [
+      'https://picsum.photos/seed/denimshirt1_detail1/800/600',
+      'https://picsum.photos/seed/denimshirt1_detail2/800/600',
+    ],
+    sizes: ['S', 'M', 'L', 'XL'],
+    description: 'Comfortable and trendy casual denim shirt.',
+    boughtByUsers: 600,
   },
 ];
 
