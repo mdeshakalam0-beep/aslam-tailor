@@ -4,11 +4,11 @@ import { Home, ShoppingBag, Ruler, ShoppingCart, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { name: 'होम', icon: Home, path: '/' },
-  { name: 'ऑर्डर्स', icon: ShoppingBag, path: '/orders' },
-  { name: 'माप', icon: Ruler, path: '/measurement' },
-  { name: 'कार्ट', icon: ShoppingCart, path: '/cart' },
-  { name: 'प्रोफ़ाइल', icon: User, path: '/profile' },
+  { name: 'Home', icon: Home, path: '/' },
+  { name: 'Orders', icon: ShoppingBag, path: '/orders' },
+  { name: 'Measurement', icon: Ruler, path: '/measurement' },
+  { name: 'Cart', icon: ShoppingCart, path: '/cart' },
+  { name: 'Profile', icon: User, path: '/profile' },
 ];
 
 const BottomNavigation: React.FC = () => {

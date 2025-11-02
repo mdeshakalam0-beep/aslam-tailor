@@ -10,69 +10,69 @@ import { MadeWithDyad } from "@/components/made-with-dyad";
 const sampleProducts = [
   {
     id: '1',
-    name: 'स्टाइलिश कॉटन शर्ट',
+    name: 'Stylish Cotton Shirt',
     imageUrl: 'https://via.placeholder.com/300x300/A0D995/FFFFFF?text=Shirt+1',
     price: 899,
     originalPrice: 1299,
     discount: 30,
     rating: 4.5,
     reviewsCount: 120,
-    recentPurchase: 'राहुल ने 5 दिन पहले खरीदा',
+    recentPurchase: 'Rahul purchased 5 days ago',
   },
   {
     id: '2',
-    name: 'प्रीमियम लिनन पैंट',
+    name: 'Premium Linen Pants',
     imageUrl: 'https://via.placeholder.com/300x300/FFC7EA/FFFFFF?text=Pant+1',
     price: 1499,
     originalPrice: 1999,
     discount: 25,
     rating: 4.2,
     reviewsCount: 85,
-    recentPurchase: 'अंजलि ने 2 घंटे पहले खरीदा',
+    recentPurchase: 'Anjali purchased 2 hours ago',
   },
   {
     id: '3',
-    name: 'एलिगेंट वेस्टकोट',
+    name: 'Elegant Waistcoat',
     imageUrl: 'https://via.placeholder.com/300x300/B0E0E6/FFFFFF?text=Waistcoat+1',
     price: 1199,
     originalPrice: 1599,
     discount: 25,
     rating: 4.7,
     reviewsCount: 60,
-    recentPurchase: 'अमित ने कल खरीदा',
+    recentPurchase: 'Amit purchased yesterday',
   },
   {
     id: '4',
-    name: 'ट्रेडिशनल कुर्ता',
+    name: 'Traditional Kurta',
     imageUrl: 'https://via.placeholder.com/300x300/FFDAB9/FFFFFF?text=Kurta+1',
     price: 999,
     originalPrice: 1499,
     discount: 33,
     rating: 4.3,
     reviewsCount: 95,
-    recentPurchase: 'पूजा ने 3 दिन पहले खरीदा',
+    recentPurchase: 'Pooja purchased 3 days ago',
   },
   {
     id: '5',
-    name: 'फॉर्मल ब्लेज़र',
+    name: 'Formal Blazer',
     imageUrl: 'https://via.placeholder.com/300x300/ADD8E6/FFFFFF?text=Blazer+1',
     price: 2499,
     originalPrice: 3499,
     discount: 28,
     rating: 4.8,
     reviewsCount: 45,
-    recentPurchase: 'विकास ने 1 सप्ताह पहले खरीदा',
+    recentPurchase: 'Vikas purchased 1 week ago',
   },
   {
     id: '6',
-    name: 'कैज़ुअल डेनिम शर्ट',
+    name: 'Casual Denim Shirt',
     imageUrl: 'https://via.placeholder.com/300x300/87CEEB/FFFFFF?text=Denim+Shirt+1',
     price: 799,
     originalPrice: 1099,
     discount: 27,
     rating: 4.1,
     reviewsCount: 110,
-    recentPurchase: 'नेहा ने अभी खरीदा',
+    recentPurchase: 'Neha purchased just now',
   },
 ];
 
@@ -87,7 +87,7 @@ const Index: React.FC = () => {
           <CategoryChips />
 
           <section className="px-4 md:px-0">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">लोकप्रिय उत्पाद</h2>
+            <h2 className="text-2xl font-bold mb-4 text-foreground">Popular Products</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {sampleProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />

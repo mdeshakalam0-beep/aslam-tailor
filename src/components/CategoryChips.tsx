@@ -4,13 +4,13 @@ import Autoplay from 'embla-carousel-autoplay';
 import { Shirt, Tally3, Ruler, Hand, Crown, Briefcase } from 'lucide-react';
 
 const categories = [
-  { name: 'शर्ट्स', icon: Shirt },
-  { name: 'कोट्स', icon: Tally3 },
-  { name: 'पैंट्स', icon: Ruler },
-  { name: 'कुर्ता', icon: Hand },
-  { name: 'वेस्टकोट', icon: Crown },
-  { name: 'शेरवानी', icon: Briefcase },
-  { name: 'कुर्ता-पायजामा', icon: Shirt },
+  { name: 'Shirts', icon: Shirt },
+  { name: 'Coats', icon: Tally3 },
+  { name: 'Pants', icon: Ruler },
+  { name: 'Kurta', icon: Hand },
+  { name: 'Waistcoat', icon: Crown },
+  { name: 'Sherwani', icon: Briefcase },
+  { name: 'Kurta-Pajama', icon: Shirt },
 ];
 
 const CategoryChips: React.FC = () => {

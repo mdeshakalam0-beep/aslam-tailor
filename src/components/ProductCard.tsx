@@ -30,7 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice.toLocaleString()}</span>
             )}
             {product.discount && (
-              <span className="text-xs font-medium text-green-600 ml-1">{product.discount}% छूट</span>
+              <span className="text-xs font-medium text-green-600 ml-1">{product.discount}% off</span>
             )}
           </div>
         </div>
@@ -44,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </p>
         )}
         <Button variant="outline" size="sm" className="w-full mt-3 bg-accent text-accent-foreground hover:bg-accent/90">
-          कार्ट में जोड़ें
+          Add to Cart
         </Button>
       </CardContent>
     </Card>

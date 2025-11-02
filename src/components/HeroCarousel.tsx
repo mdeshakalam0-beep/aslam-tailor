@@ -6,18 +6,18 @@ import { Button } from '@/components/ui/button';
 const slides = [
   {
     image: 'https://via.placeholder.com/1200x400/4A90E2/FFFFFF?text=New+Collection',
-    headline: 'नवीनतम संग्रह देखें',
-    cta: 'अभी खरीदारी करें',
+    headline: 'View Latest Collection',
+    cta: 'Shop Now',
   },
   {
     image: 'https://via.placeholder.com/1200x400/50E3C2/FFFFFF?text=Custom+Tailoring',
-    headline: 'अपने माप के अनुसार सिलवाएं',
-    cta: 'माप गाइड',
+    headline: 'Tailor to Your Measurements',
+    cta: 'Measurement Guide',
   },
   {
     image: 'https://via.placeholder.com/1200x400/F5A623/FFFFFF?text=Exclusive+Designs',
-    headline: 'विशेष डिज़ाइन, केवल आपके लिए',
-    cta: 'डिज़ाइन देखें',
+    headline: 'Exclusive Designs, Just for You',
+    cta: 'View Designs',
   },
 ];
 
