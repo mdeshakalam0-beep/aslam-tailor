@@ -17,12 +17,27 @@ interface OrderItem {
   selectedSize?: string;
 }
 
+interface AddressDetails {
+  fullName: string;
+  phone: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  pincode: string;
+  postOffice?: string;
+  landmark?: string;
+}
+
 interface Order {
   id: string;
   order_date: string;
   total_amount: number;
   status: string;
   items: OrderItem[];
+  address_details?: AddressDetails;
+  payment_method?: string;
+  transaction_id?: string;
+  donation_amount?: number;
 }
 
 const Orders: React.FC = () => {
@@ -63,6 +78,19 @@ const Orders: React.FC = () => {
     fetchOrders();
   }, [session]);
 
+  const formatPaymentMethod = (method?: string) => {
+    switch (method) {
+      case 'cod':
+        return 'Cash on Delivery';
+      case 'qr_code':
+        return 'QR Code Payment';
+      case 'phonepe':
+        return 'PhonePe';
+      default:
+        return 'N/A';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
@@ -100,7 +128,29 @@ const Orders: React.FC = () => {
                   </p>
                   <p className="text-lg font-bold text-foreground mb-4">
                     Total: ₹{order.total_amount.toLocaleString()}
+                    {order.donation_amount && order.donation_amount > 0 && (
+                      <span className="text-xs text-muted-foreground ml-2">(Incl. ₹{order.donation_amount} Donation)</span>
+                    )}
                   </p>
+
+                  {order.address_details && (
+                    <div className="mb-4 p-3 border rounded-md bg-muted/50">
+                      <h4 className="font-semibold text-foreground mb-1">Shipping Address:</h4>
+                      <p className="text-sm text-muted-foreground">{order.address_details.fullName}, {order.address_details.phone}</p>
+                      <p className="text-sm text-muted-foreground">{order.address_details.streetAddress}, {order.address_details.landmark && `${order.address_details.landmark}, `}{order.address_details.postOffice && `${order.address_details.postOffice}, `}{order.address_details.city}, {order.address_details.state} - {order.address_details.pincode}</p>
+                    </div>
+                  )}
+
+                  {order.payment_method && (
+                    <div className="mb-4 p-3 border rounded-md bg-muted/50">
+                      <h4 className="font-semibold text-foreground mb-1">Payment Method:</h4>
+                      <p className="text-sm text-muted-foreground">{formatPaymentMethod(order.payment_method)}</p>
+                      {order.payment_method === 'qr_code' && order.transaction_id && (
+                        <p className="text-sm text-muted-foreground">Transaction ID: {order.transaction_id}</p>
+                      )}
+                    </div>
+                  )}
+
                   <div className="space-y-3">
                     {order.items.map((item, itemIndex) => (
                       <div key={itemIndex} className="flex items-center space-x-4 border-t pt-3 first:border-t-0 first:pt-0">
