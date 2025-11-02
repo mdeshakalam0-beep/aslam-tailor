@@ -5,17 +5,17 @@ import { Button } from '@/components/ui/button';
 
 const slides = [
   {
-    image: 'https://via.placeholder.com/1200x400/4A90E2/FFFFFF?text=New+Collection',
+    image: 'https://picsum.photos/seed/collection/1200/400',
     headline: 'View Latest Collection',
     cta: 'Shop Now',
   },
   {
-    image: 'https://via.placeholder.com/1200x400/50E3C2/FFFFFF?text=Custom+Tailoring',
+    image: 'https://picsum.photos/seed/tailoring/1200/400',
     headline: 'Tailor to Your Measurements',
     cta: 'Measurement Guide',
   },
   {
-    image: 'https://via.placeholder.com/1200x400/F5A623/FFFFFF?text=Exclusive+Designs',
+    image: 'https://picsum.photos/seed/designs/1200/400',
     headline: 'Exclusive Designs, Just for You',
     cta: 'View Designs',
   },

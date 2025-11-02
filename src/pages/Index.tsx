@@ -11,7 +11,7 @@ const sampleProducts = [
   {
     id: '1',
     name: 'Stylish Cotton Shirt',
-    imageUrl: 'https://via.placeholder.com/300x300/A0D995/FFFFFF?text=Shirt+1',
+    imageUrl: 'https://picsum.photos/seed/shirt1/300/300',
     price: 899,
     originalPrice: 1299,
     discount: 30,
@@ -22,7 +22,7 @@ const sampleProducts = [
   {
     id: '2',
     name: 'Premium Linen Pants',
-    imageUrl: 'https://via.placeholder.com/300x300/FFC7EA/FFFFFF?text=Pant+1',
+    imageUrl: 'https://picsum.photos/seed/pant1/300/300',
     price: 1499,
     originalPrice: 1999,
     discount: 25,
@@ -33,7 +33,7 @@ const sampleProducts = [
   {
     id: '3',
     name: 'Elegant Waistcoat',
-    imageUrl: 'https://via.placeholder.com/300x300/B0E0E6/FFFFFF?text=Waistcoat+1',
+    imageUrl: 'https://picsum.photos/seed/waistcoat1/300/300',
     price: 1199,
     originalPrice: 1599,
     discount: 25,
@@ -44,7 +44,7 @@ const sampleProducts = [
   {
     id: '4',
     name: 'Traditional Kurta',
-    imageUrl: 'https://via.placeholder.com/300x300/FFDAB9/FFFFFF?text=Kurta+1',
+    imageUrl: 'https://picsum.photos/seed/kurta1/300/300',
     price: 999,
     originalPrice: 1499,
     discount: 33,
@@ -55,7 +55,7 @@ const sampleProducts = [
   {
     id: '5',
     name: 'Formal Blazer',
-    imageUrl: 'https://via.placeholder.com/300x300/ADD8E6/FFFFFF?text=Blazer+1',
+    imageUrl: 'https://picsum.photos/seed/blazer1/300/300',
     price: 2499,
     originalPrice: 3499,
     discount: 28,
@@ -66,7 +66,7 @@ const sampleProducts = [
   {
     id: '6',
     name: 'Casual Denim Shirt',
-    imageUrl: 'https://via.placeholder.com/300x300/87CEEB/FFFFFF?text=Denim+Shirt+1',
+    imageUrl: 'https://picsum.photos/seed/denimshirt1/300/300',
     price: 799,
     originalPrice: 1099,
     discount: 27,
