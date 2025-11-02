@@ -5,7 +5,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Download, CheckCircle2 } from 'lucide-react'; // Import CheckCircle2 icon
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -303,9 +303,10 @@ const CheckoutPayment: React.FC = () => {
       {/* Order Success Dialog */}
       <Dialog open={showOrderSuccessDialog} onOpenChange={setShowOrderSuccessDialog}>
         <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="text-center text-green-600 text-2xl font-bold">Order Placed Successfully!</DialogTitle>
-            <DialogDescription className="text-center text-muted-foreground">
+          <DialogHeader className="flex flex-col items-center justify-center text-center space-y-4">
+            <CheckCircle2 className="h-20 w-20 text-green-500 animate-pop-in" /> {/* Animated Icon */}
+            <DialogTitle className="text-green-600 text-2xl font-bold">Order Placed Successfully!</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Your order has been placed and will be processed shortly. Thank you for shopping with us!
             </DialogDescription>
           </DialogHeader>
