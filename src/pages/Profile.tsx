@@ -55,7 +55,7 @@ const Profile: React.FC = () => {
     }
   };
 
-  const updateProfile = async (event: React.FormEvent) => {
+  const updateProfile = async (event: React.FormEvent, newAvatarUrl?: string | null) => {
     event.preventDefault();
     try {
       setLoading(true);
@@ -65,7 +65,7 @@ const Profile: React.FC = () => {
         id: user.id,
         first_name: firstName,
         last_name: lastName,
-        avatar_url: avatarUrl, // Include avatar_url in updates
+        avatar_url: newAvatarUrl !== undefined ? newAvatarUrl : avatarUrl, // Use newAvatarUrl if provided, otherwise current state
         updated_at: new Date().toISOString(),
       };
 
@@ -104,10 +104,11 @@ const Profile: React.FC = () => {
       }
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      setAvatarUrl(data.publicUrl);
+      const uploadedAvatarUrl = data.publicUrl;
+      setAvatarUrl(uploadedAvatarUrl); // Update local state
       showSuccess('Avatar uploaded successfully!');
-      // Automatically update profile with new avatar URL
-      await updateProfile({ preventDefault: () => {} } as React.FormEvent);
+      // Automatically update profile with new avatar URL, passing it directly
+      await updateProfile({ preventDefault: () => {} } as React.FormEvent, uploadedAvatarUrl);
     } catch (error) {
       console.error('Error uploading avatar:', error);
       showError('Failed to upload avatar.');
