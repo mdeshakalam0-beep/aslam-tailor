@@ -2,19 +2,19 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Toaster } from '@/components/ui/sonner'; // Using sonner for toasts
+import { Toaster } from '@/components/ui/sonner';
 
 interface SessionContextType {
   session: Session | null;
-  userRole: string | null; // Add userRole to the context type
+  userRole: string | null;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null); // State for user role
-  const [loading, setLoading] = useState(true); // Keep this true initially
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,54 +26,74 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
-      return data.role; // Return the role
+      if (error) {
+        console.error('Error fetching user role:', error);
+        return null;
+      }
+      return data.role;
     } catch (error) {
-      console.error('Error fetching user role:', error);
-      return null; // Return null on error
+      console.error('Unexpected error in fetchUserRole:', error);
+      return null;
     }
   };
 
   useEffect(() => {
-    const getInitialSession = async () => {
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
-      setSession(initialSession);
+    let isMounted = true; // Flag to prevent state updates on unmounted component
 
+    const initializeSession = async () => {
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      if (!isMounted) return;
+
+      setSession(initialSession);
+      let role = null;
       if (initialSession) {
-        const role = await fetchUserRole(initialSession.user.id);
+        role = await fetchUserRole(initialSession.user.id);
+        if (!isMounted) return;
         setUserRole(role);
         if (location.pathname === '/login') {
           navigate('/');
         }
       } else {
+        if (!isMounted) return;
         setUserRole(null);
         if (location.pathname !== '/login') {
           navigate('/login');
         }
       }
+      if (!isMounted) return;
       setLoading(false); // Set loading to false after initial session and role are determined
     };
 
-    getInitialSession();
+    initializeSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
-      setSession(currentSession);
+      if (!isMounted) return;
 
+      setSession(currentSession);
+      let role = null;
       if (currentSession) {
-        const role = await fetchUserRole(currentSession.user.id);
+        role = await fetchUserRole(currentSession.user.id);
+        if (!isMounted) return;
         setUserRole(role);
         if (location.pathname === '/login') {
           navigate('/');
         }
       } else {
+        if (!isMounted) return;
         setUserRole(null);
         if (location.pathname !== '/login') {
           navigate('/login');
         }
       }
+      // Ensure loading is false for any subsequent auth state changes as well
+      if (!isMounted) return;
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false; // Cleanup: set flag to false
+      subscription.unsubscribe();
+    };
   }, [navigate, location.pathname]);
 
   if (loading) {
