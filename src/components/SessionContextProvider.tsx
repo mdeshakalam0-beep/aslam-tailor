@@ -6,26 +6,46 @@ import { Toaster } from '@/components/ui/sonner'; // Using sonner for toasts
 
 interface SessionContextType {
   session: Session | null;
+  userRole: string | null; // Add userRole to the context type
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null); // State for user role
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
+  const fetchUserRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      setUserRole(data.role);
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+      setUserRole(null);
+    }
+  };
+
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
       setSession(currentSession);
       setLoading(false);
 
-      if (_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION') {
-        if (currentSession && location.pathname === '/login') {
+      if (currentSession) {
+        await fetchUserRole(currentSession.user.id); // Fetch role when session is active
+        if (location.pathname === '/login') {
           navigate('/'); // Redirect authenticated users from login page to home
         }
-      } else if (_event === 'SIGNED_OUT') {
+      } else {
+        setUserRole(null); // Clear role on sign out
         if (location.pathname !== '/login') {
           navigate('/login'); // Redirect unauthenticated users to login page
         }
@@ -33,14 +53,20 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
     });
 
     // Initial session check
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
       setSession(initialSession);
-      setLoading(false);
-      if (!initialSession && location.pathname !== '/login') {
-        navigate('/login');
-      } else if (initialSession && location.pathname === '/login') {
-        navigate('/');
+      if (initialSession) {
+        await fetchUserRole(initialSession.user.id);
+        if (location.pathname === '/login') {
+          navigate('/');
+        }
+      } else {
+        setUserRole(null);
+        if (location.pathname !== '/login') {
+          navigate('/login');
+        }
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -55,7 +81,7 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
   }
 
   return (
-    <SessionContext.Provider value={{ session }}>
+    <SessionContext.Provider value={{ session, userRole }}>
       {children}
       <Toaster /> {/* Ensure Toaster is available for notifications */}
     </SessionContext.Provider>
