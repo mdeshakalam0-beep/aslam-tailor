@@ -141,6 +141,47 @@ export const getProductsByCategory = async (categoryId: string): Promise<Product
   }
 };
 
+// Fetches recommended products (e.g., a random subset, excluding the current product)
+export const getRecommendedProducts = async (currentProductId: string, limit: number = 4): Promise<Product[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories ( name )
+      `)
+      .neq('id', currentProductId) // Exclude the current product
+      .limit(limit); // Limit the number of recommended products
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map(item => ({
+      id: item.id,
+      name: item.name,
+      imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
+      price: item.price,
+      originalPrice: item.original_price,
+      discount: item.discount,
+      rating: item.rating,
+      reviewsCount: item.reviews_count,
+      recentPurchase: item.recent_purchase,
+      images: item.image_urls,
+      sizes: item.sizes,
+      description: item.description,
+      boughtByUsers: item.bought_by_users,
+      category_id: item.category_id,
+      category_name: item.categories?.name || 'Uncategorized',
+    }));
+  } catch (error) {
+    console.error('Error fetching recommended products:', error);
+    showError('Failed to load recommended products.');
+    return [];
+  }
+};
+
+
 // Admin functions for CRUD operations
 export const createProduct = async (productData: Omit<Product, 'id' | 'imageUrl' | 'reviewsCount' | 'boughtByUsers' | 'category_name'>) => {
   try {
