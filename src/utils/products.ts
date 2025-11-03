@@ -15,6 +15,8 @@ export interface Product {
   sizes: string[];
   description: string;
   boughtByUsers: number;
+  category_id?: string; // New: Link to category
+  category_name?: string; // New: Category name for display
 }
 
 // Fetches all products from Supabase
@@ -22,7 +24,10 @@ export const getProducts = async (): Promise<Product[]> => {
   try {
     const { data, error } = await supabase
       .from('products')
-      .select('*')
+      .select(`
+        *,
+        categories ( name )
+      `)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -43,6 +48,8 @@ export const getProducts = async (): Promise<Product[]> => {
       sizes: item.sizes,
       description: item.description,
       boughtByUsers: item.bought_by_users,
+      category_id: item.category_id,
+      category_name: item.categories?.name || 'Uncategorized',
     }));
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -56,7 +63,10 @@ export const getProductById = async (id: string): Promise<Product | undefined> =
   try {
     const { data, error } = await supabase
       .from('products')
-      .select('*')
+      .select(`
+        *,
+        categories ( name )
+      `)
       .eq('id', id)
       .single();
 
@@ -79,6 +89,8 @@ export const getProductById = async (id: string): Promise<Product | undefined> =
         sizes: data.sizes,
         description: data.description,
         boughtByUsers: data.bought_by_users,
+        category_id: data.category_id,
+        category_name: data.categories?.name || 'Uncategorized',
       };
     }
     return undefined;
@@ -89,19 +101,48 @@ export const getProductById = async (id: string): Promise<Product | undefined> =
   }
 };
 
-// Gets recommended products (simple implementation for now)
-export const getRecommendedProducts = async (currentProductId: string): Promise<Product[]> => {
+// Fetches products by category ID
+export const getProductsByCategory = async (categoryId: string): Promise<Product[]> => {
   try {
-    const products = await getProducts();
-    return products.filter(product => product.id !== currentProductId).slice(0, 3);
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories ( name )
+      `)
+      .eq('category_id', categoryId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map(item => ({
+      id: item.id,
+      name: item.name,
+      imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
+      price: item.price,
+      originalPrice: item.original_price,
+      discount: item.discount,
+      rating: item.rating,
+      reviewsCount: item.reviews_count,
+      recentPurchase: item.recent_purchase,
+      images: item.image_urls,
+      sizes: item.sizes,
+      description: item.description,
+      boughtByUsers: item.bought_by_users,
+      category_id: item.category_id,
+      category_name: item.categories?.name || 'Uncategorized',
+    }));
   } catch (error) {
-    console.error('Error fetching recommended products:', error);
+    console.error('Error fetching products by category:', error);
+    showError('Failed to load products for this category.');
     return [];
   }
 };
 
 // Admin functions for CRUD operations
-export const createProduct = async (productData: Omit<Product, 'id' | 'imageUrl' | 'reviewsCount' | 'boughtByUsers'>) => {
+export const createProduct = async (productData: Omit<Product, 'id' | 'imageUrl' | 'reviewsCount' | 'boughtByUsers' | 'category_name'>) => {
   try {
     const { data, error } = await supabase
       .from('products')
@@ -114,6 +155,7 @@ export const createProduct = async (productData: Omit<Product, 'id' | 'imageUrl'
         rating: productData.rating,
         image_urls: productData.images,
         sizes: productData.sizes,
+        category_id: productData.category_id, // New: Include category_id
       })
       .select()
       .single();
@@ -130,7 +172,7 @@ export const createProduct = async (productData: Omit<Product, 'id' | 'imageUrl'
   }
 };
 
-export const updateProduct = async (id: string, productData: Partial<Omit<Product, 'id' | 'imageUrl'>>) => {
+export const updateProduct = async (id: string, productData: Partial<Omit<Product, 'id' | 'imageUrl' | 'category_name'>>) => {
   try {
     const { data, error } = await supabase
       .from('products')
@@ -143,6 +185,7 @@ export const updateProduct = async (id: string, productData: Partial<Omit<Produc
         rating: productData.rating,
         image_urls: productData.images,
         sizes: productData.sizes,
+        category_id: productData.category_id, // New: Include category_id
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
