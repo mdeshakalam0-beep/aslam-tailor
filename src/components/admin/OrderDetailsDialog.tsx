@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client'; // Import createRoot for rendering in new window
 import {
   Dialog,
   DialogContent,
@@ -14,7 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { showSuccess, showError } from '@/utils/toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Printer } from 'lucide-react'; // Import Printer icon
+import DeliverySlip from './DeliverySlip'; // Import the new DeliverySlip component
 
 // Re-using interfaces from src/pages/Orders.tsx
 interface OrderItem {
@@ -56,9 +58,10 @@ interface OrderDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onOrderUpdated: () => void; // Callback to refresh orders list
+  customerName: string; // Added customerName prop
 }
 
-const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, onClose, onOrderUpdated }) => {
+const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, onClose, onOrderUpdated, customerName }) => {
   const [currentStatus, setCurrentStatus] = useState(order?.status || '');
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -87,6 +90,7 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
       case 'pending': return 'secondary';
       case 'shipped': return 'outline';
       case 'cancelled': return 'destructive';
+      case 'processing': return 'accent';
       default: return 'secondary';
     }
   };
@@ -112,6 +116,42 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
       showError('Failed to update order status.');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handlePrintDeliverySlip = () => {
+    if (!order) {
+      showError('No order data available to print.');
+      return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (printWindow) {
+      printWindow.document.write('<!DOCTYPE html><html><head><title>Delivery Slip</title>');
+      // Copy styles from the main document
+      const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
+      styles.forEach(style => {
+        printWindow.document.head.appendChild(style.cloneNode(true));
+      });
+      printWindow.document.write('</head><body><div id="print-root"></div></body></html>');
+      printWindow.document.close();
+
+      const printRoot = printWindow.document.getElementById('print-root');
+      if (printRoot) {
+        const root = createRoot(printRoot);
+        root.render(<DeliverySlip order={order} customerName={customerName} />);
+      }
+
+      // Wait for content to render and styles to load before printing
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          // Optionally close the window after printing
+          // printWindow.close();
+        }, 500); // Small delay to ensure rendering
+      };
+    } else {
+      showError('Failed to open print window. Please allow pop-ups.');
     }
   };
 
@@ -198,18 +238,28 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Close</Button>
-          <Button onClick={handleStatusChange} disabled={isUpdating || currentStatus === order.status}>
-            {isUpdating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Updating...
-              </>
-            ) : (
-              'Save Changes'
-            )}
-          </Button>
+        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
+          <Button variant="outline" onClick={onClose} className="w-full sm:w-auto">Close</Button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button
+              variant="secondary"
+              onClick={handlePrintDeliverySlip}
+              className="w-full sm:w-auto"
+              disabled={!order}
+            >
+              <Printer className="mr-2 h-4 w-4" /> Print Delivery Slip
+            </Button>
+            <Button onClick={handleStatusChange} disabled={isUpdating || currentStatus === order.status} className="w-full sm:w-auto">
+              {isUpdating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                'Save Changes'
+              )}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
