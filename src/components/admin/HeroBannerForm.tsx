@@ -19,7 +19,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
   const [imageUrl, setImageUrl] = useState(initialData?.image_url || '');
   const [headline, setHeadline] = useState(initialData?.headline || '');
   const [ctaText, setCtaText] = useState(initialData?.cta_text || '');
-  const [ctaLink, setCtaLink] = useState(initialData?.cta_link || '');
+  const [ctaLink, setCtaLink] = useState<string | null>(initialData?.cta_link || null); // Made optional
   const [order, setOrder] = useState(initialData?.order?.toString() || '0');
 
   const [useUrlInput, setUseUrlInput] = useState(true);
@@ -31,7 +31,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
       setImageUrl(initialData.image_url);
       setHeadline(initialData.headline);
       setCtaText(initialData.cta_text);
-      setCtaLink(initialData.cta_link);
+      setCtaLink(initialData.cta_link || null); // Ensure it's null if empty
       setOrder(initialData.order?.toString() || '0');
       setUseUrlInput(true); // Assume URL input for existing banners
       setSelectedFile(null);
@@ -108,7 +108,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
       image_url: finalImageUrl,
       headline,
       cta_text: ctaText,
-      cta_link: ctaLink,
+      cta_link: ctaLink || '', // Ensure it's an empty string if null for database
       order: parseInt(order),
     };
 
@@ -196,14 +196,14 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
             />
           </div>
           <div>
-            <Label htmlFor="ctaLink">Call to Action Link (URL)</Label>
+            <Label htmlFor="ctaLink">Call to Action Link (URL) (Optional)</Label>
             <Input
               id="ctaLink"
               type="url"
-              value={ctaLink}
-              onChange={(e) => setCtaLink(e.target.value)}
+              value={ctaLink || ''} // Ensure value is always a string
+              onChange={(e) => setCtaLink(e.target.value || null)} // Set to null if empty
               placeholder="e.g., /products"
-              required
+              // Removed 'required' attribute
             />
           </div>
           <div>
