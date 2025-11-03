@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button'; // Import Button
+import { Eye, Pencil } from 'lucide-react'; // Import Eye and Pencil icons
 import { supabase } from '@/integrations/supabase/client';
 import { showError } from '@/utils/toast';
 import { format } from 'date-fns';
+import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog'; // Import the new dialog component
 
 interface OrderItem {
   id: string;
@@ -36,7 +39,7 @@ interface Order {
   payment_method?: string;
   transaction_id?: string;
   donation_amount?: number;
-  user_id: string; // Added user_id to link with profiles
+  user_id: string;
 }
 
 interface Profile {
@@ -50,44 +53,46 @@ const OrderManagement: React.FC = () => {
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  const fetchOrdersAndProfiles = async () => {
+    setLoading(true);
+    try {
+      const { data: ordersData, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .order('order_date', { ascending: false });
+
+      if (ordersError) throw ordersError;
+
+      setOrders(ordersData as Order[]);
+
+      // Fetch profiles for all unique user_ids in orders
+      const uniqueUserIds = Array.from(new Set(ordersData.map(order => order.user_id)));
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name')
+        .in('id', uniqueUserIds);
+
+      if (profilesError) throw profilesError;
+
+      const profilesMap: Record<string, Profile> = {};
+      profilesData.forEach(profile => {
+        profilesMap[profile.id] = profile;
+      });
+      setProfiles(profilesMap);
+
+    } catch (err) {
+      console.error('Error fetching orders or profiles:', err);
+      setError('Failed to load orders. Please try again.');
+      showError('Failed to load orders.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchOrdersAndProfiles = async () => {
-      setLoading(true);
-      try {
-        const { data: ordersData, error: ordersError } = await supabase
-          .from('orders')
-          .select('*')
-          .order('order_date', { ascending: false });
-
-        if (ordersError) throw ordersError;
-
-        setOrders(ordersData as Order[]);
-
-        // Fetch profiles for all unique user_ids in orders
-        const uniqueUserIds = Array.from(new Set(ordersData.map(order => order.user_id)));
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, first_name, last_name')
-          .in('id', uniqueUserIds);
-
-        if (profilesError) throw profilesError;
-
-        const profilesMap: Record<string, Profile> = {};
-        profilesData.forEach(profile => {
-          profilesMap[profile.id] = profile;
-        });
-        setProfiles(profilesMap);
-
-      } catch (err) {
-        console.error('Error fetching orders or profiles:', err);
-        setError('Failed to load orders. Please try again.');
-        showError('Failed to load orders.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOrdersAndProfiles();
   }, []);
 
@@ -97,6 +102,7 @@ const OrderManagement: React.FC = () => {
       case 'pending': return 'secondary';
       case 'shipped': return 'outline';
       case 'cancelled': return 'destructive';
+      case 'processing': return 'accent'; // Added processing status
       default: return 'secondary';
     }
   };
@@ -104,6 +110,28 @@ const OrderManagement: React.FC = () => {
   const getCustomerName = (userId: string) => {
     const profile = profiles[userId];
     return profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'N/A' : 'N/A';
+  };
+
+  const formatPaymentMethod = (method?: string) => {
+    switch (method) {
+      case 'cod':
+        return 'COD';
+      case 'qr_code':
+        return 'QR Code';
+      case 'phonepe':
+        return 'PhonePe';
+      default:
+        return 'N/A';
+    }
+  };
+
+  const handleViewEditOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setIsDetailsDialogOpen(true);
+  };
+
+  const handleOrderUpdated = () => {
+    fetchOrdersAndProfiles(); // Re-fetch orders to get the latest status
   };
 
   return (
@@ -127,7 +155,9 @@ const OrderManagement: React.FC = () => {
                   <TableRow>
                     <TableHead>Order ID</TableHead>
                     <TableHead>Customer</TableHead>
+                    <TableHead>Items</TableHead> {/* New column */}
                     <TableHead>Amount</TableHead>
+                    <TableHead>Payment</TableHead> {/* New column */}
                     <TableHead>Status</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
@@ -138,7 +168,26 @@ const OrderManagement: React.FC = () => {
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.id.substring(0, 8)}</TableCell>
                       <TableCell>{getCustomerName(order.user_id)}</TableCell>
+                      <TableCell>
+                        <div className="flex -space-x-2 overflow-hidden">
+                          {order.items.slice(0, 3).map((item, idx) => (
+                            <img
+                              key={idx}
+                              src={item.imageUrl}
+                              alt={item.name}
+                              className="inline-block h-8 w-8 rounded-full ring-2 ring-background object-cover"
+                              title={item.name}
+                            />
+                          ))}
+                          {order.items.length > 3 && (
+                            <span className="inline-block h-8 w-8 rounded-full ring-2 ring-background bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                              +{order.items.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>₹{order.total_amount.toLocaleString()}</TableCell>
+                      <TableCell>{formatPaymentMethod(order.payment_method)}</TableCell> {/* Display payment method */}
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(order.status)}>
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -146,8 +195,9 @@ const OrderManagement: React.FC = () => {
                       </TableCell>
                       <TableCell>{format(new Date(order.order_date), 'PPP')}</TableCell>
                       <TableCell className="text-right">
-                        {/* Add action buttons here, e.g., View Details, Update Status */}
-                        <span className="text-muted-foreground text-sm">View / Edit</span>
+                        <Button variant="ghost" size="icon" onClick={() => handleViewEditOrder(order)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -157,6 +207,15 @@ const OrderManagement: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {selectedOrder && (
+        <OrderDetailsDialog
+          order={selectedOrder}
+          isOpen={isDetailsDialogOpen}
+          onClose={() => setIsDetailsDialogOpen(false)}
+          onOrderUpdated={handleOrderUpdated}
+        />
+      )}
     </div>
   );
 };
