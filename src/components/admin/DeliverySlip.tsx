@@ -1,7 +1,7 @@
 import React from 'react';
 import { format } from 'date-fns';
+import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
 
-// Re-using interfaces from src/pages/Orders.tsx
 interface OrderItem {
   id: string;
   name: string;
@@ -34,6 +34,7 @@ interface Order {
   donation_amount?: number;
   user_id: string;
   updated_at?: string;
+  user_measurements?: UserMeasurements; // Added user_measurements
 }
 
 interface DeliverySlipProps {
@@ -54,6 +55,8 @@ const DeliverySlip: React.FC<DeliverySlipProps> = ({ order, customerName }) => {
         return 'N/A';
     }
   };
+
+  const hasMeasurements = order.user_measurements && Object.values(order.user_measurements).some(val => val !== null && val !== undefined);
 
   return (
     <div className="p-6 bg-white text-gray-900 min-h-screen print:p-0 print:text-black">
@@ -97,6 +100,20 @@ const DeliverySlip: React.FC<DeliverySlipProps> = ({ order, customerName }) => {
             <p>Address details not available.</p>
           )}
         </div>
+
+        {/* Customer Measurements */}
+        {hasMeasurements && (
+          <div className="mb-6 border p-4 rounded-md bg-gray-50 print:border-2 print:border-black print:bg-white">
+            <h3 className="text-lg font-bold mb-2">Customer Measurements (inches):</h3>
+            <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+              {order.user_measurements?.chest && <div><span className="font-semibold">Chest:</span> {order.user_measurements.chest}</div>}
+              {order.user_measurements?.waist && <div><span className="font-semibold">Waist:</span> {order.user_measurements.waist}</div>}
+              {order.user_measurements?.sleeve_length && <div><span className="font-semibold">Sleeve Length:</span> {order.user_measurements.sleeve_length}</div>}
+              {order.user_measurements?.shoulder && <div><span className="font-semibold">Shoulder:</span> {order.user_measurements.shoulder}</div>}
+              {order.user_measurements?.neck && <div><span className="font-semibold">Neck:</span> {order.user_measurements.neck}</div>}
+            </div>
+          </div>
+        )}
 
         {/* Ordered Items */}
         <div className="mb-6">

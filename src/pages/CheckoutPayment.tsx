@@ -5,7 +5,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Download, CheckCircle2 } from 'lucide-react'; // Import CheckCircle2 icon
+import { ArrowLeft, Download, CheckCircle2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,7 +20,7 @@ import {
 import { showSuccess, showError } from '@/utils/toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/components/SessionContextProvider';
-import { CheckoutAddress, CheckoutItem } from '@/types/checkout';
+import { CheckoutAddress, CheckoutItem, UserMeasurements } from '@/types/checkout'; // Import UserMeasurements type
 
 interface AppSettings {
   qr_code_url?: string;
@@ -32,6 +32,7 @@ const CheckoutPayment: React.FC = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<CheckoutItem[]>([]);
   const [address, setAddress] = useState<CheckoutAddress | null>(null);
+  const [userMeasurements, setUserMeasurements] = useState<UserMeasurements | null>(null); // New state for measurements
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('cod');
   const [transactionId, setTransactionId] = useState<string>('');
@@ -60,7 +61,8 @@ const CheckoutPayment: React.FC = () => {
     }
 
     fetchAppSettings();
-  }, [navigate]);
+    fetchUserMeasurements(); // Fetch user measurements
+  }, [navigate, session]);
 
   const fetchAppSettings = async () => {
     try {
@@ -79,6 +81,23 @@ const CheckoutPayment: React.FC = () => {
     } catch (error) {
       console.error('Error fetching app settings:', error);
       showError('Failed to load payment settings.');
+    }
+  };
+
+  const fetchUserMeasurements = async () => {
+    if (!session?.user) return;
+    try {
+      const { data, error } = await supabase
+        .from('measurements')
+        .select('chest, waist, sleeve_length, shoulder, neck')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setUserMeasurements(data || null);
+    } catch (error) {
+      console.error('Error fetching user measurements:', error);
+      showError('Failed to load your measurements.');
     }
   };
 
@@ -134,6 +153,7 @@ const CheckoutPayment: React.FC = () => {
         payment_method: selectedPaymentMethod,
         transaction_id: selectedPaymentMethod === 'qr_code' ? transactionId : null,
         donation_amount: donateAmount ? 10 : null,
+        user_measurements: userMeasurements, // Include user measurements
       });
 
       if (error) {
@@ -304,7 +324,7 @@ const CheckoutPayment: React.FC = () => {
       <Dialog open={showOrderSuccessDialog} onOpenChange={setShowOrderSuccessDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader className="flex flex-col items-center justify-center text-center space-y-4">
-            <CheckCircle2 className="h-20 w-20 text-green-500 animate-pop-in" /> {/* Animated Icon */}
+            <CheckCircle2 className="h-20 w-20 text-green-500 animate-pop-in" />
             <DialogTitle className="text-green-600 text-2xl font-bold">Order Placed Successfully!</DialogTitle>
             <DialogDescription className="text-muted-foreground">
               Your order has been placed and will be processed shortly. Thank you for shopping with us!

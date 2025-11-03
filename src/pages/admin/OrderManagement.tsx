@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button'; // Import Button
-import { Eye, Pencil } from 'lucide-react'; // Import Eye and Pencil icons
+import { Button } from '@/components/ui/button';
+import { Eye, Pencil } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { showError } from '@/utils/toast';
 import { format } from 'date-fns';
-import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog'; // Import the new dialog component
+import OrderDetailsDialog from '@/components/admin/OrderDetailsDialog';
+import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
 
 interface OrderItem {
   id: string;
@@ -40,7 +41,8 @@ interface Order {
   transaction_id?: string;
   donation_amount?: number;
   user_id: string;
-  updated_at?: string; // Added updated_at
+  updated_at?: string;
+  user_measurements?: UserMeasurements; // Added user_measurements
 }
 
 interface Profile {
@@ -69,7 +71,6 @@ const OrderManagement: React.FC = () => {
 
       setOrders(ordersData as Order[]);
 
-      // Fetch profiles for all unique user_ids in orders
       const uniqueUserIds = Array.from(new Set(ordersData.map(order => order.user_id)));
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
@@ -103,7 +104,7 @@ const OrderManagement: React.FC = () => {
       case 'pending': return 'secondary';
       case 'shipped': return 'outline';
       case 'cancelled': return 'destructive';
-      case 'processing': return 'accent'; // Added processing status
+      case 'processing': return 'accent';
       default: return 'secondary';
     }
   };
@@ -132,7 +133,7 @@ const OrderManagement: React.FC = () => {
   };
 
   const handleOrderUpdated = () => {
-    fetchOrdersAndProfiles(); // Re-fetch orders to get the latest status
+    fetchOrdersAndProfiles();
   };
 
   return (
@@ -208,6 +209,7 @@ const OrderManagement: React.FC = () => {
           isOpen={isDetailsDialogOpen}
           onClose={() => setIsDetailsDialogOpen(false)}
           onOrderUpdated={handleOrderUpdated}
+          customerName={getCustomerName(selectedOrder.user_id)}
         />
       )}
     </div>

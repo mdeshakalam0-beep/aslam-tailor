@@ -17,3 +17,11 @@ export interface CheckoutItem {
   quantity: number;
   selectedSize?: string;
 }
+
+export interface UserMeasurements {
+  chest?: number | null;
+  waist?: number | null;
+  sleeve_length?: number | null;
+  shoulder?: number | null;
+  neck?: number | null;
+}

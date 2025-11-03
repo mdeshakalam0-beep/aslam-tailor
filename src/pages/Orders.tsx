@@ -7,6 +7,7 @@ import { useSession } from '@/components/SessionContextProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { showSuccess, showError } from '@/utils/toast';
 import { format } from 'date-fns';
+import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
 
 interface OrderItem {
   id: string;
@@ -38,7 +39,8 @@ interface Order {
   payment_method?: string;
   transaction_id?: string;
   donation_amount?: number;
-  updated_at?: string; // Added updated_at
+  updated_at?: string;
+  user_measurements?: UserMeasurements; // Added user_measurements
 }
 
 const Orders: React.FC = () => {

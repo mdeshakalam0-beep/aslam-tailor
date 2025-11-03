@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client'; // Import createRoot for rendering in new window
+import { createRoot } from 'react-dom/client';
 import {
   Dialog,
   DialogContent,
@@ -15,10 +15,10 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { showSuccess, showError } from '@/utils/toast';
-import { Loader2, Printer } from 'lucide-react'; // Import Printer icon
-import DeliverySlip from './DeliverySlip'; // Import the new DeliverySlip component
+import { Loader2, Printer } from 'lucide-react';
+import DeliverySlip from './DeliverySlip';
+import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
 
-// Re-using interfaces from src/pages/Orders.tsx
 interface OrderItem {
   id: string;
   name: string;
@@ -50,15 +50,16 @@ interface Order {
   transaction_id?: string;
   donation_amount?: number;
   user_id: string;
-  updated_at?: string; // Added updated_at
+  updated_at?: string;
+  user_measurements?: UserMeasurements; // Added user_measurements
 }
 
 interface OrderDetailsDialogProps {
   order: Order | null;
   isOpen: boolean;
   onClose: () => void;
-  onOrderUpdated: () => void; // Callback to refresh orders list
-  customerName: string; // Added customerName prop
+  onOrderUpdated: () => void;
+  customerName: string;
 }
 
 const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, onClose, onOrderUpdated, customerName }) => {
@@ -109,8 +110,8 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
         throw error;
       }
       showSuccess('Order status updated successfully!');
-      onOrderUpdated(); // Refresh the parent list
-      onClose(); // Close dialog after update
+      onOrderUpdated();
+      onClose();
     } catch (err) {
       console.error('Error updating order status:', err);
       showError('Failed to update order status.');
@@ -128,7 +129,6 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
     const printWindow = window.open('', '_blank', 'width=800,height=600');
     if (printWindow) {
       printWindow.document.write('<!DOCTYPE html><html><head><title>Delivery Slip</title>');
-      // Copy styles from the main document
       const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
       styles.forEach(style => {
         printWindow.document.head.appendChild(style.cloneNode(true));
@@ -142,13 +142,10 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
         root.render(<DeliverySlip order={order} customerName={customerName} />);
       }
 
-      // Wait for content to render and styles to load before printing
       printWindow.onload = () => {
         setTimeout(() => {
           printWindow.print();
-          // Optionally close the window after printing
-          // printWindow.close();
-        }, 500); // Small delay to ensure rendering
+        }, 500);
       };
     } else {
       showError('Failed to open print window. Please allow pop-ups.');
@@ -156,6 +153,8 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
   };
 
   if (!order) return null;
+
+  const hasMeasurements = order.user_measurements && Object.values(order.user_measurements).some(val => val !== null && val !== undefined);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -217,6 +216,19 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
               {order.transaction_id && (
                 <p className="text-sm text-muted-foreground">Transaction ID: {order.transaction_id}</p>
               )}
+            </div>
+          )}
+
+          {hasMeasurements && (
+            <div className="col-span-4 border-t pt-4 mt-4">
+              <h3 className="text-lg font-semibold mb-2">Customer Measurements (inches)</h3>
+              <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                {order.user_measurements?.chest && <div><span className="font-medium">Chest:</span> {order.user_measurements.chest}</div>}
+                {order.user_measurements?.waist && <div><span className="font-medium">Waist:</span> {order.user_measurements.waist}</div>}
+                {order.user_measurements?.sleeve_length && <div><span className="font-medium">Sleeve Length:</span> {order.user_measurements.sleeve_length}</div>}
+                {order.user_measurements?.shoulder && <div><span className="font-medium">Shoulder:</span> {order.user_measurements.shoulder}</div>}
+                {order.user_measurements?.neck && <div><span className="font-medium">Neck:</span> {order.user_measurements.neck}</div>}
+              </div>
             </div>
           )}
 
