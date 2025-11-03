@@ -1,10 +1,11 @@
 import React from 'react';
-import { Heart, Bell, ShoppingCart, UserCog } from 'lucide-react'; // Import ShoppingCart and UserCog icon
+import { Heart, ShoppingCart, UserCog } from 'lucide-react'; // Removed Bell icon
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { useFavoritesCount } from '@/hooks/use-favorites-count';
 import { useCartCount } from '@/hooks/use-cart-count';
 import { useSession } from '@/components/SessionContextProvider'; // Import useSession
+import NotificationDropdown from '@/components/NotificationDropdown'; // Import NotificationDropdown
 
 const Header: React.FC = () => {
   const favoritesCount = useFavoritesCount();
@@ -43,7 +44,7 @@ const Header: React.FC = () => {
             </Badge>
           )}
         </Link>
-        <Bell className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
+        <NotificationDropdown /> {/* Integrated NotificationDropdown */}
       </div>
     </header>
   );

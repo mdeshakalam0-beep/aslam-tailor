@@ -19,7 +19,8 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import OrderManagement from "./pages/admin/OrderManagement";
 import UserManagement from "./pages/admin/UserManagement";
 import AppSettings from "./pages/admin/AppSettings";
-import HeroBannerManagement from "./pages/admin/HeroBannerManagement"; // Import new admin banner management
+import HeroBannerManagement from "./pages/admin/HeroBannerManagement";
+import NotificationManagement from "./pages/admin/NotificationManagement"; // Import new admin notification management
 
 const queryClient = new QueryClient();
 
@@ -46,7 +47,8 @@ const App = () => (
               <Route path="products" element={<ProductManagement />} />
               <Route path="orders" element={<OrderManagement />} />
               <Route path="users" element={<UserManagement />} />
-              <Route path="banners" element={<HeroBannerManagement />} /> {/* New admin banner route */}
+              <Route path="banners" element={<HeroBannerManagement />} />
+              <Route path="notifications" element={<NotificationManagement />} /> {/* New admin notification route */}
               <Route path="settings" element={<AppSettings />} />
             </Route>
 
