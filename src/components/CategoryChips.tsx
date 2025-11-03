@@ -1,22 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
-import { Shirt, Tally3, Ruler, Hand, Crown, Briefcase } from 'lucide-react';
-
-const categories = [
-  { name: 'Shirts', icon: Shirt },
-  { name: 'Coats', icon: Tally3 },
-  { name: 'Pants', icon: Ruler },
-  { name: 'Kurta', icon: Hand },
-  { name: 'Waistcoat', icon: Crown },
-  { name: 'Sherwani', icon: Briefcase },
-  { name: 'Kurta-Pajama', icon: Shirt },
-];
+import { getCategories, Category } from '@/utils/categories'; // Import getCategories and Category interface
+import { Link } from 'react-router-dom';
 
 const CategoryChips: React.FC = () => {
-  const plugin = React.useRef(
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false, playOnInit: true })
   );
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      const fetchedCategories = await getCategories();
+      setCategories(fetchedCategories);
+      setLoading(false);
+    };
+    fetchCategories();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-4 flex justify-center items-center">
+        <p className="text-muted-foreground">Loading categories...</p>
+      </div>
+    );
+  }
+
+  if (categories.length === 0) {
+    return (
+      <div className="p-4 flex justify-center items-center">
+        <p className="text-muted-foreground">No categories available.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
@@ -29,18 +49,18 @@ const CategoryChips: React.FC = () => {
         className="w-full"
       >
         <CarouselContent className="-ml-2">
-          {categories.map((category, index) => (
-            <CarouselItem key={index} className="pl-2 basis-1/3 sm:basis-1/4 md:basis-1/6 lg:basis-1/8">
-              <div className="p-1">
+          {categories.map((category) => (
+            <CarouselItem key={category.id} className="pl-2 basis-1/3 sm:basis-1/4 md:basis-1/6 lg:basis-1/8">
+              <Link to={`/categories/${category.id}`} className="block p-1">
                 <div className="flex flex-col items-center justify-center space-y-1 cursor-pointer hover:opacity-80 transition-opacity">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-secondary rounded-full flex items-center justify-center shadow-sm">
-                    <category.icon className="h-8 w-8 md:h-10 md:w-10 text-primary" />
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-secondary rounded-full flex items-center justify-center shadow-sm overflow-hidden">
+                    <img src={category.image_url} alt={category.name} className="w-full h-full object-cover" />
                   </div>
                   <span className="text-sm text-center font-medium text-foreground">
                     {category.name}
                   </span>
                 </div>
-              </div>
+              </Link>
             </CarouselItem>
           ))}
         </CarouselContent>

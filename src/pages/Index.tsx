@@ -29,7 +29,7 @@ const Index: React.FC = () => {
       <main className="container mx-auto p-0 md:p-4">
         <div className="space-y-6">
           <HeroCarousel />
-          <SearchBar />
+          <SearchBar /> {/* SearchBar should be above CategoryChips */}
           <CategoryChips />
 
           <section className="px-4 md:px-0">

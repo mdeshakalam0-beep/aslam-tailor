@@ -7,12 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Product } from '@/utils/products';
 import { showSuccess, showError } from '@/utils/toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Switch } from '@/components/ui/switch'; // Import Switch component
-import { Loader2, Image as ImageIcon } from 'lucide-react'; // Import icons
+import { Switch } from '@/components/ui/switch';
+import { Loader2, Image as ImageIcon } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Import Select components
+import { getCategories, Category } from '@/utils/categories'; // Import getCategories
 
 interface ProductFormProps {
   initialData?: Product;
-  onSubmit: (data: Omit<Product, 'id' | 'imageUrl' | 'reviewsCount' | 'boughtByUsers'>) => Promise<void>;
+  onSubmit: (data: Omit<Product, 'id' | 'imageUrl' | 'reviewsCount' | 'boughtByUsers' | 'category_name'>) => Promise<void>;
   loading: boolean;
 }
 
@@ -25,10 +27,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
   const [rating, setRating] = useState(initialData?.rating?.toString() || '');
   const [imageUrls, setImageUrls] = useState(initialData?.images.join('\n') || '');
   const [sizes, setSizes] = useState(initialData?.sizes.join(', ') || '');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(initialData?.category_id || undefined); // New state for category
+  const [categories, setCategories] = useState<Category[]>([]); // State to store available categories
 
   const [useUrlInput, setUseUrlInput] = useState(true); // State to toggle between URL and file upload
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const fetchedCategories = await getCategories();
+      setCategories(fetchedCategories);
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -40,6 +52,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       setRating(initialData.rating?.toString() || '');
       setImageUrls(initialData.images.join('\n'));
       setSizes(initialData.sizes.join(', '));
+      setSelectedCategoryId(initialData.category_id || undefined); // Set initial category
       // If initialData has images, assume URL input was used or display them as URLs
       setUseUrlInput(true); 
       setSelectedFiles([]); // Clear selected files on edit
@@ -47,6 +60,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       // Reset for new product
       setUseUrlInput(true);
       setSelectedFiles([]);
+      setSelectedCategoryId(undefined); // Clear selected category for new product
     }
   }, [initialData]);
 
@@ -128,6 +142,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       rating: rating ? parseFloat(rating) : undefined,
       images: finalImageUrls,
       sizes: sizes.split(',').map(s => s.trim()).filter(s => s !== ''),
+      category_id: selectedCategoryId, // New: Include selected category ID
     };
 
     await onSubmit(productData);
@@ -216,6 +231,23 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 step="0.1"
               />
             </div>
+          </div>
+
+          {/* Category Selection */}
+          <div>
+            <Label htmlFor="category">Category</Label>
+            <Select onValueChange={setSelectedCategoryId} value={selectedCategoryId}>
+              <SelectTrigger id="category">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Image Upload Options */}
