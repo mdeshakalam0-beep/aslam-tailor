@@ -26,7 +26,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmit, load
   useEffect(() => {
     if (initialData) {
       setName(initialData.name);
-      setImageUrl(initialData.image_url);
+      setImageUrl(initialData.image_url || ''); // Ensure it's always a string
       setUseUrlInput(true); // Assume URL input for existing categories
       setSelectedFile(null); // Clear selected file on edit
     } else {

@@ -28,7 +28,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
 
   useEffect(() => {
     if (initialData) {
-      setImageUrl(initialData.image_url);
+      setImageUrl(initialData.image_url || ''); // Ensure it's always a string
       setHeadline(initialData.headline);
       setCtaText(initialData.cta_text);
       setCtaLink(initialData.cta_link || null); // Ensure it's null if empty
