@@ -38,6 +38,7 @@ interface Order {
   payment_method?: string;
   transaction_id?: string;
   donation_amount?: number;
+  updated_at?: string; // Added updated_at
 }
 
 const Orders: React.FC = () => {

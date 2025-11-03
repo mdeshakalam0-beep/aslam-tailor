@@ -48,6 +48,7 @@ interface Order {
   transaction_id?: string;
   donation_amount?: number;
   user_id: string;
+  updated_at?: string; // Added updated_at
 }
 
 interface OrderDetailsDialogProps {
