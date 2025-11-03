@@ -153,14 +153,7 @@ const OrderManagement: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Order ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Items</TableHead> {/* New column */}
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Payment</TableHead> {/* New column */}
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>Order ID</TableHead><TableHead>Customer</TableHead><TableHead>Items</TableHead><TableHead>Amount</TableHead><TableHead>Payment</TableHead><TableHead>Status</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -187,7 +180,7 @@ const OrderManagement: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>₹{order.total_amount.toLocaleString()}</TableCell>
-                      <TableCell>{formatPaymentMethod(order.payment_method)}</TableCell> {/* Display payment method */}
+                      <TableCell>{formatPaymentMethod(order.payment_method)}</TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(order.status)}>
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
