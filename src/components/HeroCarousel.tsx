@@ -1,30 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { Button } from '@/components/ui/button';
-
-const slides = [
-  {
-    image: 'https://picsum.photos/seed/collection/1200/400',
-    headline: 'View Latest Collection',
-    cta: 'Shop Now',
-  },
-  {
-    image: 'https://picsum.photos/seed/tailoring/1200/400',
-    headline: 'Tailor to Your Measurements',
-    cta: 'Measurement Guide',
-  },
-  {
-    image: 'https://picsum.photos/seed/designs/1200/400',
-    headline: 'Exclusive Designs, Just for You',
-    cta: 'View Designs',
-  },
-];
+import { getHeroBanners, HeroBanner } from '@/utils/banners'; // Import getHeroBanners and HeroBanner interface
+import { Link } from 'react-router-dom'; // Import Link for CTA
 
 const HeroCarousel: React.FC = () => {
-  const plugin = React.useRef(
+  const [slides, setSlides] = useState<HeroBanner[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const plugin = useRef(
     Autoplay({ delay: 4000, stopOnInteraction: false })
   );
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      setLoading(true);
+      const fetchedBanners = await getHeroBanners();
+      setSlides(fetchedBanners);
+      setLoading(false);
+    };
+    fetchBanners();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="relative w-full h-[200px] md:h-[400px] flex items-center justify-center bg-muted rounded-lg shadow-md">
+        <p className="text-muted-foreground">Loading banners...</p>
+      </div>
+    );
+  }
+
+  if (slides.length === 0) {
+    return (
+      <div className="relative w-full h-[200px] md:h-[400px] flex items-center justify-center bg-muted rounded-lg shadow-md">
+        <p className="text-muted-foreground">No banners available.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg shadow-md">
@@ -37,13 +50,15 @@ const HeroCarousel: React.FC = () => {
         <CarouselContent>
           {slides.map((slide, index) => (
             <CarouselItem key={index}>
-              <div className="relative w-full h-[200px] md:h-[400px] bg-cover bg-center" style={{ backgroundImage: `url(${slide.image})` }}>
+              <div className="relative w-full h-[200px] md:h-[400px] bg-cover bg-center" style={{ backgroundImage: `url(${slide.image_url})` }}>
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center p-4">
                   <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">
                     {slide.headline}
                   </h2>
-                  <Button className="bg-accent text-accent-foreground hover:bg-accent/90">
-                    {slide.cta}
+                  <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+                    <Link to={slide.cta_link}>
+                      {slide.cta_text}
+                    </Link>
                   </Button>
                 </div>
               </div>

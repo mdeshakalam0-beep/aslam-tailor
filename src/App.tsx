@@ -15,10 +15,11 @@ import CheckoutPayment from "./pages/CheckoutPayment";
 import { SessionContextProvider } from "./components/SessionContextProvider";
 import AdminLayout from "./components/admin/AdminLayout";
 import ProductManagement from "./pages/admin/ProductManagement";
-import AdminDashboard from "./pages/admin/Dashboard"; // Import new admin dashboard
-import OrderManagement from "./pages/admin/OrderManagement"; // Import new admin order management
-import UserManagement from "./pages/admin/UserManagement"; // Import new admin user management
-import AppSettings from "./pages/admin/AppSettings"; // Import new admin app settings
+import AdminDashboard from "./pages/admin/Dashboard";
+import OrderManagement from "./pages/admin/OrderManagement";
+import UserManagement from "./pages/admin/UserManagement";
+import AppSettings from "./pages/admin/AppSettings";
+import HeroBannerManagement from "./pages/admin/HeroBannerManagement"; // Import new admin banner management
 
 const queryClient = new QueryClient();
 
@@ -41,11 +42,12 @@ const App = () => (
 
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboard />} /> {/* Default admin page */}
+              <Route index element={<AdminDashboard />} />
               <Route path="products" element={<ProductManagement />} />
-              <Route path="orders" element={<OrderManagement />} /> {/* New admin order route */}
-              <Route path="users" element={<UserManagement />} /> {/* New admin user route */}
-              <Route path="settings" element={<AppSettings />} /> {/* New admin settings route */}
+              <Route path="orders" element={<OrderManagement />} />
+              <Route path="users" element={<UserManagement />} />
+              <Route path="banners" element={<HeroBannerManagement />} /> {/* New admin banner route */}
+              <Route path="settings" element={<AppSettings />} />
             </Route>
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

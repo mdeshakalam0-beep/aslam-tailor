@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Home, Package, ShoppingBag, Users, Settings, LogOut } from 'lucide-react';
+import { Home, Package, ShoppingBag, Users, Settings, LogOut, Image } from 'lucide-react'; // Import Image icon
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/components/SessionContextProvider';
@@ -12,6 +12,7 @@ const navItems = [
   { name: 'Products', icon: Package, path: '/admin/products' },
   { name: 'Orders', icon: ShoppingBag, path: '/admin/orders' },
   { name: 'Users', icon: Users, path: '/admin/users' },
+  { name: 'Hero Banners', icon: Image, path: '/admin/banners' }, // New item for Hero Banners
   { name: 'App Settings', icon: Settings, path: '/admin/settings' },
 ];
 
