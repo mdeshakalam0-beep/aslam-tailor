@@ -158,9 +158,9 @@ const AppPopupManagement: React.FC = () => {
 
       {/* Add/Edit Pop-up Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="app-popup-form-title">
           <DialogHeader>
-            <DialogTitle>{editingPopup?.id ? 'Edit App Pop-up' : 'Add New App Pop-up'}</DialogTitle>
+            <DialogTitle id="app-popup-form-title">{editingPopup?.id ? 'Edit App Pop-up' : 'Add New App Pop-up'}</DialogTitle>
             <DialogDescription>
               {editingPopup?.id ? 'Make changes to the app pop-up here.' : 'Fill in the details for a new app pop-up.'}
             </DialogDescription>
@@ -175,9 +175,9 @@ const AppPopupManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent aria-labelledby="app-popup-delete-title">
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogTitle id="app-popup-delete-title">Are you absolutely sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the app pop-up.
             </DialogDescription>

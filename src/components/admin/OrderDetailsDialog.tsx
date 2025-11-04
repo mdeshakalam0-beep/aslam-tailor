@@ -180,9 +180,9 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="order-details-title">
         <DialogHeader>
-          <DialogTitle>Order Details - #{order.id.substring(0, 8)}</DialogTitle>
+          <DialogTitle id="order-details-title">Order Details - #{order.id.substring(0, 8)}</DialogTitle>
           <DialogDescription>
             View and manage the details of this order.
           </DialogDescription>

@@ -137,9 +137,9 @@ const HeroBannerManagement: React.FC = () => {
 
       {/* Add/Edit Banner Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="banner-form-title">
           <DialogHeader>
-            <DialogTitle>{editingBanner ? 'Edit Hero Banner' : 'Add New Hero Banner'}</DialogTitle>
+            <DialogTitle id="banner-form-title">{editingBanner ? 'Edit Hero Banner' : 'Add New Hero Banner'}</DialogTitle>
             <DialogDescription>
               {editingBanner ? 'Make changes to the banner here.' : 'Fill in the details for a new hero banner.'}
             </DialogDescription>
@@ -154,9 +154,9 @@ const HeroBannerManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent aria-labelledby="banner-delete-title">
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogTitle id="banner-delete-title">Are you absolutely sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the hero banner.
             </DialogDescription>

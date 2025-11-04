@@ -174,9 +174,9 @@ const MeasurementTypeManagement: React.FC = () => {
 
       {/* Add/Edit Measurement Type Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="measurement-type-form-title">
           <DialogHeader>
-            <DialogTitle>{editingType ? 'Edit Measurement Type' : 'Add New Measurement Type'}</DialogTitle>
+            <DialogTitle id="measurement-type-form-title">{editingType ? 'Edit Measurement Type' : 'Add New Measurement Type'}</DialogTitle>
             <DialogDescription>
               {editingType ? 'Make changes to the measurement type here.' : 'Fill in the details for a new measurement type.'}
             </DialogDescription>
@@ -191,9 +191,9 @@ const MeasurementTypeManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent aria-labelledby="measurement-type-delete-title">
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogTitle id="measurement-type-delete-title">Are you absolutely sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the measurement type.
             </DialogDescription>

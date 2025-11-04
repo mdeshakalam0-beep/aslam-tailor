@@ -133,9 +133,9 @@ const CategoryManagement: React.FC = () => {
 
       {/* Add/Edit Category Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="category-form-title">
           <DialogHeader>
-            <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+            <DialogTitle id="category-form-title">{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
             <DialogDescription>
               {editingCategory ? 'Make changes to the category here.' : 'Fill in the details for a new category.'}
             </DialogDescription>
@@ -150,9 +150,9 @@ const CategoryManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent aria-labelledby="category-delete-title">
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogTitle id="category-delete-title">Are you absolutely sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the category.
             </DialogDescription>

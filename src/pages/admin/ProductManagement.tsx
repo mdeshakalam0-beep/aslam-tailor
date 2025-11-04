@@ -137,9 +137,9 @@ const ProductManagement: React.FC = () => {
 
       {/* Add/Edit Product Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"> {/* Added max-h and overflow-y */}
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="product-form-title"> {/* Added max-h and overflow-y */}
           <DialogHeader>
-            <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+            <DialogTitle id="product-form-title">{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
             <DialogDescription>
               {editingProduct ? 'Make changes to the product here.' : 'Fill in the details for a new product.'}
             </DialogDescription>
@@ -154,9 +154,9 @@ const ProductManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent aria-labelledby="product-delete-title">
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogTitle id="product-delete-title">Are you absolutely sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the product.
             </DialogDescription>

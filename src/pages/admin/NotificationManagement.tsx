@@ -180,9 +180,9 @@ const NotificationManagement: React.FC = () => {
 
       {/* Send Notification Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px]" aria-labelledby="notification-form-title">
           <DialogHeader>
-            <DialogTitle>Send New Notification</DialogTitle>
+            <DialogTitle id="notification-form-title">Send New Notification</DialogTitle>
             <DialogDescription>
               Compose and send a notification to users.
             </DialogDescription>
@@ -245,9 +245,9 @@ const NotificationManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent aria-labelledby="notification-delete-title">
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogTitle id="notification-delete-title">Are you absolutely sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the notification.
             </DialogDescription>
