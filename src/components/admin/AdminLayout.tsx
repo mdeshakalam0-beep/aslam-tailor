@@ -15,7 +15,7 @@ const navItems = [
   { name: 'Categories', icon: LayoutList, path: '/admin/categories' },
   { name: 'Measurement Types', icon: Ruler, path: '/admin/measurement-types' },
   { name: 'Hero Banners', icon: Image, path: '/admin/banners' },
-  { name: 'App Pop-ups', icon: PopoverIcon, path: '/admin/popups' }, {/* New item for App Pop-ups, using PopoverIcon */}
+  { name: 'App Pop-ups', icon: PopoverIcon, path: '/admin/popups' }, 
   { name: 'Notifications', icon: BellRing, path: '/admin/notifications' },
   { name: 'App Settings', icon: Settings, path: '/admin/settings' },
 ];
