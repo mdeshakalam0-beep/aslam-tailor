@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { showSuccess, showError } from '@/utils/toast';
 import { format } from 'date-fns';
 import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
+import OrderDetailsDialogUser from '@/components/OrderDetailsDialogUser'; // Import the new dialog
 
 interface OrderItem {
   id: string;
@@ -48,6 +49,8 @@ const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOrderDetailsDialogOpen, setIsOrderDetailsDialogOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -142,6 +145,11 @@ const Orders: React.FC = () => {
     return null;
   };
 
+  const handleViewOrderDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setIsOrderDetailsDialogOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
@@ -162,7 +170,11 @@ const Orders: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <Card key={order.id} className="shadow-sm">
+              <Card 
+                key={order.id} 
+                className="shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleViewOrderDetails(order)} // Make the entire card clickable
+              >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-lg font-semibold">Order #{order.id.substring(0, 8)}</CardTitle>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -183,47 +195,25 @@ const Orders: React.FC = () => {
                       <span className="text-xs text-muted-foreground ml-2">(Incl. ₹{order.donation_amount} Donation)</span>
                     )}
                   </p>
-
-                  {order.address_details && (
-                    <div className="mb-4 p-3 border rounded-md bg-muted/50">
-                      <h4 className="font-semibold text-foreground mb-1">Shipping Address:</h4>
-                      <p className="text-sm text-muted-foreground">{order.address_details.fullName}, {order.address_details.phone}</p>
-                      <p className="text-sm text-muted-foreground">{order.address_details.streetAddress}, {order.address_details.landmark && `${order.address_details.landmark}, `}{order.address_details.postOffice && `${order.address_details.postOffice}, `}{order.address_details.city}, {order.address_details.state} - {order.address_details.pincode}</p>
-                    </div>
-                  )}
-
-                  {order.payment_method && (
-                    <div className="mb-4 p-3 border rounded-md bg-muted/50">
-                      <h4 className="font-semibold text-foreground mb-1">Payment Method:</h4>
-                      <p className="text-sm text-muted-foreground">{formatPaymentMethod(order.payment_method)}</p>
-                      {order.payment_method === 'qr_code' && order.transaction_id && (
-                        <p className="text-sm text-muted-foreground">Transaction ID: {order.transaction_id}</p>
-                      )}
-                    </div>
-                  )}
-
-                  {renderMeasurements(order.user_measurements)}
-
-                  {order.user_measurements?.notes && (
-                    <div className="mb-4 p-3 border rounded-md bg-muted/50">
-                      <h4 className="font-semibold text-foreground mb-1">Additional Notes:</h4>
-                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{order.user_measurements.notes}</p>
-                    </div>
-                  )}
-
+                  
+                  {/* Display only a summary of items here, full details in dialog */}
                   <div className="space-y-3">
-                    {order.items.map((item, itemIndex) => (
-                      <Link to={`/products/${item.id}`} key={itemIndex} className="flex items-center space-x-4 border-t pt-3 first:border-t-0 first:pt-0 hover:bg-muted/50 rounded-md p-2 -mx-2 transition-colors">
-                        <img src={item.imageUrl} alt={item.name} className="w-16 h-16 object-cover rounded-md" />
+                    {order.items.slice(0, 3).map((item, itemIndex) => ( // Show first 3 items as summary
+                      <div key={itemIndex} className="flex items-center space-x-4 border-t pt-3 first:border-t-0 first:pt-0">
+                        <img src={item.imageUrl} alt={item.name} className="w-12 h-12 object-cover rounded-md" />
                         <div className="flex-1">
                           <p className="font-medium text-foreground">{item.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            Quantity: {item.quantity} {item.selectedSize && `(Size: ${item.selectedSize})`}
+                            Qty: {item.quantity} {item.selectedSize && `(Size: ${item.selectedSize})`}
                           </p>
-                          <p className="text-sm text-muted-foreground">Price: ₹{item.price.toLocaleString()}</p>
                         </div>
-                      </Link>
+                      </div>
                     ))}
+                    {order.items.length > 3 && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        +{order.items.length - 3} more items. Click to view full order details.
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -232,6 +222,12 @@ const Orders: React.FC = () => {
         )}
       </main>
       <BottomNavigation />
+
+      <OrderDetailsDialogUser
+        order={selectedOrder}
+        isOpen={isOrderDetailsDialogOpen}
+        onClose={() => setIsOrderDetailsDialogOpen(false)}
+      />
     </div>
   );
 };
