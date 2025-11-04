@@ -69,7 +69,8 @@ const Profile: React.FC = () => {
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('profiles').upsert(updates);
+      // Explicitly specify onConflict for upsert to ensure it uses the primary key for conflict resolution
+      const { error } = await supabase.from('profiles').upsert(updates, { onConflict: 'id' });
 
       if (error) {
         throw error;
