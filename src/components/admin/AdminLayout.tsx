@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Home, Package, ShoppingBag, Users, Settings, LogOut, Image, BellRing, LayoutList, Ruler, Megaphone, Menu } from 'lucide-react';
+import { Home, Package, ShoppingBag, Users, Settings, LogOut, Image, BellRing, LayoutList, Ruler, Megaphone, Menu, Tag } from 'lucide-react'; // Added Tag icon
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/components/SessionContextProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { showError, showSuccess } from '@/utils/toast';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; // Import Sheet components
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navItems = [
   { name: 'Dashboard', icon: Home, path: '/admin' },
@@ -18,6 +18,7 @@ const navItems = [
   { name: 'Hero Banners', icon: Image, path: '/admin/banners' },
   { name: 'App Pop-ups', icon: Megaphone, path: '/admin/popups' }, 
   { name: 'Notifications', icon: BellRing, path: '/admin/notifications' },
+  { name: 'Brands', icon: Tag, path: '/admin/brands' }, {/* New: Brands management */}
   { name: 'App Settings', icon: Settings, path: '/admin/settings' },
 ];
 
@@ -170,12 +171,11 @@ const AdminLayout: React.FC = () => {
             </Sheet>
           </div>
 
-          <h1 className="text-2xl font-bold text-foreground md:ml-0 ml-4"> {/* Adjust margin for mobile */}
+          <h1 className="text-2xl font-bold text-foreground md:ml-0 ml-4">
             {getPageTitle()}
           </h1>
           <div className="flex items-center space-x-2">
             <span className="text-muted-foreground">Welcome, Admin!</span>
-            {/* Could add admin profile dropdown here */}
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto">

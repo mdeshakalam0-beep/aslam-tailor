@@ -25,8 +25,9 @@ import NotificationManagement from "./pages/admin/NotificationManagement";
 import CategoryManagement from "./pages/admin/CategoryManagement";
 import MeasurementTypeManagement from "./pages/admin/MeasurementTypeManagement";
 import RecentPurchaseNotification from "./components/RecentPurchaseNotification";
-import AppPopupManagement from "./pages/admin/AppPopupManagement"; // Import new admin page
-import AppPopupDisplay from "./components/AppPopupDisplay"; // Import new AppPopupDisplay
+import AppPopupManagement from "./pages/admin/AppPopupManagement";
+import AppPopupDisplay from "./components/AppPopupDisplay";
+import BrandManagement from "./pages/admin/BrandManagement"; // Import new BrandManagement
 
 const queryClient = new QueryClient();
 
@@ -57,8 +58,9 @@ const App = () => (
               <Route path="categories" element={<CategoryManagement />} />
               <Route path="measurement-types" element={<MeasurementTypeManagement />} />
               <Route path="banners" element={<HeroBannerManagement />} />
-              <Route path="popups" element={<AppPopupManagement />} /> {/* New Admin Route */}
+              <Route path="popups" element={<AppPopupManagement />} />
               <Route path="notifications" element={<NotificationManagement />} />
+              <Route path="brands" element={<BrandManagement />} /> {/* New Admin Route */}
               <Route path="settings" element={<AppSettings />} />
             </Route>
 
@@ -66,7 +68,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           <RecentPurchaseNotification />
-          <AppPopupDisplay /> {/* Render the AppPopupDisplay globally */}
+          <AppPopupDisplay />
         </SessionContextProvider>
       </BrowserRouter>
     </TooltipProvider>

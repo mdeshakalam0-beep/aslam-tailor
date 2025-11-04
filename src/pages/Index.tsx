@@ -7,7 +7,8 @@ import ProductCard from '@/components/ProductCard';
 import BottomNavigation from '@/components/BottomNavigation';
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Link } from 'react-router-dom';
-import { getProducts, Product } from '@/utils/products'; // Import getProducts and Product interface
+import { getProducts, Product } from '@/utils/products';
+import BrandRibbon from '@/components/BrandRibbon'; // Import BrandRibbon
 
 const Index: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -28,8 +29,9 @@ const Index: React.FC = () => {
       <Header />
       <main className="container mx-auto p-0 md:p-4">
         <div className="space-y-6">
+          <BrandRibbon /> {/* Added BrandRibbon here */}
           <HeroCarousel />
-          <SearchBar /> {/* SearchBar should be above CategoryChips */}
+          <SearchBar />
           <CategoryChips />
 
           <section className="px-4 md:px-0">
