@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Home, Package, ShoppingBag, Users, Settings, LogOut, Image, BellRing, LayoutList, Ruler, Popover as PopoverIcon } from 'lucide-react'; // Import Popover icon as PopoverIcon
+import { Home, Package, ShoppingBag, Users, Settings, LogOut, Image, BellRing, LayoutList, Ruler, Megaphone } from 'lucide-react'; // Changed Popover to Megaphone
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/components/SessionContextProvider';
@@ -15,7 +15,7 @@ const navItems = [
   { name: 'Categories', icon: LayoutList, path: '/admin/categories' },
   { name: 'Measurement Types', icon: Ruler, path: '/admin/measurement-types' },
   { name: 'Hero Banners', icon: Image, path: '/admin/banners' },
-  { name: 'App Pop-ups', icon: PopoverIcon, path: '/admin/popups' }, 
+  { name: 'App Pop-ups', icon: Megaphone, path: '/admin/popups' }, {/* Using Megaphone icon */}
   { name: 'Notifications', icon: BellRing, path: '/admin/notifications' },
   { name: 'App Settings', icon: Settings, path: '/admin/settings' },
 ];
