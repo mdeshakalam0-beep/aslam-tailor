@@ -4,13 +4,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { showError } from '@/utils/toast';
-import { format } from 'date-fns'; // Added this import
+import { format } from 'date-fns';
 
 interface UserProfile {
   id: string;
   first_name: string;
   last_name: string;
-  email: string; // Assuming email can be fetched or linked
+  email: string; // Now fetching real email
   role: string;
   updated_at: string;
 }
@@ -24,26 +24,14 @@ const UserManagement: React.FC = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        // Fetch profiles
+        // Fetch profiles including the new email column
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, first_name, last_name, role, updated_at');
+          .select('id, first_name, last_name, email, role, updated_at'); // Select email
 
         if (profilesError) throw profilesError;
-
-        // Fetch auth.users to get emails (auth.users is not directly queryable via RLS, but we can get user info from session or admin context)
-        // For simplicity, we'll assume email can be derived or is part of profile for now,
-        // or we'd need a server-side function to fetch auth.users data securely.
-        // For this context, I'll simulate fetching emails by assuming they are available or can be linked.
-        // In a real admin panel, you'd likely use the Supabase Admin API or an Edge Function.
-
-        // For now, let's just use the profile data and add a placeholder email if not available.
-        const usersWithEmails = profilesData.map(profile => ({
-          ...profile,
-          email: `user_${profile.id.substring(0, 4)}@example.com`, // Placeholder email
-        }));
         
-        setUsers(usersWithEmails);
+        setUsers(profilesData as UserProfile[]);
 
       } catch (err) {
         console.error('Error fetching users:', err);
@@ -93,7 +81,7 @@ const UserManagement: React.FC = () => {
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.id.substring(0, 8)}</TableCell>
                       <TableCell>{`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'N/A'}</TableCell>
-                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.email || 'N/A'}</TableCell> {/* Display real email */}
                       <TableCell>
                         <Badge variant={getRoleBadgeVariant(user.role)}>
                           {user.role.charAt(0).toUpperCase() + user.role.slice(1)}

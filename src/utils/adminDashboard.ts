@@ -30,6 +30,7 @@ interface Profile {
   id: string;
   first_name: string;
   last_name: string;
+  email: string; // Added email to Profile interface
 }
 
 export interface IncomeMetrics {
@@ -99,7 +100,7 @@ export const getAdminDashboardData = async () => {
 
     const { data: profilesData, error: profilesError } = await supabase
       .from('profiles')
-      .select('id, first_name, last_name');
+      .select('id, first_name, last_name, email'); // Fetch email from profiles
     if (profilesError) throw profilesError;
 
     const allOrders: Order[] = ordersData as Order[];
@@ -176,11 +177,10 @@ export const getAdminDashboardData = async () => {
     const topCustomers: TopCustomer[] = Array.from(customerSpendingMap.entries())
       .map(([userId, data]) => {
         const profileInfo = allProfiles.find(p => p.id === userId);
-        const email = `user_${userId.substring(0, 4)}@example.com`; // Placeholder email
         return {
           id: userId,
-          name: profileInfo ? `${profileInfo.first_name || ''} ${profileInfo.last_name || ''}`.trim() || email : email,
-          email: email,
+          name: profileInfo ? `${profileInfo.first_name || ''} ${profileInfo.last_name || ''}`.trim() || profileInfo.email : profileInfo?.email || `User ID: ${userId.substring(0, 4)}`,
+          email: profileInfo?.email || `user_${userId.substring(0, 4)}@example.com`, // Use real email or placeholder
           totalSpent: data.totalSpent,
           totalOrders: data.totalOrders,
         };
