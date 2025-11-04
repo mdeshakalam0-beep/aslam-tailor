@@ -197,7 +197,7 @@ export const searchProducts = async (query: string, limit: number = 10): Promise
         *,
         categories ( name )
       `)
-      .or(`name.ilike.%${query}%,description.ilike.%${query}%,categories.name.ilike.%${query}%`)
+      .or(`name.ilike.%${query}%,description.ilike.%${query}%`) // Removed categories.name from the OR clause
       .limit(limit);
 
     if (error) {
