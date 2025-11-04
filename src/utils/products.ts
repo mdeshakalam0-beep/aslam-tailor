@@ -185,6 +185,49 @@ export const getRecommendedProducts = async (currentProductId: string, limit: nu
   }
 };
 
+// New: Search products by name, description, or category name
+export const searchProducts = async (query: string, limit: number = 10): Promise<Product[]> => {
+  if (!query.trim()) {
+    return [];
+  }
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories ( name )
+      `)
+      .or(`name.ilike.%${query}%,description.ilike.%${query}%,categories.name.ilike.%${query}%`)
+      .limit(limit);
+
+    if (error) {
+      throw error;
+    }
+
+    return data.map(item => ({
+      id: item.id,
+      name: item.name,
+      imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
+      price: item.price ?? 0,
+      originalPrice: item.original_price ?? undefined,
+      discount: item.discount ?? undefined,
+      rating: item.rating ?? 0,
+      reviewsCount: item.reviews_count ?? 0,
+      recentPurchase: item.recent_purchase ?? undefined,
+      images: item.image_urls || [],
+      sizes: item.sizes || [],
+      description: item.description ?? '',
+      boughtByUsers: item.bought_by_users ?? 0,
+      category_id: item.category_id ?? undefined,
+      category_name: item.categories?.name || 'Uncategorized',
+    }));
+  } catch (error) {
+    console.error('Error searching products:', error);
+    showError('Failed to search products.');
+    return [];
+  }
+};
+
 
 // Admin functions for CRUD operations
 export const createProduct = async (productData: Omit<Product, 'id' | 'imageUrl' | 'reviewsCount' | 'boughtByUsers' | 'category_name'>) => {
