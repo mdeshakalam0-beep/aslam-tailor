@@ -1,16 +1,17 @@
 import React from 'react';
-import { Heart, ShoppingCart, UserCog } from 'lucide-react'; // Removed Bell icon
+import { Heart, UserCog } from 'lucide-react'; // Removed ShoppingCart icon
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { useFavoritesCount } from '@/hooks/use-favorites-count';
-import { useCartCount } from '@/hooks/use-cart-count';
-import { useSession } from '@/components/SessionContextProvider'; // Import useSession
-import NotificationDropdown from '@/components/NotificationDropdown'; // Import NotificationDropdown
+import { useCartCount } from '@/hooks/use-cart-count'; // Still need this for other components if they use it
+import { useSession } from '@/components/SessionContextProvider';
+import NotificationDropdown from '@/components/NotificationDropdown';
 
 const Header: React.FC = () => {
   const favoritesCount = useFavoritesCount();
-  const cartCount = useCartCount();
-  const { userRole } = useSession(); // Get userRole from session
+  // const cartCount = useCartCount(); // Cart count is no longer needed in Header
+
+  const { userRole } = useSession();
 
   return (
     <header className="flex items-center justify-between p-4 bg-background border-b border-border sticky top-0 z-10">
@@ -36,15 +37,8 @@ const Header: React.FC = () => {
             </Badge>
           )}
         </Link>
-        <Link to="/cart" className="relative">
-          <ShoppingCart className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
-          {cartCount > 0 && (
-            <Badge variant="destructive" className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-xs">
-              {cartCount}
-            </Badge>
-          )}
-        </Link>
-        <NotificationDropdown /> {/* Integrated NotificationDropdown */}
+        {/* Cart icon removed from here */}
+        <NotificationDropdown />
       </div>
     </header>
   );
