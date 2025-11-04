@@ -122,7 +122,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
               id="description"
-              value={description}
+              value={description ?? ''} {/* Ensure value is always a string */}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="A short description for the pop-up."
               rows={3}
@@ -148,7 +148,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
               <Input
                 id="imageUrl"
                 type="url"
-                value={imageUrl}
+                value={imageUrl ?? ''} {/* Ensure value is always a string */}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://example.com/popup.jpg"
               />
@@ -182,7 +182,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="ctaText"
               type="text"
-              value={ctaText}
+              value={ctaText ?? ''} {/* Ensure value is always a string */}
               onChange={(e) => setCtaText(e.target.value)}
               placeholder="e.g., Shop Now"
             />
@@ -192,7 +192,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="ctaLink"
               type="url"
-              value={ctaLink}
+              value={ctaLink ?? ''} {/* Ensure value is always a string */}
               onChange={(e) => setCtaLink(e.target.value)}
               placeholder="e.g., /products/123"
             />
