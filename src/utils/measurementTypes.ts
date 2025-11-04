@@ -1,10 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 import { showSuccess, showError } from '@/utils/toast';
+import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements to type relevant_fields
 
 export interface MeasurementType {
   id: string;
   name: string;
   description?: string;
+  relevant_fields: Array<keyof UserMeasurements>; // New: Stores keys of relevant measurement fields
   created_at?: string;
   updated_at?: string;
 }

@@ -11,78 +11,97 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { cn } from '@/lib/utils'; // Import cn utility for conditional class names
+import { cn } from '@/lib/utils';
+import { getMeasurementTypes, MeasurementType } from '@/utils/measurementTypes'; // Import getMeasurementTypes and MeasurementType
 
 interface MeasurementFormProps {
   initialMeasurements?: UserMeasurements;
   onSaveSuccess?: () => void;
   userGender: 'men' | 'women' | 'not_specified';
-  // Removed preselectedType prop
 }
+
+// Define a mapping from UserMeasurements keys to friendly labels and input types
+const measurementFieldConfig: Record<keyof UserMeasurements, { label: string; type: 'number' | 'text' | 'select' | 'textarea'; options?: string[] }> = {
+  ladies_size: { label: 'Ladies\' Size', type: 'select', options: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Custom'] },
+  men_shirt_length: { label: 'Shirt Length (inches)', type: 'number' },
+  men_shirt_chest: { label: 'Shirt Chest (inches)', type: 'number' },
+  men_shirt_waist: { label: 'Shirt Waist (inches)', type: 'number' },
+  men_shirt_sleeve_length: { label: 'Shirt Sleeve Length (inches)', type: 'number' },
+  men_shirt_shoulder: { label: 'Shirt Shoulder (inches)', type: 'number' },
+  men_shirt_neck: { label: 'Shirt Neck (inches)', type: 'number' },
+  men_pant_length: { label: 'Pant Length (inches)', type: 'number' },
+  men_pant_waist: { label: 'Pant Waist (inches)', type: 'number' },
+  men_pant_hip: { label: 'Pant Hip (inches)', type: 'number' },
+  men_pant_thigh: { label: 'Pant Thigh (inches)', type: 'number' },
+  men_pant_bottom: { label: 'Pant Bottom (inches)', type: 'number' },
+  men_coat_length: { label: 'Coat Length (inches)', type: 'number' },
+  men_coat_chest: { label: 'Coat Chest (inches)', type: 'number' },
+  men_coat_waist: { label: 'Coat Waist (inches)', type: 'number' },
+  men_coat_sleeve_length: { label: 'Coat Sleeve Length (inches)', type: 'number' },
+  men_coat_shoulder: { label: 'Coat Shoulder (inches)', type: 'number' },
+  notes: { label: 'Additional Notes / Specific Instructions', type: 'textarea' },
+  // These fields are not for user input in this form, but are part of UserMeasurements
+  id: { label: 'ID', type: 'text' },
+  user_id: { label: 'User ID', type: 'text' },
+  measurement_type: { label: 'Measurement Type', type: 'text' },
+  updated_at: { label: 'Updated At', type: 'text' },
+};
 
 const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, onSaveSuccess, userGender }) => {
   const { session } = useSession();
-  const [measurementType, setMeasurementType] = useState<'men' | 'women' | ''>(initialMeasurements?.measurement_type || '');
-  const [notes, setNotes] = useState(initialMeasurements?.notes || '');
-  const [ladiesSize, setLadiesSize] = useState(initialMeasurements?.ladies_size || '');
-
-  // Men's Shirt/Kurta/Bandi Measurements
-  const [menShirtLength, setMenShirtLength] = useState<string>('');
-  const [menShirtChest, setMenShirtChest] = useState<string>('');
-  const [menShirtWaist, setMenShirtWaist] = useState<string>('');
-  const [menShirtSleeveLength, setMenShirtSleeveLength] = useState<string>('');
-  const [menShirtShoulder, setMenShirtShoulder] = useState<string>('');
-  const [menShirtNeck, setMenShirtNeck] = useState<string>('');
-
-  // Men's Pant/Paijama Measurements
-  const [menPantLength, setMenPantLength] = useState<string>('');
-  const [menPantWaist, setMenPantWaist] = useState<string>('');
-  const [menPantHip, setMenPantHip] = useState<string>('');
-  const [menPantThigh, setMenPantThigh] = useState<string>('');
-  const [menPantBottom, setMenPantBottom] = useState<string>('');
-
-  // Men's Coat/Washcoat/Bajezar Measurements
-  const [menCoatLength, setMenCoatLength] = useState<string>('');
-  const [menCoatChest, setMenCoatChest] = useState<string>('');
-  const [menCoatWaist, setMenCoatWaist] = useState<string>('');
-  const [menCoatSleeveLength, setMenCoatSleeveLength] = useState<string>('');
-  const [menCoatShoulder, setMenCoatShoulder] = useState<string>('');
-
+  const [selectedMeasurementTypeId, setSelectedMeasurementTypeId] = useState<string | undefined>(initialMeasurements?.measurement_type || undefined);
+  const [currentMeasurementType, setCurrentMeasurementType] = useState<MeasurementType | undefined>(undefined);
+  const [measurementTypes, setMeasurementTypes] = useState<MeasurementType[]>([]);
+  const [formValues, setFormValues] = useState<Partial<UserMeasurements>>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const fetchTypes = async () => {
+      const types = await getMeasurementTypes();
+      setMeasurementTypes(types);
+    };
+    fetchTypes();
+  }, []);
+
+  useEffect(() => {
     if (initialMeasurements) {
-      setMeasurementType(initialMeasurements.measurement_type || '');
-      setNotes(initialMeasurements.notes || '');
-      setLadiesSize(initialMeasurements.ladies_size || '');
-
-      setMenShirtLength(initialMeasurements.men_shirt_length?.toString() || '');
-      setMenShirtChest(initialMeasurements.men_shirt_chest?.toString() || '');
-      setMenShirtWaist(initialMeasurements.men_shirt_waist?.toString() || '');
-      setMenShirtSleeveLength(initialMeasurements.men_shirt_sleeve_length?.toString() || '');
-      setMenShirtShoulder(initialMeasurements.men_shirt_shoulder?.toString() || '');
-      setMenShirtNeck(initialMeasurements.men_shirt_neck?.toString() || '');
-
-      setMenPantLength(initialMeasurements.men_pant_length?.toString() || '');
-      setMenPantWaist(initialMeasurements.men_pant_waist?.toString() || '');
-      setMenPantHip(initialMeasurements.men_pant_hip?.toString() || '');
-      setMenPantThigh(initialMeasurements.men_pant_thigh?.toString() || '');
-      setMenPantBottom(initialMeasurements.men_pant_bottom?.toString() || '');
-
-      setMenCoatLength(initialMeasurements.men_coat_length?.toString() || '');
-      setMenCoatChest(initialMeasurements.men_coat_chest?.toString() || '');
-      setMenCoatWaist(initialMeasurements.men_coat_waist?.toString() || '');
-      setMenCoatSleeveLength(initialMeasurements.men_coat_sleeve_length?.toString() || '');
-      setMenCoatShoulder(initialMeasurements.men_coat_shoulder?.toString() || '');
+      // Initialize form values from initialMeasurements
+      const initialFormValues: Partial<UserMeasurements> = {};
+      for (const key in initialMeasurements) {
+        if (Object.prototype.hasOwnProperty.call(initialMeasurements, key)) {
+          initialFormValues[key as keyof UserMeasurements] = initialMeasurements[key as keyof UserMeasurements];
+        }
+      }
+      setFormValues(initialFormValues);
+      setSelectedMeasurementTypeId(initialMeasurements.measurement_type || undefined);
+    } else {
+      setFormValues({});
+      setSelectedMeasurementTypeId(undefined);
     }
   }, [initialMeasurements]);
 
-  // Set initial measurement type based on user's gender if not already set
   useEffect(() => {
-    if (!measurementType && userGender !== 'not_specified') {
-      setMeasurementType(userGender);
+    // Set initial measurement type based on user's gender if not already set
+    if (!selectedMeasurementTypeId && userGender !== 'not_specified' && measurementTypes.length > 0) {
+      const defaultType = measurementTypes.find(type => type.name.toLowerCase().includes(userGender));
+      if (defaultType) {
+        setSelectedMeasurementTypeId(defaultType.id);
+      }
     }
-  }, [userGender, measurementType]);
+  }, [userGender, selectedMeasurementTypeId, measurementTypes]);
+
+  useEffect(() => {
+    if (selectedMeasurementTypeId) {
+      const type = measurementTypes.find(t => t.id === selectedMeasurementTypeId);
+      setCurrentMeasurementType(type);
+    } else {
+      setCurrentMeasurementType(undefined);
+    }
+  }, [selectedMeasurementTypeId, measurementTypes]);
+
+  const handleInputChange = (key: keyof UserMeasurements, value: string | number | boolean | null) => {
+    setFormValues((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSaveMeasurements = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -90,42 +109,39 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
       showError('You must be logged in to save measurements.');
       return;
     }
+    if (!selectedMeasurementTypeId) {
+      showError('Please select a measurement type.');
+      return;
+    }
 
     setLoading(true);
     try {
-      const updates: UserMeasurements = {
+      const updates: Partial<UserMeasurements> = {
         user_id: session.user.id,
-        measurement_type: measurementType || null,
-        notes: notes.trim() || null,
-        ladies_size: null, // Reset ladies_size if not women's type
-        men_shirt_length: null, men_shirt_chest: null, men_shirt_waist: null, men_shirt_sleeve_length: null, men_shirt_shoulder: null, men_shirt_neck: null,
-        men_pant_length: null, men_pant_waist: null, men_pant_hip: null, men_pant_thigh: null, men_pant_bottom: null,
-        men_coat_length: null, men_coat_chest: null, men_coat_waist: null, men_coat_sleeve_length: null, men_coat_shoulder: null,
+        measurement_type: currentMeasurementType?.name || null, // Store the name of the selected type
         updated_at: new Date().toISOString(),
       };
 
-      if (measurementType === 'men') {
-        updates.men_shirt_length = menShirtLength ? parseFloat(menShirtLength) : null;
-        updates.men_shirt_chest = menShirtChest ? parseFloat(menShirtChest) : null;
-        updates.men_shirt_waist = menShirtWaist ? parseFloat(menShirtWaist) : null;
-        updates.men_shirt_sleeve_length = menShirtSleeveLength ? parseFloat(menShirtSleeveLength) : null;
-        updates.men_shirt_shoulder = menShirtShoulder ? parseFloat(menShirtShoulder) : null;
-        updates.men_shirt_neck = menShirtNeck ? parseFloat(menShirtNeck) : null;
+      // Only include relevant fields from formValues
+      currentMeasurementType?.relevant_fields.forEach(fieldKey => {
+        const config = measurementFieldConfig[fieldKey];
+        if (config) {
+          let value = formValues[fieldKey];
+          if (config.type === 'number') {
+            updates[fieldKey] = value ? parseFloat(value as string) : null;
+          } else if (config.type === 'text' || config.type === 'select' || config.type === 'textarea') {
+            updates[fieldKey] = (value as string)?.trim() || null;
+          } else {
+            updates[fieldKey] = value;
+          }
+        }
+      });
 
-        updates.men_pant_length = menPantLength ? parseFloat(menPantLength) : null;
-        updates.men_pant_waist = menPantWaist ? parseFloat(menPantWaist) : null;
-        updates.men_pant_hip = menPantHip ? parseFloat(menPantHip) : null;
-        updates.men_pant_thigh = menPantThigh ? parseFloat(menPantThigh) : null;
-        updates.men_pant_bottom = menPantBottom ? parseFloat(menPantBottom) : null;
-
-        updates.men_coat_length = menCoatLength ? parseFloat(menCoatLength) : null;
-        updates.men_coat_chest = menCoatChest ? parseFloat(menCoatChest) : null;
-        updates.men_coat_waist = menCoatWaist ? parseFloat(menCoatWaist) : null;
-        updates.men_coat_sleeve_length = menCoatSleeveLength ? parseFloat(menCoatSleeveLength) : null;
-        updates.men_coat_shoulder = menCoatShoulder ? parseFloat(menCoatShoulder) : null;
-      } else if (measurementType === 'women') {
-        updates.ladies_size = ladiesSize || null;
+      // Ensure notes are always included if present in formValues, even if not explicitly in relevant_fields
+      if (formValues.notes !== undefined) {
+        updates.notes = (formValues.notes as string)?.trim() || null;
       }
+
 
       const { data: existingMeasurements, error: fetchError } = await supabase
         .from('measurements')
@@ -161,150 +177,135 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
     }
   };
 
-  const handleGenderChange = async (value: 'men' | 'women') => {
-    setMeasurementType(value);
-    // Also update user's gender in profiles table
-    if (session?.user) {
-      try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ gender: value })
-          .eq('id', session.user.id);
-        if (error) throw error;
-        showSuccess('Gender preference updated!');
-      } catch (err) {
-              console.error('Error updating gender preference:', err);
-              showError('Failed to update gender preference.');
-            }
-          }
-        };
-      
-        return (
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="text-xl font-bold text-foreground">Your Measurements</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSaveMeasurements} className="space-y-6">
-                {/* Gender/Measurement Type Selection */}
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold text-foreground">Select Measurement Type</Label>
-                  <RadioGroup onValueChange={handleGenderChange} value={measurementType} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Label
-                      htmlFor="men"
-                      className={cn(
-                        "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200",
-                        measurementType === 'men' && "border-primary ring-2 ring-primary shadow-md"
-                      )}
-                    >
-                      <RadioGroupItem value="men" id="men" className="sr-only" />
-                      <span className="text-lg font-medium">Men's Measurements</span>
-                      <span className="text-sm text-muted-foreground text-center mt-1">Shirt, Pant, Coat, etc.</span>
-                    </Label>
-      
-                    <Label
-                      htmlFor="women"
-                      className={cn(
-                        "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200",
-                        measurementType === 'women' && "border-primary ring-2 ring-primary shadow-md"
-                      )}
-                    >
-                      <RadioGroupItem value="women" id="women" className="sr-only" />
-                      <span className="text-lg font-medium">Ladies' Size</span>
-                      <span className="text-sm text-muted-foreground text-center mt-1">Standard sizes (XS, S, M, L, XL, XXL)</span>
-                    </Label>
-                  </RadioGroup>
+  const renderMeasurementInputs = () => {
+    if (!currentMeasurementType || !currentMeasurementType.relevant_fields) {
+      return <p className="text-muted-foreground">Please select a measurement type to see relevant fields.</p>;
+    }
+
+    // Group fields by their original categories for better display in the accordion
+    const groupedRelevantFields: Record<string, Array<keyof UserMeasurements>> = {};
+    currentMeasurementType.relevant_fields.forEach(fieldKey => {
+      const fieldInfo = allMeasurementFields.find(f => f.key === fieldKey);
+      if (fieldInfo) {
+        (groupedRelevantFields[fieldInfo.group] = groupedRelevantFields[fieldInfo.group] || []).push(fieldKey);
+      }
+    });
+
+    return (
+      <Accordion type="multiple" className="w-full space-y-4">
+        {Object.entries(groupedRelevantFields).map(([group, fieldKeys]) => {
+          // Filter out 'notes' from accordion groups if it's handled separately
+          if (group === 'General' && fieldKeys.includes('notes')) return null;
+
+          return (
+            <AccordionItem key={group} value={`item-${group}`} className="rounded-md border bg-card shadow-sm transition-all duration-200">
+              <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                {group}
+              </AccordionTrigger>
+              <AccordionContent className="p-4 border-t bg-background rounded-b-md">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {fieldKeys.map((fieldKey) => {
+                    const config = measurementFieldConfig[fieldKey];
+                    if (!config || fieldKey === 'notes') return null; // Skip notes here
+
+                    const value = (formValues[fieldKey] ?? '').toString();
+
+                    return (
+                      <div key={fieldKey}>
+                        <Label htmlFor={fieldKey}>{config.label}</Label>
+                        {config.type === 'number' && (
+                          <Input
+                            id={fieldKey}
+                            type="number"
+                            value={value}
+                            onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+                            placeholder={`e.g., ${config.label.includes('Length') ? '28' : config.label.includes('Chest') ? '40' : '32'}`}
+                            min="0"
+                            step="0.1"
+                          />
+                        )}
+                        {config.type === 'text' && (
+                          <Input
+                            id={fieldKey}
+                            type="text"
+                            value={value}
+                            onChange={(e) => handleInputChange(fieldKey, e.target.value)}
+                            placeholder={`Enter ${config.label.toLowerCase()}`}
+                          />
+                        )}
+                        {config.type === 'select' && config.options && (
+                          <Select onValueChange={(val) => handleInputChange(fieldKey, val)} value={value}>
+                            <SelectTrigger id={fieldKey} className="w-full">
+                              <SelectValue placeholder={`Select ${config.label.toLowerCase()}`} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {config.options.map(option => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-      
-                {measurementType === 'men' && (
-                  <Accordion type="multiple" className="w-full space-y-4">
-                    <AccordionItem value="item-1" className="rounded-md border bg-card shadow-sm transition-all duration-200">
-                      <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
-                        Shirt / Kurta / Bandi Measurements (inches)
-                      </AccordionTrigger>
-                      <AccordionContent className="p-4 border-t bg-background rounded-b-md">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div><Label htmlFor="menShirtLength">Length</Label><Input id="menShirtLength" type="number" value={menShirtLength} onChange={(e) => setMenShirtLength(e.target.value)} placeholder="e.g., 28" /></div>
-                          <div><Label htmlFor="menShirtChest">Chest</Label><Input id="menShirtChest" type="number" value={menShirtChest} onChange={(e) => setMenShirtChest(e.target.value)} placeholder="e.g., 40" /></div>
-                          <div><Label htmlFor="menShirtWaist">Waist</Label><Input id="menShirtWaist" type="number" value={menShirtWaist} onChange={(e) => setMenShirtWaist(e.target.value)} placeholder="e.g., 38" /></div>
-                          <div><Label htmlFor="menShirtSleeveLength">Sleeve Length</Label><Input id="menShirtSleeveLength" type="number" value={menShirtSleeveLength} onChange={(e) => setMenShirtSleeveLength(e.target.value)} placeholder="e.g., 24" /></div>
-                          <div><Label htmlFor="menShirtShoulder">Shoulder</Label><Input id="menShirtShoulder" type="number" value={menShirtShoulder} onChange={(e) => setMenShirtShoulder(e.target.value)} placeholder="e.g., 18" /></div>
-                          <div><Label htmlFor="menShirtNeck">Neck</Label><Input id="menShirtNeck" type="number" value={menShirtNeck} onChange={(e) => setMenShirtNeck(e.target.value)} placeholder="e.g., 15" /></div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-      
-                    <AccordionItem value="item-2" className="rounded-md border bg-card shadow-sm transition-all duration-200">
-                      <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
-                        Pant / Paijama Measurements (inches)
-                      </AccordionTrigger>
-                      <AccordionContent className="p-4 border-t bg-background rounded-b-md">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div><Label htmlFor="menPantLength">Length</Label><Input id="menPantLength" type="number" value={menPantLength} onChange={(e) => setMenPantLength(e.target.value)} placeholder="e.g., 40" /></div>
-                          <div><Label htmlFor="menPantWaist">Waist</Label><Input id="menPantWaist" type="number" value={menPantWaist} onChange={(e) => setMenPantWaist(e.target.value)} placeholder="e.g., 32" /></div>
-                          <div><Label htmlFor="menPantHip">Hip</Label><Input id="menPantHip" type="number" value={menPantHip} onChange={(e) => setMenPantHip(e.target.value)} placeholder="e.g., 38" /></div>
-                          <div><Label htmlFor="menPantThigh">Thigh</Label><Input id="menPantThigh" type="number" value={menPantThigh} onChange={(e) => setMenPantThigh(e.target.value)} placeholder="e.g., 22" /></div>
-                          <div><Label htmlFor="menPantBottom">Bottom</Label><Input id="menPantBottom" type="number" value={menPantBottom} onChange={(e) => setMenPantBottom(e.target.value)} placeholder="e.g., 14" /></div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-      
-                    <AccordionItem value="item-3" className="rounded-md border bg-card shadow-sm transition-all duration-200">
-                      <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
-                        Coat / Washcoat / Bajezar Measurements (inches)
-                      </AccordionTrigger>
-                      <AccordionContent className="p-4 border-t bg-background rounded-b-md">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div><Label htmlFor="menCoatLength">Length</Label><Input id="menCoatLength" type="number" value={menCoatLength} onChange={(e) => setMenCoatLength(e.target.value)} placeholder="e.g., 28" /></div>
-                          <div><Label htmlFor="menCoatChest">Chest</Label><Input id="menCoatChest" type="number" value={menCoatChest} onChange={(e) => setMenCoatChest(e.target.value)} placeholder="e.g., 40" /></div>
-                          <div><Label htmlFor="menCoatWaist">Waist</Label><Input id="menCoatWaist" type="number" value={menCoatWaist} onChange={(e) => setMenCoatWaist(e.target.value)} placeholder="e.g., 36" /></div>
-                          <div><Label htmlFor="menCoatSleeveLength">Sleeve Length</Label><Input id="menCoatSleeveLength" type="number" value={menCoatSleeveLength} onChange={(e) => setMenCoatSleeveLength(e.target.value)} placeholder="e.g., 25" /></div>
-                          <div><Label htmlFor="menCoatShoulder">Shoulder</Label><Input id="menCoatShoulder" type="number" value={menCoatShoulder} onChange={(e) => setMenCoatShoulder(e.target.value)} placeholder="e.g., 18" /></div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                )}
-      
-                {measurementType === 'women' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="ladiesSize" className="text-base font-semibold text-foreground">Select Size</Label>
-                    <Select onValueChange={setLadiesSize} value={ladiesSize}>
-                      <SelectTrigger id="ladiesSize" className="w-full">
-                        <SelectValue placeholder="Select your size" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="XS">XS</SelectItem>
-                        <SelectItem value="S">S</SelectItem>
-                        <SelectItem value="M">M</SelectItem>
-                        <SelectItem value="L">L</SelectItem>
-                        <SelectItem value="XL">XL</SelectItem>
-                        <SelectItem value="XXL">XXL</SelectItem>
-                        <SelectItem value="Custom">Custom</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-      
-                {/* Additional Notes Box */}
-                <div className="space-y-2">
-                  <Label htmlFor="notes" className="text-base font-semibold text-foreground">Additional Notes / Specific Instructions</Label>
-                  <Textarea
-                    id="notes"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="e.g., Please make the shirt slightly loose, or provide specific measurements not listed above."
-                    rows={5}
-                  />
-                </div>
-      
-                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save Measurements'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        );
-      };
-      
-      export default MeasurementForm;
+              </AccordionContent>
+            </AccordionItem>
+          );
+        })}
+      </Accordion>
+    );
+  };
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle className="text-xl font-bold text-foreground">Your Measurements</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSaveMeasurements} className="space-y-6">
+          {/* Measurement Type Selection */}
+          <div className="space-y-2">
+            <Label className="text-base font-semibold text-foreground">Select Measurement Type</Label>
+            <Select onValueChange={setSelectedMeasurementTypeId} value={selectedMeasurementTypeId}>
+              <SelectTrigger id="measurementType" className="w-full">
+                <SelectValue placeholder="Select your measurement type" />
+              </SelectTrigger>
+              <SelectContent>
+                {measurementTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {renderMeasurementInputs()}
+
+          {/* Additional Notes Box - always available if 'notes' is a relevant field */}
+          {currentMeasurementType?.relevant_fields.includes('notes') && (
+            <div className="space-y-2">
+              <Label htmlFor="notes" className="text-base font-semibold text-foreground">
+                {measurementFieldConfig.notes.label}
+              </Label>
+              <Textarea
+                id="notes"
+                value={(formValues.notes as string) || ''}
+                onChange={(e) => handleInputChange('notes', e.target.value)}
+                placeholder="e.g., Please make the shirt slightly loose, or provide specific measurements not listed above."
+                rows={5}
+              />
+            </div>
+          )}
+
+          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
+            {loading ? 'Saving...' : 'Save Measurements'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default MeasurementForm;

@@ -14,6 +14,8 @@ import {
 import MeasurementTypeForm from '@/components/admin/MeasurementTypeForm';
 import { getMeasurementTypes, createMeasurementType, updateMeasurementType, deleteMeasurementType, MeasurementType } from '@/utils/measurementTypes';
 import { showError } from '@/utils/toast';
+import { Badge } from '@/components/ui/badge';
+import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
 
 const MeasurementTypeManagement: React.FC = () => {
   const [measurementTypes, setMeasurementTypes] = useState<MeasurementType[]>([]);
@@ -23,6 +25,33 @@ const MeasurementTypeManagement: React.FC = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [typeToDelete, setTypeToDelete] = useState<string | null>(null);
+
+  // Define a mapping from UserMeasurements keys to friendly labels for display
+  const fieldLabels: Record<keyof UserMeasurements, string> = {
+    ladies_size: 'Ladies\' Size',
+    men_shirt_length: 'Shirt Length',
+    men_shirt_chest: 'Shirt Chest',
+    men_shirt_waist: 'Shirt Waist',
+    men_shirt_sleeve_length: 'Shirt Sleeve Length',
+    men_shirt_shoulder: 'Shirt Shoulder',
+    men_shirt_neck: 'Shirt Neck',
+    men_pant_length: 'Pant Length',
+    men_pant_waist: 'Pant Waist',
+    men_pant_hip: 'Pant Hip',
+    men_pant_thigh: 'Pant Thigh',
+    men_pant_bottom: 'Pant Bottom',
+    men_coat_length: 'Coat Length',
+    men_coat_chest: 'Coat Chest',
+    men_coat_waist: 'Coat Waist',
+    men_coat_sleeve_length: 'Coat Sleeve Length',
+    men_coat_shoulder: 'Coat Shoulder',
+    notes: 'Notes',
+    // Add other fields from UserMeasurements if necessary, ensuring they are in the type
+    id: 'ID', // These are not typically displayed as relevant fields, but included for type safety
+    user_id: 'User ID',
+    measurement_type: 'Measurement Type',
+    updated_at: 'Updated At',
+  };
 
   const fetchMeasurementTypes = async () => {
     setLoading(true);
@@ -104,6 +133,7 @@ const MeasurementTypeManagement: React.FC = () => {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Description</TableHead>
+                    <TableHead>Relevant Fields</TableHead> {/* New column */}
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -112,6 +142,19 @@ const MeasurementTypeManagement: React.FC = () => {
                     <TableRow key={type.id}>
                       <TableCell className="font-medium">{type.name}</TableCell>
                       <TableCell>{type.description || 'N/A'}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {type.relevant_fields && type.relevant_fields.length > 0 ? (
+                            type.relevant_fields.map((fieldKey) => (
+                              <Badge key={fieldKey} variant="secondary" className="whitespace-nowrap">
+                                {fieldLabels[fieldKey] || fieldKey}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground text-sm">None specified</span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleEditType(type)}>
                           <Pencil className="h-4 w-4" />
