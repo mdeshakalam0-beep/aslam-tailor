@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { showSuccess, showError } from '@/utils/toast';
 import { format } from 'date-fns';
 import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
-import OrderDetailsDialogUser from '@/components/OrderDetailsDialogUser'; // Import the new dialog
+// Removed import for OrderDetailsDialogUser as it's no longer used
 
 interface OrderItem {
   id: string;
@@ -49,8 +49,7 @@ const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isOrderDetailsDialogOpen, setIsOrderDetailsDialogOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  // Removed states for dialog: isOrderDetailsDialogOpen, selectedOrder
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -84,71 +83,8 @@ const Orders: React.FC = () => {
     fetchOrders();
   }, [session]);
 
-  const formatPaymentMethod = (method?: string) => {
-    switch (method) {
-      case 'cod':
-        return 'Cash on Delivery';
-      case 'qr_code':
-        return 'QR Code Payment';
-      case 'phonepe':
-        return 'PhonePe';
-      default:
-        return 'N/A';
-    }
-  };
-
-  const renderMeasurements = (measurements?: UserMeasurements) => {
-    if (!measurements || measurements.measurement_type === null) return null;
-
-    if (measurements.measurement_type === 'women' && measurements.ladies_size) {
-      return (
-        <div className="mb-4 p-3 border rounded-md bg-muted/50">
-          <h4 className="font-semibold text-foreground mb-1">Ladies' Size:</h4>
-          <p className="text-sm text-muted-foreground">{measurements.ladies_size}</p>
-        </div>
-      );
-    }
-
-    if (measurements.measurement_type === 'men') {
-      const menMeasurements = [
-        { label: 'Shirt Length', value: measurements.men_shirt_length },
-        { label: 'Shirt Chest', value: measurements.men_shirt_chest },
-        { label: 'Shirt Waist', value: measurements.men_shirt_waist },
-        { label: 'Sleeve Length', value: measurements.men_shirt_sleeve_length },
-        { label: 'Shoulder', value: measurements.men_shirt_shoulder },
-        { label: 'Neck', value: measurements.men_shirt_neck },
-        { label: 'Pant Length', value: measurements.men_pant_length },
-        { label: 'Pant Waist', value: measurements.men_pant_waist },
-        { label: 'Pant Hip', value: measurements.men_pant_hip },
-        { label: 'Pant Thigh', value: measurements.men_pant_thigh },
-        { label: 'Pant Bottom', value: measurements.men_pant_bottom },
-        { label: 'Coat Length', value: measurements.men_coat_length },
-        { label: 'Coat Chest', value: measurements.men_coat_chest },
-        { label: 'Coat Waist', value: measurements.men_coat_waist },
-        { label: 'Coat Sleeve Length', value: measurements.men_coat_sleeve_length },
-        { label: 'Coat Shoulder', value: measurements.men_coat_shoulder },
-      ].filter(m => m.value !== null && m.value !== undefined);
-
-      if (menMeasurements.length === 0 && !measurements.notes) return null;
-
-      return (
-        <div className="mb-4 p-3 border rounded-md bg-muted/50">
-          <h4 className="font-semibold text-foreground mb-1">Men's Measurements (inches):</h4>
-          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-            {menMeasurements.map((m, idx) => (
-              <div key={idx}><span className="font-medium">{m.label}:</span> {m.value}</div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const handleViewOrderDetails = (order: Order) => {
-    setSelectedOrder(order);
-    setIsOrderDetailsDialogOpen(true);
-  };
+  // Removed renderMeasurements function as it's now in OrderDetailsPage
+  // Removed handleViewOrderDetails function as it's replaced by Link navigation
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
@@ -170,64 +106,62 @@ const Orders: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {orders.map((order) => (
-              <Card 
+              <Link 
                 key={order.id} 
-                className="shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => handleViewOrderDetails(order)} // Make the entire card clickable
+                to={`/orders/${order.id}`} // Navigate to new OrderDetailsPage
+                className="block"
               >
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-lg font-semibold">Order #{order.id.substring(0, 8)}</CardTitle>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </span>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Order Date: {format(new Date(order.order_date), 'PPP')}
-                  </p>
-                  <p className="text-lg font-bold text-foreground mb-4">
-                    Total: ₹{order.total_amount.toLocaleString()}
-                    {order.donation_amount && order.donation_amount > 0 && (
-                      <span className="text-xs text-muted-foreground ml-2">(Incl. ₹{order.donation_amount} Donation)</span>
-                    )}
-                  </p>
-                  
-                  {/* Display only a summary of items here, full details in dialog */}
-                  <div className="space-y-3">
-                    {order.items.slice(0, 3).map((item, itemIndex) => ( // Show first 3 items as summary
-                      <div key={itemIndex} className="flex items-center space-x-4 border-t pt-3 first:border-t-0 first:pt-0">
-                        <img src={item.imageUrl} alt={item.name} className="w-12 h-12 object-cover rounded-md" />
-                        <div className="flex-1">
-                          <p className="font-medium text-foreground">{item.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Qty: {item.quantity} {item.selectedSize && `(Size: ${item.selectedSize})`}
-                          </p>
+                <Card 
+                  className="shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-lg font-semibold">Order #{order.id.substring(0, 8)}</CardTitle>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </span>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Order Date: {format(new Date(order.order_date), 'PPP')}
+                    </p>
+                    <p className="text-lg font-bold text-foreground mb-4">
+                      Total: ₹{order.total_amount.toLocaleString()}
+                      {order.donation_amount && order.donation_amount > 0 && (
+                        <span className="text-xs text-muted-foreground ml-2">(Incl. ₹{order.donation_amount} Donation)</span>
+                      )}
+                    </p>
+                    
+                    {/* Display only a summary of items here, full details in dialog */}
+                    <div className="space-y-3">
+                      {order.items.slice(0, 3).map((item, itemIndex) => ( // Show first 3 items as summary
+                        <div key={itemIndex} className="flex items-center space-x-4 border-t pt-3 first:border-t-0 first:pt-0">
+                          <img src={item.imageUrl} alt={item.name} className="w-12 h-12 object-cover rounded-md" />
+                          <div className="flex-1">
+                            <p className="font-medium text-foreground">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Qty: {item.quantity} {item.selectedSize && `(Size: ${item.selectedSize})`}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    {order.items.length > 3 && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        +{order.items.length - 3} more items. Click to view full order details.
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                      ))}
+                      {order.items.length > 3 && (
+                        <p className="text-sm text-muted-foreground mt-2">
+                          +{order.items.length - 3} more items. Click to view full order details.
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         )}
       </main>
       <BottomNavigation />
-
-      <OrderDetailsDialogUser
-        order={selectedOrder}
-        isOpen={isOrderDetailsDialogOpen}
-        onClose={() => setIsOrderDetailsDialogOpen(false)}
-      />
     </div>
   );
 };

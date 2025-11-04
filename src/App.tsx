@@ -13,6 +13,7 @@ import Favorites from "./pages/Favorites";
 import CheckoutAddress from "./pages/CheckoutAddress";
 import CheckoutPayment from "./pages/CheckoutPayment";
 import CategoryProducts from "./pages/CategoryProducts";
+import OrderDetailsPage from "./pages/OrderDetailsPage"; // Import the new OrderDetailsPage
 import { SessionContextProvider } from "./components/SessionContextProvider";
 import AdminLayout from "./components/admin/AdminLayout";
 import ProductManagement from "./pages/admin/ProductManagement";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Index />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/orders/:orderId" element={<OrderDetailsPage />} /> {/* New route for order details page */}
             <Route path="/measurement" element={<Measurement />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/profile" element={<Profile />} />
