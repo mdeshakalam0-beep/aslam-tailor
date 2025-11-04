@@ -42,6 +42,8 @@ const Login = () => {
                 colors: {
                   brand: 'hsl(var(--primary))',
                   brandAccent: 'hsl(var(--accent))',
+                  // Set foreground to black for better visibility
+                  foreground: 'hsl(0 0% 0%)', 
                 },
               },
             },
