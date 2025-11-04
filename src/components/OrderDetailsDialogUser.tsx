@@ -105,16 +105,19 @@ const OrderDetailsDialogUser: React.FC<OrderDetailsDialogUserProps> = ({ order, 
     { label: 'Coat Shoulder', value: order.user_measurements.men_coat_shoulder },
   ].filter(m => m.value !== null && m.value !== undefined) : [];
 
+  const dialogTitleId = `order-details-title-${order.id}`;
+  const dialogDescriptionId = `order-details-description-${order.id}`;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
         className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" 
-        aria-labelledby="order-details-title"
-        aria-describedby="order-details-description" // Added aria-describedby
+        aria-labelledby={dialogTitleId}
+        aria-describedby={dialogDescriptionId}
       >
         <DialogHeader>
-          <DialogTitle id="order-details-title">Order Details - #{order.id.substring(0, 8)}</DialogTitle>
-          <DialogDescription id="order-details-description"> {/* Added id to DialogDescription */}
+          <DialogTitle id={dialogTitleId}>Order Details - #{order.id.substring(0, 8)}</DialogTitle>
+          <DialogDescription id={dialogDescriptionId}>
             आपके ऑर्डर का विस्तृत विवरण।
           </DialogDescription>
         </DialogHeader>
