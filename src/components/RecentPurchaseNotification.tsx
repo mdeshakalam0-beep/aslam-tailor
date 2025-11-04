@@ -36,9 +36,9 @@ const RecentPurchaseNotification: React.FC = () => {
       );
     };
 
-    // Show a notification every 10-20 seconds
-    const minInterval = 10000; // 10 seconds
-    const maxInterval = 20000; // 20 seconds
+    // Show a notification with a randomized interval between 5 seconds and 5 minutes
+    const minInterval = 5000;   // 5 seconds
+    const maxInterval = 300000; // 5 minutes (300 * 1000 ms)
 
     const startInterval = () => {
       const randomInterval = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
