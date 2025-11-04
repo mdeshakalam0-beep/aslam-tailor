@@ -30,7 +30,7 @@ const Login = () => {
       {loginBgImageUrl && (
         <div className="absolute inset-0 bg-background opacity-70 z-0"></div>
       )}
-      <div className="w-full max-w-md z-10 relative">
+      <div className="w-full max-w-md z-10 relative p-6 rounded-lg shadow-lg bg-background/80 backdrop-blur-sm"> {/* Added classes here */}
         <h1 className="text-3xl font-bold text-center text-foreground mb-6">Welcome to ASLAM TAILOR</h1>
         <Auth
           supabaseClient={supabase}
@@ -42,7 +42,6 @@ const Login = () => {
                 colors: {
                   brand: 'hsl(var(--primary))',
                   brandAccent: 'hsl(var(--accent))',
-                  // Set foreground to black for better visibility
                   foreground: 'hsl(0 0% 0%)', 
                 },
               },
