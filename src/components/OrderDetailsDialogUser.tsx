@@ -107,10 +107,14 @@ const OrderDetailsDialogUser: React.FC<OrderDetailsDialogUserProps> = ({ order, 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="order-details-title">
+      <DialogContent 
+        className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" 
+        aria-labelledby="order-details-title"
+        aria-describedby="order-details-description" // Added aria-describedby
+      >
         <DialogHeader>
           <DialogTitle id="order-details-title">Order Details - #{order.id.substring(0, 8)}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription id="order-details-description"> {/* Added id to DialogDescription */}
             आपके ऑर्डर का विस्तृत विवरण।
           </DialogDescription>
         </DialogHeader>
