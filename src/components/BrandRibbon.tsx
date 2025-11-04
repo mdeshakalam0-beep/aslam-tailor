@@ -9,7 +9,7 @@ const BrandRibbon: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const plugin = useRef(
-    Autoplay({ delay: 0, stopOnInteraction: false, playOnInit: true, speed: 15 }) // Continuous, non-stop scroll
+    Autoplay({ delay: 0, stopOnInteraction: false, playOnInit: true, speed: 5 }) // Speed reduced from 15 to 5
   );
 
   useEffect(() => {
