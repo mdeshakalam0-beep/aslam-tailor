@@ -3,18 +3,19 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Star, Heart as HeartIconFilled, Heart as HeartIconOutline, Ruler } from 'lucide-react'; // Added Ruler icon
+import { ArrowLeft, Star, Heart as HeartIconFilled, Heart as HeartIconOutline, Ruler } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ProductCard from '@/components/ProductCard';
-import ProductMeasurementSelector from '@/components/ProductMeasurementSelector'; // Import new component
+import ProductMeasurementSelector from '@/components/ProductMeasurementSelector';
 import { addToCart } from '@/utils/cart';
-import { showError } from '@/utils/toast';
-import { getProductById, getRecommendedProducts, Product } from '@/utils/products'; // Import Product interface
+import { showError, showSuccess } from '@/utils/toast'; // Import showSuccess
+import { getProductById, getRecommendedProducts, Product } from '@/utils/products';
 import { isProductFavorited, addFavorite, removeFavorite } from '@/utils/favorites';
 import { useSession } from '@/components/SessionContextProvider';
+import { cn } from '@/lib/utils'; // Import cn for conditional classes
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [isCustomMeasurementActive, setIsCustomMeasurementActive] = useState(false); // New state for mutual exclusion
 
   const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
@@ -73,33 +75,63 @@ const ProductDetail: React.FC = () => {
     );
   }
 
+  const handleSizeSelect = (size: string) => {
+    setSelectedSize(size);
+    setIsCustomMeasurementActive(false); // Deactivate custom measurements when a size is selected
+  };
+
+  const handleMeasurementInteraction = () => {
+    setIsCustomMeasurementActive(true); // Activate custom measurements
+    setSelectedSize(undefined); // Clear selected size when interacting with measurements
+  };
+
   const handleAddToCart = () => {
-    if (!selectedSize) {
-      showError('Please select a size before adding to cart.');
-      return;
+    if (isCustomMeasurementActive) {
+      // Add product with a placeholder size for custom measurements
+      addToCart({
+        id: product.id,
+        name: product.name,
+        imageUrl: product.images[0],
+        price: product.price,
+        selectedSize: "Custom Fit", // Placeholder for custom measurements
+      });
+      showSuccess('Product added to cart with custom measurement option!');
+    } else if (selectedSize) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        imageUrl: product.images[0],
+        price: product.price,
+        selectedSize: selectedSize,
+      });
+    } else {
+      showError('Please select a size or opt for custom measurements.');
     }
-    addToCart({
-      id: product.id,
-      name: product.name,
-      imageUrl: product.images[0],
-      price: product.price,
-      selectedSize: selectedSize,
-    });
   };
 
   const handleBuyNow = () => {
-    if (!selectedSize) {
-      showError('Please select a size before buying.');
-      return;
+    if (isCustomMeasurementActive) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        imageUrl: product.images[0],
+        price: product.price,
+        selectedSize: "Custom Fit",
+      });
+      showSuccess('Product added to cart with custom measurement option!');
+      navigate('/cart');
+    } else if (selectedSize) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        imageUrl: product.images[0],
+        price: product.price,
+        selectedSize: selectedSize,
+      });
+      navigate('/cart');
+    } else {
+      showError('Please select a size or opt for custom measurements.');
     }
-    addToCart({
-      id: product.id,
-      name: product.name,
-      imageUrl: product.images[0],
-      price: product.price,
-      selectedSize: selectedSize,
-    });
-    navigate('/cart'); // Redirect to cart page
   };
 
   const handleToggleFavorite = async () => {
@@ -184,12 +216,13 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* Size Selection */}
-          <div className="space-y-2">
+          <div className={cn("space-y-2", isCustomMeasurementActive && "opacity-50 pointer-events-none")}>
             <Label className="text-base font-semibold text-foreground">Select Size</Label>
             <RadioGroup
-              onValueChange={setSelectedSize}
+              onValueChange={handleSizeSelect}
               value={selectedSize}
               className="flex flex-wrap gap-2"
+              disabled={isCustomMeasurementActive} // Disable if custom measurement is active
             >
               {product.sizes.map((size) => (
                 <div key={size} className="flex items-center space-x-2">
@@ -205,6 +238,15 @@ const ProductDetail: React.FC = () => {
             </RadioGroup>
           </div>
 
+          {/* In-page Measurement Selector */}
+          <div className={cn("pt-6 border-t border-border mt-6", selectedSize && "opacity-50 pointer-events-none")}>
+            <ProductMeasurementSelector 
+              session={session} 
+              onInteraction={handleMeasurementInteraction}
+              isDisabled={!!selectedSize} // Disable if a standard size is selected
+            />
+          </div>
+
           {/* Action Buttons */}
           <div className="flex gap-4">
             <Button className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleAddToCart}>
@@ -213,11 +255,6 @@ const ProductDetail: React.FC = () => {
             <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleBuyNow}>
               Buy Now
             </Button>
-          </div>
-
-          {/* In-page Measurement Selector */}
-          <div className="pt-6 border-t border-border mt-6">
-            <ProductMeasurementSelector session={session} />
           </div>
         </div>
 
