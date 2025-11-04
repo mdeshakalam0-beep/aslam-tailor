@@ -133,7 +133,7 @@ const MeasurementTypeManagement: React.FC = () => {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead>Relevant Fields</TableHead> {/* New column */}
+                    <TableHead>Relevant Fields</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
