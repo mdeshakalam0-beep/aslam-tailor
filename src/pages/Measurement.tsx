@@ -15,17 +15,9 @@ const Measurement: React.FC = () => {
   const [userGender, setUserGender] = useState<'men' | 'women' | 'not_specified'>('not_specified');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [preselectedType, setPreselectedType] = useState<'men' | 'women' | ''>(''); // New state for preselected type
+  // Removed preselectedType state as it's no longer needed here
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const typeParam = queryParams.get('type');
-    if (typeParam === 'men' || typeParam === 'women') {
-      setPreselectedType(typeParam);
-    } else {
-      setPreselectedType('');
-    }
-  }, [location.search]);
+  // Removed useEffect for reading URL params as preselectedType is no longer used
 
   const fetchUserData = async () => {
     if (!session?.user) {
@@ -94,7 +86,7 @@ const Measurement: React.FC = () => {
             initialMeasurements={initialMeasurements} 
             onSaveSuccess={fetchUserData} 
             userGender={userGender}
-            preselectedType={preselectedType} // Pass preselectedType to MeasurementForm
+            // Removed preselectedType prop
           />
         )}
       </main>

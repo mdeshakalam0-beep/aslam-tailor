@@ -9,7 +9,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ProductCard from '@/components/ProductCard';
-// import MeasurementForm from '@/components/MeasurementForm'; // Removed direct import
+import ProductMeasurementSelector from '@/components/ProductMeasurementSelector'; // Import new component
 import { addToCart } from '@/utils/cart';
 import { showError } from '@/utils/toast';
 import { getProductById, getRecommendedProducts, Product } from '@/utils/products'; // Import Product interface
@@ -215,14 +215,9 @@ const ProductDetail: React.FC = () => {
             </Button>
           </div>
 
-          {/* Link to Measurement Form */}
+          {/* In-page Measurement Selector */}
           <div className="pt-6 border-t border-border mt-6">
-            <h3 className="text-lg font-semibold text-foreground mb-3">Need Custom Measurements?</h3>
-            <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
-              <Link to="/measurement">
-                <Ruler className="h-4 w-4 mr-2" /> Add/Edit My Measurements
-              </Link>
-            </Button>
+            <ProductMeasurementSelector session={session} />
           </div>
         </div>
 

@@ -17,10 +17,10 @@ interface MeasurementFormProps {
   initialMeasurements?: UserMeasurements;
   onSaveSuccess?: () => void;
   userGender: 'men' | 'women' | 'not_specified';
-  preselectedType?: 'men' | 'women' | ''; // New prop for preselected type
+  // Removed preselectedType prop
 }
 
-const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, onSaveSuccess, userGender, preselectedType }) => {
+const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, onSaveSuccess, userGender }) => {
   const { session } = useSession();
   const [measurementType, setMeasurementType] = useState<'men' | 'women' | ''>(initialMeasurements?.measurement_type || '');
   const [notes, setNotes] = useState(initialMeasurements?.notes || '');
@@ -77,14 +77,12 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
     }
   }, [initialMeasurements]);
 
-  // Set initial measurement type based on user's gender or preselectedType if not already set
+  // Set initial measurement type based on user's gender if not already set
   useEffect(() => {
-    if (preselectedType && !measurementType) {
-      setMeasurementType(preselectedType);
-    } else if (!measurementType && userGender !== 'not_specified') {
+    if (!measurementType && userGender !== 'not_specified') {
       setMeasurementType(userGender);
     }
-  }, [userGender, measurementType, preselectedType]);
+  }, [userGender, measurementType]);
 
   const handleSaveMeasurements = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -175,138 +173,138 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
         if (error) throw error;
         showSuccess('Gender preference updated!');
       } catch (err) {
-        console.error('Error updating gender preference:', err);
-        showError('Failed to update gender preference.');
-      }
-    }
-  };
-
-  return (
-    <Card className="mt-6">
-      <CardHeader>
-        <CardTitle className="text-xl font-bold text-foreground">Your Measurements</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSaveMeasurements} className="space-y-6">
-          {/* Gender/Measurement Type Selection */}
-          <div className="space-y-2">
-            <Label className="text-base font-semibold text-foreground">Select Measurement Type</Label>
-            <RadioGroup onValueChange={handleGenderChange} value={measurementType} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Label
-                htmlFor="men"
-                className={cn(
-                  "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200",
-                  measurementType === 'men' && "border-primary ring-2 ring-primary shadow-md"
+              console.error('Error updating gender preference:', err);
+              showError('Failed to update gender preference.');
+            }
+          }
+        };
+      
+        return (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-foreground">Your Measurements</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSaveMeasurements} className="space-y-6">
+                {/* Gender/Measurement Type Selection */}
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold text-foreground">Select Measurement Type</Label>
+                  <RadioGroup onValueChange={handleGenderChange} value={measurementType} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Label
+                      htmlFor="men"
+                      className={cn(
+                        "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200",
+                        measurementType === 'men' && "border-primary ring-2 ring-primary shadow-md"
+                      )}
+                    >
+                      <RadioGroupItem value="men" id="men" className="sr-only" />
+                      <span className="text-lg font-medium">Men's Measurements</span>
+                      <span className="text-sm text-muted-foreground text-center mt-1">Shirt, Pant, Coat, etc.</span>
+                    </Label>
+      
+                    <Label
+                      htmlFor="women"
+                      className={cn(
+                        "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200",
+                        measurementType === 'women' && "border-primary ring-2 ring-primary shadow-md"
+                      )}
+                    >
+                      <RadioGroupItem value="women" id="women" className="sr-only" />
+                      <span className="text-lg font-medium">Ladies' Size</span>
+                      <span className="text-sm text-muted-foreground text-center mt-1">Standard sizes (XS, S, M, L, XL, XXL)</span>
+                    </Label>
+                  </RadioGroup>
+                </div>
+      
+                {measurementType === 'men' && (
+                  <Accordion type="multiple" className="w-full space-y-4">
+                    <AccordionItem value="item-1" className="rounded-md border bg-card shadow-sm transition-all duration-200">
+                      <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                        Shirt / Kurta / Bandi Measurements (inches)
+                      </AccordionTrigger>
+                      <AccordionContent className="p-4 border-t bg-background rounded-b-md">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div><Label htmlFor="menShirtLength">Length</Label><Input id="menShirtLength" type="number" value={menShirtLength} onChange={(e) => setMenShirtLength(e.target.value)} placeholder="e.g., 28" /></div>
+                          <div><Label htmlFor="menShirtChest">Chest</Label><Input id="menShirtChest" type="number" value={menShirtChest} onChange={(e) => setMenShirtChest(e.target.value)} placeholder="e.g., 40" /></div>
+                          <div><Label htmlFor="menShirtWaist">Waist</Label><Input id="menShirtWaist" type="number" value={menShirtWaist} onChange={(e) => setMenShirtWaist(e.target.value)} placeholder="e.g., 38" /></div>
+                          <div><Label htmlFor="menShirtSleeveLength">Sleeve Length</Label><Input id="menShirtSleeveLength" type="number" value={menShirtSleeveLength} onChange={(e) => setMenShirtSleeveLength(e.target.value)} placeholder="e.g., 24" /></div>
+                          <div><Label htmlFor="menShirtShoulder">Shoulder</Label><Input id="menShirtShoulder" type="number" value={menShirtShoulder} onChange={(e) => setMenShirtShoulder(e.target.value)} placeholder="e.g., 18" /></div>
+                          <div><Label htmlFor="menShirtNeck">Neck</Label><Input id="menShirtNeck" type="number" value={menShirtNeck} onChange={(e) => setMenShirtNeck(e.target.value)} placeholder="e.g., 15" /></div>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+      
+                    <AccordionItem value="item-2" className="rounded-md border bg-card shadow-sm transition-all duration-200">
+                      <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                        Pant / Paijama Measurements (inches)
+                      </AccordionTrigger>
+                      <AccordionContent className="p-4 border-t bg-background rounded-b-md">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div><Label htmlFor="menPantLength">Length</Label><Input id="menPantLength" type="number" value={menPantLength} onChange={(e) => setMenPantLength(e.target.value)} placeholder="e.g., 40" /></div>
+                          <div><Label htmlFor="menPantWaist">Waist</Label><Input id="menPantWaist" type="number" value={menPantWaist} onChange={(e) => setMenPantWaist(e.target.value)} placeholder="e.g., 32" /></div>
+                          <div><Label htmlFor="menPantHip">Hip</Label><Input id="menPantHip" type="number" value={menPantHip} onChange={(e) => setMenPantHip(e.target.value)} placeholder="e.g., 38" /></div>
+                          <div><Label htmlFor="menPantThigh">Thigh</Label><Input id="menPantThigh" type="number" value={menPantThigh} onChange={(e) => setMenPantThigh(e.target.value)} placeholder="e.g., 22" /></div>
+                          <div><Label htmlFor="menPantBottom">Bottom</Label><Input id="menPantBottom" type="number" value={menPantBottom} onChange={(e) => setMenPantBottom(e.target.value)} placeholder="e.g., 14" /></div>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+      
+                    <AccordionItem value="item-3" className="rounded-md border bg-card shadow-sm transition-all duration-200">
+                      <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                        Coat / Washcoat / Bajezar Measurements (inches)
+                      </AccordionTrigger>
+                      <AccordionContent className="p-4 border-t bg-background rounded-b-md">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div><Label htmlFor="menCoatLength">Length</Label><Input id="menCoatLength" type="number" value={menCoatLength} onChange={(e) => setMenCoatLength(e.target.value)} placeholder="e.g., 28" /></div>
+                          <div><Label htmlFor="menCoatChest">Chest</Label><Input id="menCoatChest" type="number" value={menCoatChest} onChange={(e) => setMenCoatChest(e.target.value)} placeholder="e.g., 40" /></div>
+                          <div><Label htmlFor="menCoatWaist">Waist</Label><Input id="menCoatWaist" type="number" value={menCoatWaist} onChange={(e) => setMenCoatWaist(e.target.value)} placeholder="e.g., 36" /></div>
+                          <div><Label htmlFor="menCoatSleeveLength">Sleeve Length</Label><Input id="menCoatSleeveLength" type="number" value={menCoatSleeveLength} onChange={(e) => setMenCoatSleeveLength(e.target.value)} placeholder="e.g., 25" /></div>
+                          <div><Label htmlFor="menCoatShoulder">Shoulder</Label><Input id="menCoatShoulder" type="number" value={menCoatShoulder} onChange={(e) => setMenCoatShoulder(e.target.value)} placeholder="e.g., 18" /></div>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
                 )}
-              >
-                <RadioGroupItem value="men" id="men" className="sr-only" />
-                <span className="text-lg font-medium">Men's Measurements</span>
-                <span className="text-sm text-muted-foreground text-center mt-1">Shirt, Pant, Coat, etc.</span>
-              </Label>
-
-              <Label
-                htmlFor="women"
-                className={cn(
-                  "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200",
-                  measurementType === 'women' && "border-primary ring-2 ring-primary shadow-md"
+      
+                {measurementType === 'women' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="ladiesSize" className="text-base font-semibold text-foreground">Select Size</Label>
+                    <Select onValueChange={setLadiesSize} value={ladiesSize}>
+                      <SelectTrigger id="ladiesSize" className="w-full">
+                        <SelectValue placeholder="Select your size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="XS">XS</SelectItem>
+                        <SelectItem value="S">S</SelectItem>
+                        <SelectItem value="M">M</SelectItem>
+                        <SelectItem value="L">L</SelectItem>
+                        <SelectItem value="XL">XL</SelectItem>
+                        <SelectItem value="XXL">XXL</SelectItem>
+                        <SelectItem value="Custom">Custom</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 )}
-              >
-                <RadioGroupItem value="women" id="women" className="sr-only" />
-                <span className="text-lg font-medium">Ladies' Size</span>
-                <span className="text-sm text-muted-foreground text-center mt-1">Standard sizes (XS, S, M, L, XL, XXL)</span>
-              </Label>
-            </RadioGroup>
-          </div>
-
-          {measurementType === 'men' && (
-            <Accordion type="multiple" className="w-full space-y-4">
-              <AccordionItem value="item-1" className="rounded-md border bg-card shadow-sm transition-all duration-200">
-                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
-                  Shirt / Kurta / Bandi Measurements (inches)
-                </AccordionTrigger>
-                <AccordionContent className="p-4 border-t bg-background rounded-b-md">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div><Label htmlFor="menShirtLength">Length</Label><Input id="menShirtLength" type="number" value={menShirtLength} onChange={(e) => setMenShirtLength(e.target.value)} placeholder="e.g., 28" /></div>
-                    <div><Label htmlFor="menShirtChest">Chest</Label><Input id="menShirtChest" type="number" value={menShirtChest} onChange={(e) => setMenShirtChest(e.target.value)} placeholder="e.g., 40" /></div>
-                    <div><Label htmlFor="menShirtWaist">Waist</Label><Input id="menShirtWaist" type="number" value={menShirtWaist} onChange={(e) => setMenShirtWaist(e.target.value)} placeholder="e.g., 38" /></div>
-                    <div><Label htmlFor="menShirtSleeveLength">Sleeve Length</Label><Input id="menShirtSleeveLength" type="number" value={menShirtSleeveLength} onChange={(e) => setMenShirtSleeveLength(e.target.value)} placeholder="e.g., 24" /></div>
-                    <div><Label htmlFor="menShirtShoulder">Shoulder</Label><Input id="menShirtShoulder" type="number" value={menShirtShoulder} onChange={(e) => setMenShirtShoulder(e.target.value)} placeholder="e.g., 18" /></div>
-                    <div><Label htmlFor="menShirtNeck">Neck</Label><Input id="menShirtNeck" type="number" value={menShirtNeck} onChange={(e) => setMenShirtNeck(e.target.value)} placeholder="e.g., 15" /></div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="item-2" className="rounded-md border bg-card shadow-sm transition-all duration-200">
-                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
-                  Pant / Paijama Measurements (inches)
-                </AccordionTrigger>
-                <AccordionContent className="p-4 border-t bg-background rounded-b-md">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div><Label htmlFor="menPantLength">Length</Label><Input id="menPantLength" type="number" value={menPantLength} onChange={(e) => setMenPantLength(e.target.value)} placeholder="e.g., 40" /></div>
-                    <div><Label htmlFor="menPantWaist">Waist</Label><Input id="menPantWaist" type="number" value={menPantWaist} onChange={(e) => setMenPantWaist(e.target.value)} placeholder="e.g., 32" /></div>
-                    <div><Label htmlFor="menPantHip">Hip</Label><Input id="menPantHip" type="number" value={menPantHip} onChange={(e) => setMenPantHip(e.target.value)} placeholder="e.g., 38" /></div>
-                    <div><Label htmlFor="menPantThigh">Thigh</Label><Input id="menPantThigh" type="number" value={menPantThigh} onChange={(e) => setMenPantThigh(e.target.value)} placeholder="e.g., 22" /></div>
-                    <div><Label htmlFor="menPantBottom">Bottom</Label><Input id="menPantBottom" type="number" value={menPantBottom} onChange={(e) => setMenPantBottom(e.target.value)} placeholder="e.g., 14" /></div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="item-3" className="rounded-md border bg-card shadow-sm transition-all duration-200">
-                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
-                  Coat / Washcoat / Bajezar Measurements (inches)
-                </AccordionTrigger>
-                <AccordionContent className="p-4 border-t bg-background rounded-b-md">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div><Label htmlFor="menCoatLength">Length</Label><Input id="menCoatLength" type="number" value={menCoatLength} onChange={(e) => setMenCoatLength(e.target.value)} placeholder="e.g., 28" /></div>
-                    <div><Label htmlFor="menCoatChest">Chest</Label><Input id="menCoatChest" type="number" value={menCoatChest} onChange={(e) => setMenCoatChest(e.target.value)} placeholder="e.g., 40" /></div>
-                    <div><Label htmlFor="menCoatWaist">Waist</Label><Input id="menCoatWaist" type="number" value={menCoatWaist} onChange={(e) => setMenCoatWaist(e.target.value)} placeholder="e.g., 36" /></div>
-                    <div><Label htmlFor="menCoatSleeveLength">Sleeve Length</Label><Input id="menCoatSleeveLength" type="number" value={menCoatSleeveLength} onChange={(e) => setMenCoatSleeveLength(e.target.value)} placeholder="e.g., 25" /></div>
-                    <div><Label htmlFor="menCoatShoulder">Shoulder</Label><Input id="menCoatShoulder" type="number" value={menCoatShoulder} onChange={(e) => setMenCoatShoulder(e.target.value)} placeholder="e.g., 18" /></div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
-
-          {measurementType === 'women' && (
-            <div className="space-y-2">
-              <Label htmlFor="ladiesSize" className="text-base font-semibold text-foreground">Select Size</Label>
-              <Select onValueChange={setLadiesSize} value={ladiesSize}>
-                <SelectTrigger id="ladiesSize" className="w-full">
-                  <SelectValue placeholder="Select your size" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="XS">XS</SelectItem>
-                  <SelectItem value="S">S</SelectItem>
-                  <SelectItem value="M">M</SelectItem>
-                  <SelectItem value="L">L</SelectItem>
-                  <SelectItem value="XL">XL</SelectItem>
-                  <SelectItem value="XXL">XXL</SelectItem>
-                  <SelectItem value="Custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {/* Additional Notes Box */}
-          <div className="space-y-2">
-            <Label htmlFor="notes" className="text-base font-semibold text-foreground">Additional Notes / Specific Instructions</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="e.g., Please make the shirt slightly loose, or provide specific measurements not listed above."
-              rows={5}
-            />
-          </div>
-
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
-            {loading ? 'Saving...' : 'Save Measurements'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default MeasurementForm;
+      
+                {/* Additional Notes Box */}
+                <div className="space-y-2">
+                  <Label htmlFor="notes" className="text-base font-semibold text-foreground">Additional Notes / Specific Instructions</Label>
+                  <Textarea
+                    id="notes"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="e.g., Please make the shirt slightly loose, or provide specific measurements not listed above."
+                    rows={5}
+                  />
+                </div>
+      
+                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
+                  {loading ? 'Saving...' : 'Save Measurements'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        );
+      };
+      
+      export default MeasurementForm;
