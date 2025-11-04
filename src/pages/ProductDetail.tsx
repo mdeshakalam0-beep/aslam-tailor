@@ -234,7 +234,7 @@ const ProductDetail: React.FC = () => {
             <div className="flex items-center text-sm text-muted-foreground mb-4">
               <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
               <span>{product.rating} ({product.reviewsCount} reviews)</span>
-              <span className="ml-4">Bought by {product.boughtByUsers} users</span>
+              {/* Removed "Bought by users" text */}
             </div>
             <p className="text-muted-foreground leading-relaxed">{product.description}</p>
           </div>
