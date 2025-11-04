@@ -18,7 +18,7 @@ const navItems = [
   { name: 'Hero Banners', icon: Image, path: '/admin/banners' },
   { name: 'App Pop-ups', icon: Megaphone, path: '/admin/popups' }, 
   { name: 'Notifications', icon: BellRing, path: '/admin/notifications' },
-  { name: 'Brands', icon: Tag, path: '/admin/brands' }, {/* New: Brands management */}
+  { name: 'Brands', icon: Tag, path: '/admin/brands' }, 
   { name: 'App Settings', icon: Settings, path: '/admin/settings' },
 ];
 
