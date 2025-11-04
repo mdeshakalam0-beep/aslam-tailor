@@ -147,7 +147,7 @@ const Profile: React.FC = () => {
                     <img
                       src={avatarUrl}
                       alt="Avatar"
-                      className="w-24 h-24 rounded-full object-cover border-2 border-primary"
+                      className="w-24 h-24 rounded-full object-contain border-2 border-primary p-1" // Changed object-cover to object-contain and added p-1 for padding
                     />
                   ) : (
                     <UserCircle2 className="w-24 h-24 text-muted-foreground" />
