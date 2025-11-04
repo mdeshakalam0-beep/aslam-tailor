@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Added import for Card components
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, Image as ImageIcon } from 'lucide-react';
@@ -122,7 +122,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
               id="description"
-              value={description ?? ''} {/* Ensure value is always a string */}
+              value={description ?? ''}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="A short description for the pop-up."
               rows={3}
@@ -148,7 +148,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
               <Input
                 id="imageUrl"
                 type="url"
-                value={imageUrl ?? ''} {/* Ensure value is always a string */}
+                value={imageUrl ?? ''}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://example.com/popup.jpg"
               />
@@ -182,7 +182,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="ctaText"
               type="text"
-              value={ctaText ?? ''} {/* Ensure value is always a string */}
+              value={ctaText ?? ''}
               onChange={(e) => setCtaText(e.target.value)}
               placeholder="e.g., Shop Now"
             />
@@ -192,7 +192,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="ctaLink"
               type="url"
-              value={ctaLink ?? ''} {/* Ensure value is always a string */}
+              value={ctaLink ?? ''}
               onChange={(e) => setCtaLink(e.target.value)}
               placeholder="e.g., /products/123"
             />
