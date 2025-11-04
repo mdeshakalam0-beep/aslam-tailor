@@ -12,7 +12,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Favorites from "./pages/Favorites";
 import CheckoutAddress from "./pages/CheckoutAddress";
 import CheckoutPayment from "./pages/CheckoutPayment";
-import CategoryProducts from "./pages/CategoryProducts"; // Import new CategoryProducts page
+import CategoryProducts from "./pages/CategoryProducts";
 import { SessionContextProvider } from "./components/SessionContextProvider";
 import AdminLayout from "./components/admin/AdminLayout";
 import ProductManagement from "./pages/admin/ProductManagement";
@@ -22,7 +22,8 @@ import UserManagement from "./pages/admin/UserManagement";
 import AppSettings from "./pages/admin/AppSettings";
 import HeroBannerManagement from "./pages/admin/HeroBannerManagement";
 import NotificationManagement from "./pages/admin/NotificationManagement";
-import CategoryManagement from "./pages/admin/CategoryManagement"; // Import new admin category management
+import CategoryManagement from "./pages/admin/CategoryManagement";
+import MeasurementTypeManagement from "./pages/admin/MeasurementTypeManagement"; // Import new admin measurement type management
 
 const queryClient = new QueryClient();
 
@@ -40,7 +41,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/favorites" element={<Favorites />} />
-            <Route path="/categories/:categoryId" element={<CategoryProducts />} /> {/* New user category products route */}
+            <Route path="/categories/:categoryId" element={<CategoryProducts />} />
             <Route path="/checkout/address" element={<CheckoutAddress />} />
             <Route path="/checkout/payment" element={<CheckoutPayment />} />
 
@@ -50,7 +51,8 @@ const App = () => (
               <Route path="products" element={<ProductManagement />} />
               <Route path="orders" element={<OrderManagement />} />
               <Route path="users" element={<UserManagement />} />
-              <Route path="categories" element={<CategoryManagement />} /> {/* New admin category route */}
+              <Route path="categories" element={<CategoryManagement />} />
+              <Route path="measurement-types" element={<MeasurementTypeManagement />} /> {/* New admin measurement type route */}
               <Route path="banners" element={<HeroBannerManagement />} />
               <Route path="notifications" element={<NotificationManagement />} />
               <Route path="settings" element={<AppSettings />} />
