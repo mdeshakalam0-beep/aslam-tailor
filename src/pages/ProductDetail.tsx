@@ -26,7 +26,7 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [isFavorited, setIsFavorited] = useState(false);
-  const [isCustomMeasurementActive, setIsCustomMeasurementActive] = useState(false); // New state for mutual exclusion
+  const [isCustomMeasurementActive, setIsCustomMeasurementActive] = useState(false); // State for custom measurement toggle
 
   const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
@@ -80,9 +80,11 @@ const ProductDetail: React.FC = () => {
     setIsCustomMeasurementActive(false); // Deactivate custom measurements when a size is selected
   };
 
-  const handleMeasurementInteraction = () => {
-    setIsCustomMeasurementActive(true); // Activate custom measurements
-    setSelectedSize(undefined); // Clear selected size when interacting with measurements
+  const handleMeasurementToggle = (isActive: boolean) => {
+    setIsCustomMeasurementActive(isActive);
+    if (isActive) {
+      setSelectedSize(undefined); // Clear selected size if custom measurement is activated
+    }
   };
 
   const handleAddToCart = () => {
@@ -105,7 +107,7 @@ const ProductDetail: React.FC = () => {
         selectedSize: selectedSize,
       });
     } else {
-      showError('Please select a size or opt for custom measurements.');
+      showError('Please select a size or enable custom measurements.');
     }
   };
 
@@ -130,7 +132,7 @@ const ProductDetail: React.FC = () => {
       });
       navigate('/cart');
     } else {
-      showError('Please select a size or opt for custom measurements.');
+      showError('Please select a size or enable custom measurements.');
     }
   };
 
@@ -239,10 +241,11 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* In-page Measurement Selector */}
-          <div className={cn("pt-6 border-t border-border mt-6", selectedSize && "opacity-50 pointer-events-none")}>
+          <div className={cn("pt-6 border-t border-border mt-6")}>
             <ProductMeasurementSelector 
               session={session} 
-              onInteraction={handleMeasurementInteraction}
+              isActive={isCustomMeasurementActive} // Pass active state
+              onToggle={handleMeasurementToggle} // Pass toggle handler
               isDisabled={!!selectedSize} // Disable if a standard size is selected
             />
           </div>

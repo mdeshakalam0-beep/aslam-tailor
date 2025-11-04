@@ -13,14 +13,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch'; // Import Switch component
 
 interface ProductMeasurementSelectorProps {
   session: Session | null;
-  onInteraction: () => void; // New prop to notify parent of interaction
-  isDisabled: boolean; // New prop to disable the component
+  isActive: boolean; // New prop: controls if the measurement section is active
+  onToggle: (isActive: boolean) => void; // New prop: callback when toggle changes
+  isDisabled: boolean; // Prop from parent to disable if a standard size is selected
 }
 
-const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({ session, onInteraction, isDisabled }) => {
+const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({ session, isActive, onToggle, isDisabled }) => {
   const [currentMeasurements, setCurrentMeasurements] = useState<UserMeasurements | undefined>(undefined);
   const [selectedMeasurementType, setSelectedMeasurementType] = useState<'men' | 'women' | ''>('');
   const [notes, setNotes] = useState('');
@@ -274,17 +276,28 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
     );
   }
 
+  const isFormDisabled = isDisabled || !isActive;
+
   return (
-    <Card className={cn("mt-6", isDisabled && "opacity-50 pointer-events-none")}>
-      <CardHeader>
+    <Card className="mt-6">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold text-foreground">Your Measurements</CardTitle>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="measurement-toggle">Enable Custom Measurements</Label>
+          <Switch
+            id="measurement-toggle"
+            checked={isActive}
+            onCheckedChange={onToggle}
+            disabled={isDisabled} // Disable the switch if a standard size is selected
+          />
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className={cn(isFormDisabled && "opacity-50 pointer-events-none")}>
         <form onSubmit={handleSaveMeasurements} className="space-y-6">
           {/* Gender/Measurement Type Selection */}
           <div className="space-y-2">
             <Label className="text-base font-semibold text-foreground">Select Measurement Type</Label>
-            <RadioGroup onValueChange={(value: 'men' | 'women') => { setSelectedMeasurementType(value); onInteraction(); }} value={selectedMeasurementType} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <RadioGroup onValueChange={setSelectedMeasurementType} value={selectedMeasurementType} className="grid grid-cols-1 sm:grid-cols-2 gap-4" disabled={isFormDisabled}>
               <Label
                 htmlFor="men-product-detail"
                 className={cn(
@@ -325,47 +338,47 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
           {selectedMeasurementType === 'men' && (
             <Accordion type="multiple" className="w-full space-y-4">
               <AccordionItem value="item-1" className="rounded-md border bg-card shadow-sm transition-all duration-200">
-                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180" disabled={isFormDisabled}>
                   Shirt / Kurta / Bandi Measurements (inches)
                 </AccordionTrigger>
                 <AccordionContent className="p-4 border-t bg-background rounded-b-md">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div><Label htmlFor="menShirtLength">Length</Label><Input id="menShirtLength" type="number" value={menShirtLength} onChange={(e) => {setMenShirtLength(e.target.value); onInteraction();}} placeholder="e.g., 28" /></div>
-                    <div><Label htmlFor="menShirtChest">Chest</Label><Input id="menShirtChest" type="number" value={menShirtChest} onChange={(e) => {setMenShirtChest(e.target.value); onInteraction();}} placeholder="e.g., 40" /></div>
-                    <div><Label htmlFor="menShirtWaist">Waist</Label><Input id="menShirtWaist" type="number" value={menShirtWaist} onChange={(e) => {setMenShirtWaist(e.target.value); onInteraction();}} placeholder="e.g., 38" /></div>
-                    <div><Label htmlFor="menShirtSleeveLength">Sleeve Length</Label><Input id="menShirtSleeveLength" type="number" value={menShirtSleeveLength} onChange={(e) => {setMenShirtSleeveLength(e.target.value); onInteraction();}} placeholder="e.g., 24" /></div>
-                    <div><Label htmlFor="menShirtShoulder">Shoulder</Label><Input id="menShirtShoulder" type="number" value={menShirtShoulder} onChange={(e) => {setMenShirtShoulder(e.target.value); onInteraction();}} placeholder="e.g., 18" /></div>
-                    <div><Label htmlFor="menShirtNeck">Neck</Label><Input id="menShirtNeck" type="number" value={menShirtNeck} onChange={(e) => {setMenShirtNeck(e.target.value); onInteraction();}} placeholder="e.g., 15" /></div>
+                    <div><Label htmlFor="menShirtLength">Length</Label><Input id="menShirtLength" type="number" value={menShirtLength} onChange={(e) => setMenShirtLength(e.target.value)} placeholder="e.g., 28" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menShirtChest">Chest</Label><Input id="menShirtChest" type="number" value={menShirtChest} onChange={(e) => setMenShirtChest(e.target.value)} placeholder="e.g., 40" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menShirtWaist">Waist</Label><Input id="menShirtWaist" type="number" value={menShirtWaist} onChange={(e) => setMenShirtWaist(e.target.value)} placeholder="e.g., 38" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menShirtSleeveLength">Sleeve Length</Label><Input id="menShirtSleeveLength" type="number" value={menShirtSleeveLength} onChange={(e) => setMenShirtSleeveLength(e.target.value)} placeholder="e.g., 24" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menShirtShoulder">Shoulder</Label><Input id="menShirtShoulder" type="number" value={menShirtShoulder} onChange={(e) => setMenShirtShoulder(e.target.value)} placeholder="e.g., 18" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menShirtNeck">Neck</Label><Input id="menShirtNeck" type="number" value={menShirtNeck} onChange={(e) => setMenShirtNeck(e.target.value)} placeholder="e.g., 15" disabled={isFormDisabled} /></div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="item-2" className="rounded-md border bg-card shadow-sm transition-all duration-200">
-                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180" disabled={isFormDisabled}>
                   Pant / Paijama Measurements (inches)
                 </AccordionTrigger>
                 <AccordionContent className="p-4 border-t bg-background rounded-b-md">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div><Label htmlFor="menPantLength">Length</Label><Input id="menPantLength" type="number" value={menPantLength} onChange={(e) => {setMenPantLength(e.target.value); onInteraction();}} placeholder="e.g., 40" /></div>
-                    <div><Label htmlFor="menPantWaist">Waist</Label><Input id="menPantWaist" type="number" value={menPantWaist} onChange={(e) => {setMenPantWaist(e.target.value); onInteraction();}} placeholder="e.g., 32" /></div>
-                    <div><Label htmlFor="menPantHip">Hip</Label><Input id="menPantHip" type="number" value={menPantHip} onChange={(e) => {setMenPantHip(e.target.value); onInteraction();}} placeholder="e.g., 38" /></div>
-                    <div><Label htmlFor="menPantThigh">Thigh</Label><Input id="menPantThigh" type="number" value={menPantThigh} onChange={(e) => {setMenPantThigh(e.target.value); onInteraction();}} placeholder="e.g., 22" /></div>
-                    <div><Label htmlFor="menPantBottom">Bottom</Label><Input id="menPantBottom" type="number" value={menPantBottom} onChange={(e) => {setMenPantBottom(e.target.value); onInteraction();}} placeholder="e.g., 14" /></div>
+                    <div><Label htmlFor="menPantLength">Length</Label><Input id="menPantLength" type="number" value={menPantLength} onChange={(e) => setMenPantLength(e.target.value)} placeholder="e.g., 40" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menPantWaist">Waist</Label><Input id="menPantWaist" type="number" value={menPantWaist} onChange={(e) => setMenPantWaist(e.target.value)} placeholder="e.g., 32" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menPantHip">Hip</Label><Input id="menPantHip" type="number" value={menPantHip} onChange={(e) => setMenPantHip(e.target.value)} placeholder="e.g., 38" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menPantThigh">Thigh</Label><Input id="menPantThigh" type="number" value={menPantThigh} onChange={(e) => setMenPantThigh(e.target.value)} placeholder="e.g., 22" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menPantBottom">Bottom</Label><Input id="menPantBottom" type="number" value={menPantBottom} onChange={(e) => setMenPantBottom(e.target.value)} placeholder="e.g., 14" disabled={isFormDisabled} /></div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="item-3" className="rounded-md border bg-card shadow-sm transition-all duration-200">
-                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180" disabled={isFormDisabled}>
                   Coat / Washcoat / Bajezar Measurements (inches)
                 </AccordionTrigger>
                 <AccordionContent className="p-4 border-t bg-background rounded-b-md">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div><Label htmlFor="menCoatLength">Length</Label><Input id="menCoatLength" type="number" value={menCoatLength} onChange={(e) => {setMenCoatLength(e.target.value); onInteraction();}} placeholder="e.g., 28" /></div>
-                    <div><Label htmlFor="menCoatChest">Chest</Label><Input id="menCoatChest" type="number" value={menCoatChest} onChange={(e) => {setMenCoatChest(e.target.value); onInteraction();}} placeholder="e.g., 40" /></div>
-                    <div><Label htmlFor="menCoatWaist">Waist</Label><Input id="menCoatWaist" type="number" value={menCoatWaist} onChange={(e) => {setMenCoatWaist(e.target.value); onInteraction();}} placeholder="e.g., 36" /></div>
-                    <div><Label htmlFor="menCoatSleeveLength">Sleeve Length</Label><Input id="menCoatSleeveLength" type="number" value={menCoatSleeveLength} onChange={(e) => {setMenCoatSleeveLength(e.target.value); onInteraction();}} placeholder="e.g., 25" /></div>
-                    <div><Label htmlFor="menCoatShoulder">Shoulder</Label><Input id="menCoatShoulder" type="number" value={menCoatShoulder} onChange={(e) => {setMenCoatShoulder(e.target.value); onInteraction();}} placeholder="e.g., 18" /></div>
+                    <div><Label htmlFor="menCoatLength">Length</Label><Input id="menCoatLength" type="number" value={menCoatLength} onChange={(e) => setMenCoatLength(e.target.value)} placeholder="e.g., 28" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menCoatChest">Chest</Label><Input id="menCoatChest" type="number" value={menCoatChest} onChange={(e) => setMenCoatChest(e.target.value)} placeholder="e.g., 40" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menCoatWaist">Waist</Label><Input id="menCoatWaist" type="number" value={menCoatWaist} onChange={(e) => setMenCoatWaist(e.target.value)} placeholder="e.g., 36" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menCoatSleeveLength">Sleeve Length</Label><Input id="menCoatSleeveLength" type="number" value={menCoatSleeveLength} onChange={(e) => setMenCoatSleeveLength(e.target.value)} placeholder="e.g., 25" disabled={isFormDisabled} /></div>
+                    <div><Label htmlFor="menCoatShoulder">Shoulder</Label><Input id="menCoatShoulder" type="number" value={menCoatShoulder} onChange={(e) => setMenCoatShoulder(e.target.value)} placeholder="e.g., 18" disabled={isFormDisabled} /></div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -375,7 +388,7 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
           {selectedMeasurementType === 'women' && (
             <div className="space-y-2">
               <Label htmlFor="ladiesSize" className="text-base font-semibold text-foreground">Select Size</Label>
-              <Select onValueChange={(value) => {setLadiesSize(value); onInteraction();}} value={ladiesSize}>
+              <Select onValueChange={setSelectedLadiesSize} value={ladiesSize} disabled={isFormDisabled}>
                 <SelectTrigger id="ladiesSize" className="w-full">
                   <SelectValue placeholder="Select your size" />
                 </SelectTrigger>
@@ -398,13 +411,14 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
             <Textarea
               id="notes"
               value={notes}
-              onChange={(e) => {setNotes(e.target.value); onInteraction();}}
+              onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g., Please make the shirt slightly loose, or provide specific measurements not listed above."
               rows={5}
+              disabled={isFormDisabled}
             />
           </div>
 
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={saving}>
+          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={saving || isFormDisabled}>
             {saving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
