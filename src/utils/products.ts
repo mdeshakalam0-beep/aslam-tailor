@@ -3,7 +3,6 @@ import { showError, showSuccess } from '@/utils/toast';
 
 export interface Product {
   id: string;
-  name: string;
   imageUrl: string; // Primary image URL
   price: number;
   originalPrice?: number;
@@ -17,6 +16,7 @@ export interface Product {
   boughtByUsers: number;
   category_id?: string; // New: Link to category
   category_name?: string; // New: Category name for display
+  name: string;
 }
 
 // Fetches all products from Supabase
@@ -59,7 +59,11 @@ export const getProducts = async (): Promise<Product[]> => {
 };
 
 // Fetches a single product by ID from Supabase
-export const getProductById = async (id: string): Promise<Product | undefined> => {
+export const getProductById = async (id: string | undefined): Promise<Product | undefined> => {
+  if (!id) {
+    console.warn('getProductById called with undefined ID.');
+    return undefined;
+  }
   try {
     const { data, error } = await supabase
       .from('products')
