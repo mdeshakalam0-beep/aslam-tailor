@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, ShoppingBag, Users, DollarSign, XCircle, TrendingUp, Award, Download } from 'lucide-react';
+import { Package, ShoppingBag, Users, DollarSign, XCircle, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { showError } from '@/utils/toast';
 import { getAdminDashboardData, IncomeMetrics, CancelledOrdersCount, TopProduct, TopCustomer } from '@/utils/adminDashboard';
@@ -24,49 +24,80 @@ const Dashboard: React.FC = () => {
   const [allProductsData, setAllProductsData] = useState<any[]>([]);
   const [allProfilesData, setAllProfilesData] = useState<any[]>([]);
 
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch basic counts
+      const { count: productsCount, error: productsError } = await supabase
+        .from('products')
+        .select('id', { count: 'exact' });
+      if (productsError) throw productsError;
+      setTotalProducts(productsCount);
+
+      const { count: ordersCount, error: ordersError } = await supabase
+        .from('orders')
+        .select('id', { count: 'exact' });
+      if (ordersError) throw ordersError;
+      setTotalOrders(ordersCount);
+
+      const { count: usersCount, error: usersError } = await supabase
+        .from('profiles')
+        .select('id', { count: 'exact' });
+      if (usersError) throw usersError;
+      setActiveUsers(usersCount);
+
+      // Fetch and process detailed dashboard data
+      const dashboardData = await getAdminDashboardData();
+      setIncomeMetrics(dashboardData.income);
+      setCancelledOrdersCount(dashboardData.cancelledOrders);
+      setTopSellingProducts(dashboardData.topSellingProducts);
+      setTopCustomers(dashboardData.topCustomers);
+      setAllOrdersData(dashboardData.allOrders);
+      setAllProductsData(dashboardData.allProducts);
+      setAllProfilesData(dashboardData.allProfiles);
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      showError('Failed to load dashboard data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Fetch basic counts
-        const { count: productsCount, error: productsError } = await supabase
-          .from('products')
-          .select('id', { count: 'exact' });
-        if (productsError) throw productsError;
-        setTotalProducts(productsCount);
-
-        const { count: ordersCount, error: ordersError } = await supabase
-          .from('orders')
-          .select('id', { count: 'exact' });
-        if (ordersError) throw ordersError;
-        setTotalOrders(ordersCount);
-
-        const { count: usersCount, error: usersError } = await supabase
-          .from('profiles')
-          .select('id', { count: 'exact' });
-        if (usersError) throw usersError;
-        setActiveUsers(usersCount);
-
-        // Fetch and process detailed dashboard data
-        const dashboardData = await getAdminDashboardData();
-        setIncomeMetrics(dashboardData.income);
-        setCancelledOrdersCount(dashboardData.cancelledOrders);
-        setTopSellingProducts(dashboardData.topSellingProducts);
-        setTopCustomers(dashboardData.topCustomers);
-        setAllOrdersData(dashboardData.allOrders);
-        setAllProductsData(dashboardData.allProducts);
-        setAllProfilesData(dashboardData.allProfiles);
-
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        showError('Failed to load dashboard data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, []);
+
+    // Setup Supabase Realtime subscriptions
+    const ordersChannel = supabase
+      .channel('dashboard_orders_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+        console.log('Realtime order change:', payload);
+        fetchData(); // Re-fetch all data on any order change
+      })
+      .subscribe();
+
+    const productsChannel = supabase
+      .channel('dashboard_products_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+        console.log('Realtime product change:', payload);
+        fetchData(); // Re-fetch all data on any product change
+      })
+      .subscribe();
+
+    const profilesChannel = supabase
+      .channel('dashboard_profiles_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
+        console.log('Realtime profile change:', payload);
+        fetchData(); // Re-fetch all data on any profile change
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(ordersChannel);
+      supabase.removeChannel(productsChannel);
+      supabase.removeChannel(profilesChannel);
+    };
+  }, []); // Empty dependency array to run once on mount and cleanup on unmount
 
   const handleDownloadOrders = () => {
     const columns = [
@@ -128,7 +159,7 @@ const Dashboard: React.FC = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <Card>
+            <Card key="total-products-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Products</CardTitle>
                 <Package className="h-4 w-4 text-muted-foreground" />
@@ -138,7 +169,7 @@ const Dashboard: React.FC = () => {
                 <p className="text-xs text-muted-foreground">Overall products in store</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card key="total-orders-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
                 <ShoppingBag className="h-4 w-4 text-muted-foreground" />
@@ -148,7 +179,7 @@ const Dashboard: React.FC = () => {
                 <p className="text-xs text-muted-foreground">Overall orders placed</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card key="active-users-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Users</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
@@ -158,7 +189,7 @@ const Dashboard: React.FC = () => {
                 <p className="text-xs text-muted-foreground">Registered users</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card key="daily-income-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Today's Income</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -172,7 +203,7 @@ const Dashboard: React.FC = () => {
 
           {/* Income Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <Card>
+            <Card key="weekly-income-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Weekly Income</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -182,7 +213,7 @@ const Dashboard: React.FC = () => {
                 <p className="text-xs text-muted-foreground">Revenue this week</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card key="monthly-income-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -192,7 +223,7 @@ const Dashboard: React.FC = () => {
                 <p className="text-xs text-muted-foreground">Revenue this month</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card key="yearly-income-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Yearly Income</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -202,7 +233,7 @@ const Dashboard: React.FC = () => {
                 <p className="text-xs text-muted-foreground">Revenue this year</p>
               </CardContent>
             </Card>
-            <Card>
+            <Card key="daily-cancelled-orders-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Cancelled Orders (Today)</CardTitle>
                 <XCircle className="h-4 w-4 text-muted-foreground" />
@@ -215,7 +246,7 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Top Selling Products */}
-          <Card>
+          <Card key="top-selling-products-card">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-xl font-bold text-foreground">Top Selling Products</CardTitle>
               <Button variant="outline" size="sm" onClick={handleDownloadProducts}>
@@ -255,7 +286,7 @@ const Dashboard: React.FC = () => {
           </Card>
 
           {/* Top Customers */}
-          <Card>
+          <Card key="top-customers-card">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-xl font-bold text-foreground">Top Customers</CardTitle>
               <Button variant="outline" size="sm" onClick={handleDownloadCustomers}>
@@ -293,7 +324,7 @@ const Dashboard: React.FC = () => {
           </Card>
 
           {/* Data Download Section */}
-          <Card>
+          <Card key="data-download-card-section">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-foreground">Download Data</CardTitle>
             </CardHeader>
