@@ -17,9 +17,10 @@ interface MeasurementFormProps {
   initialMeasurements?: UserMeasurements;
   onSaveSuccess?: () => void;
   userGender: 'men' | 'women' | 'not_specified';
+  preselectedType?: 'men' | 'women' | ''; // New prop for preselected type
 }
 
-const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, onSaveSuccess, userGender }) => {
+const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, onSaveSuccess, userGender, preselectedType }) => {
   const { session } = useSession();
   const [measurementType, setMeasurementType] = useState<'men' | 'women' | ''>(initialMeasurements?.measurement_type || '');
   const [notes, setNotes] = useState(initialMeasurements?.notes || '');
@@ -76,12 +77,14 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
     }
   }, [initialMeasurements]);
 
-  // Set initial measurement type based on user's gender if not already set
+  // Set initial measurement type based on user's gender or preselectedType if not already set
   useEffect(() => {
-    if (!measurementType && userGender !== 'not_specified') {
+    if (preselectedType && !measurementType) {
+      setMeasurementType(preselectedType);
+    } else if (!measurementType && userGender !== 'not_specified') {
       setMeasurementType(userGender);
     }
-  }, [userGender, measurementType]);
+  }, [userGender, measurementType, preselectedType]);
 
   const handleSaveMeasurements = async (event: React.FormEvent) => {
     event.preventDefault();

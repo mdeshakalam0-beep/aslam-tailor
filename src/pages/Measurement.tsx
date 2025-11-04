@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom'; // Import useLocation
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import MeasurementForm from '@/components/MeasurementForm';
@@ -10,10 +10,22 @@ import { UserMeasurements } from '@/types/checkout'; // Import updated UserMeasu
 
 const Measurement: React.FC = () => {
   const { session } = useSession();
+  const location = useLocation(); // Use useLocation hook
   const [initialMeasurements, setInitialMeasurements] = useState<UserMeasurements | undefined>(undefined);
   const [userGender, setUserGender] = useState<'men' | 'women' | 'not_specified'>('not_specified');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [preselectedType, setPreselectedType] = useState<'men' | 'women' | ''>(''); // New state for preselected type
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const typeParam = queryParams.get('type');
+    if (typeParam === 'men' || typeParam === 'women') {
+      setPreselectedType(typeParam);
+    } else {
+      setPreselectedType('');
+    }
+  }, [location.search]);
 
   const fetchUserData = async () => {
     if (!session?.user) {
@@ -82,6 +94,7 @@ const Measurement: React.FC = () => {
             initialMeasurements={initialMeasurements} 
             onSaveSuccess={fetchUserData} 
             userGender={userGender}
+            preselectedType={preselectedType} // Pass preselectedType to MeasurementForm
           />
         )}
       </main>
