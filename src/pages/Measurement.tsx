@@ -6,22 +6,16 @@ import MeasurementForm from '@/components/MeasurementForm';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/components/SessionContextProvider';
 import { showError } from '@/utils/toast';
-
-interface UserMeasurements {
-  chest?: number;
-  waist?: number;
-  sleeve_length?: number;
-  shoulder?: number;
-  neck?: number;
-}
+import { UserMeasurements } from '@/types/checkout'; // Import updated UserMeasurements type
 
 const Measurement: React.FC = () => {
   const { session } = useSession();
   const [initialMeasurements, setInitialMeasurements] = useState<UserMeasurements | undefined>(undefined);
+  const [userGender, setUserGender] = useState<'men' | 'women' | 'not_specified'>('not_specified');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchMeasurements = async () => {
+  const fetchUserData = async () => {
     if (!session?.user) {
       setLoading(false);
       return;
@@ -29,23 +23,36 @@ const Measurement: React.FC = () => {
 
     try {
       setLoading(true);
-      const { data, error: fetchError } = await supabase // Removed 'status' as it's not needed with maybeSingle
-        .from('measurements')
-        .select('chest, waist, sleeve_length, shoulder, neck')
-        .eq('user_id', session.user.id)
-        .maybeSingle(); // Changed from .single() to .maybeSingle()
+      // Fetch user's gender from profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('gender')
+        .eq('id', session.user.id)
+        .single();
 
-      if (fetchError) { // This will now only catch actual database errors
+      if (profileError) {
+        throw profileError;
+      }
+      setUserGender(profileData.gender || 'not_specified');
+
+      // Fetch user's measurements
+      const { data: measurementsData, error: fetchError } = await supabase
+        .from('measurements')
+        .select('*') // Select all columns now
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (fetchError) {
         throw fetchError;
       }
 
-      if (data) {
-        setInitialMeasurements(data);
+      if (measurementsData) {
+        setInitialMeasurements(measurementsData as UserMeasurements);
       } else {
         setInitialMeasurements({}); // No existing measurements
       }
     } catch (err) {
-      console.error('Error fetching measurements:', err);
+      console.error('Error fetching user data or measurements:', err);
       setError('Failed to load measurements. Please try again.');
       showError('Failed to load measurements.');
     } finally {
@@ -54,7 +61,7 @@ const Measurement: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchMeasurements();
+    fetchUserData();
   }, [session]);
 
   return (
@@ -71,7 +78,11 @@ const Measurement: React.FC = () => {
         ) : error ? (
           <p className="text-center text-destructive">{error}</p>
         ) : (
-          <MeasurementForm initialMeasurements={initialMeasurements} onSaveSuccess={fetchMeasurements} />
+          <MeasurementForm 
+            initialMeasurements={initialMeasurements} 
+            onSaveSuccess={fetchUserData} 
+            userGender={userGender}
+          />
         )}
       </main>
       <BottomNavigation />

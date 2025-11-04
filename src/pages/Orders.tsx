@@ -94,6 +94,54 @@ const Orders: React.FC = () => {
     }
   };
 
+  const renderMeasurements = (measurements?: UserMeasurements) => {
+    if (!measurements || measurements.measurement_type === null) return null;
+
+    if (measurements.measurement_type === 'women' && measurements.ladies_size) {
+      return (
+        <div className="mb-4 p-3 border rounded-md bg-muted/50">
+          <h4 className="font-semibold text-foreground mb-1">Ladies' Size:</h4>
+          <p className="text-sm text-muted-foreground">{measurements.ladies_size}</p>
+        </div>
+      );
+    }
+
+    if (measurements.measurement_type === 'men') {
+      const menMeasurements = [
+        { label: 'Shirt Length', value: measurements.men_shirt_length },
+        { label: 'Shirt Chest', value: measurements.men_shirt_chest },
+        { label: 'Shirt Waist', value: measurements.men_shirt_waist },
+        { label: 'Sleeve Length', value: measurements.men_shirt_sleeve_length },
+        { label: 'Shoulder', value: measurements.men_shirt_shoulder },
+        { label: 'Neck', value: measurements.men_shirt_neck },
+        { label: 'Pant Length', value: measurements.men_pant_length },
+        { label: 'Pant Waist', value: measurements.men_pant_waist },
+        { label: 'Pant Hip', value: measurements.men_pant_hip },
+        { label: 'Pant Thigh', value: measurements.men_pant_thigh },
+        { label: 'Pant Bottom', value: measurements.men_pant_bottom },
+        { label: 'Coat Length', value: measurements.men_coat_length },
+        { label: 'Coat Chest', value: measurements.men_coat_chest },
+        { label: 'Coat Waist', value: measurements.men_coat_waist },
+        { label: 'Coat Sleeve Length', value: measurements.men_coat_sleeve_length },
+        { label: 'Coat Shoulder', value: measurements.men_coat_shoulder },
+      ].filter(m => m.value !== null && m.value !== undefined);
+
+      if (menMeasurements.length === 0 && !measurements.notes) return null;
+
+      return (
+        <div className="mb-4 p-3 border rounded-md bg-muted/50">
+          <h4 className="font-semibold text-foreground mb-1">Men's Measurements (inches):</h4>
+          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+            {menMeasurements.map((m, idx) => (
+              <div key={idx}><span className="font-medium">{m.label}:</span> {m.value}</div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
@@ -151,6 +199,15 @@ const Orders: React.FC = () => {
                       {order.payment_method === 'qr_code' && order.transaction_id && (
                         <p className="text-sm text-muted-foreground">Transaction ID: {order.transaction_id}</p>
                       )}
+                    </div>
+                  )}
+
+                  {renderMeasurements(order.user_measurements)}
+
+                  {order.user_measurements?.notes && (
+                    <div className="mb-4 p-3 border rounded-md bg-muted/50">
+                      <h4 className="font-semibold text-foreground mb-1">Additional Notes:</h4>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{order.user_measurements.notes}</p>
                     </div>
                   )}
 

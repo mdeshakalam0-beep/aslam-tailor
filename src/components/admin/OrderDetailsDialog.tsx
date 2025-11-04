@@ -154,7 +154,29 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
 
   if (!order) return null;
 
-  const hasMeasurements = order.user_measurements && Object.values(order.user_measurements).some(val => val !== null && val !== undefined);
+  const hasMeasurements = order.user_measurements && (
+    (order.user_measurements.measurement_type === 'men' && Object.values(order.user_measurements).some(val => (typeof val === 'number' && val !== null && val !== undefined))) ||
+    (order.user_measurements.measurement_type === 'women' && order.user_measurements.ladies_size)
+  );
+
+  const menMeasurements = order.user_measurements?.measurement_type === 'men' ? [
+    { label: 'Shirt Length', value: order.user_measurements.men_shirt_length },
+    { label: 'Shirt Chest', value: order.user_measurements.men_shirt_chest },
+    { label: 'Shirt Waist', value: order.user_measurements.men_shirt_waist },
+    { label: 'Sleeve Length', value: order.user_measurements.men_shirt_sleeve_length },
+    { label: 'Shoulder', value: order.user_measurements.men_shirt_shoulder },
+    { label: 'Neck', value: order.user_measurements.men_shirt_neck },
+    { label: 'Pant Length', value: order.user_measurements.men_pant_length },
+    { label: 'Pant Waist', value: order.user_measurements.men_pant_waist },
+    { label: 'Pant Hip', value: order.user_measurements.men_pant_hip },
+    { label: 'Pant Thigh', value: order.user_measurements.men_pant_thigh },
+    { label: 'Pant Bottom', value: order.user_measurements.men_pant_bottom },
+    { label: 'Coat Length', value: order.user_measurements.men_coat_length },
+    { label: 'Coat Chest', value: order.user_measurements.men_coat_chest },
+    { label: 'Coat Waist', value: order.user_measurements.men_coat_waist },
+    { label: 'Coat Sleeve Length', value: order.user_measurements.men_coat_sleeve_length },
+    { label: 'Coat Shoulder', value: order.user_measurements.men_coat_shoulder },
+  ].filter(m => m.value !== null && m.value !== undefined) : [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -221,14 +243,24 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
 
           {hasMeasurements && (
             <div className="col-span-4 border-t pt-4 mt-4">
-              <h3 className="text-lg font-semibold mb-2">Customer Measurements (inches)</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                {order.user_measurements?.chest && <div><span className="font-medium">Chest:</span> {order.user_measurements.chest}</div>}
-                {order.user_measurements?.waist && <div><span className="font-medium">Waist:</span> {order.user_measurements.waist}</div>}
-                {order.user_measurements?.sleeve_length && <div><span className="font-medium">Sleeve Length:</span> {order.user_measurements.sleeve_length}</div>}
-                {order.user_measurements?.shoulder && <div><span className="font-medium">Shoulder:</span> {order.user_measurements.shoulder}</div>}
-                {order.user_measurements?.neck && <div><span className="font-medium">Neck:</span> {order.user_measurements.neck}</div>}
-              </div>
+              <h3 className="text-lg font-semibold mb-2">Customer Measurements</h3>
+              {order.user_measurements?.measurement_type === 'women' && order.user_measurements.ladies_size && (
+                <p className="text-sm text-muted-foreground"><span className="font-medium">Ladies' Size:</span> {order.user_measurements.ladies_size}</p>
+              )}
+              {order.user_measurements?.measurement_type === 'men' && menMeasurements.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                  {menMeasurements.map((m, idx) => (
+                    <div key={idx}><span className="font-medium">{m.label}:</span> {m.value} inches</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {order.user_measurements?.notes && (
+            <div className="col-span-4 border-t pt-4 mt-4">
+              <h3 className="text-lg font-semibold mb-2">Additional Notes</h3>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{order.user_measurements.notes}</p>
             </div>
           )}
 

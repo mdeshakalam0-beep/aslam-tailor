@@ -56,7 +56,29 @@ const DeliverySlip: React.FC<DeliverySlipProps> = ({ order, customerName }) => {
     }
   };
 
-  const hasMeasurements = order.user_measurements && Object.values(order.user_measurements).some(val => val !== null && val !== undefined);
+  const hasMeasurements = order.user_measurements && (
+    (order.user_measurements.measurement_type === 'men' && Object.values(order.user_measurements).some(val => (typeof val === 'number' && val !== null && val !== undefined))) ||
+    (order.user_measurements.measurement_type === 'women' && order.user_measurements.ladies_size)
+  );
+
+  const menMeasurements = order.user_measurements?.measurement_type === 'men' ? [
+    { label: 'Shirt Length', value: order.user_measurements.men_shirt_length },
+    { label: 'Shirt Chest', value: order.user_measurements.men_shirt_chest },
+    { label: 'Shirt Waist', value: order.user_measurements.men_shirt_waist },
+    { label: 'Sleeve Length', value: order.user_measurements.men_shirt_sleeve_length },
+    { label: 'Shoulder', value: order.user_measurements.men_shirt_shoulder },
+    { label: 'Neck', value: order.user_measurements.men_shirt_neck },
+    { label: 'Pant Length', value: order.user_measurements.men_pant_length },
+    { label: 'Pant Waist', value: order.user_measurements.men_pant_waist },
+    { label: 'Pant Hip', value: order.user_measurements.men_pant_hip },
+    { label: 'Pant Thigh', value: order.user_measurements.men_pant_thigh },
+    { label: 'Pant Bottom', value: order.user_measurements.men_pant_bottom },
+    { label: 'Coat Length', value: order.user_measurements.men_coat_length },
+    { label: 'Coat Chest', value: order.user_measurements.men_coat_chest },
+    { label: 'Coat Waist', value: order.user_measurements.men_coat_waist },
+    { label: 'Coat Sleeve Length', value: order.user_measurements.men_coat_sleeve_length },
+    { label: 'Coat Shoulder', value: order.user_measurements.men_coat_shoulder },
+  ].filter(m => m.value !== null && m.value !== undefined) : [];
 
   return (
     <div className="p-6 bg-white text-gray-900 min-h-screen print:p-0 print:text-black">
@@ -104,14 +126,24 @@ const DeliverySlip: React.FC<DeliverySlipProps> = ({ order, customerName }) => {
         {/* Customer Measurements */}
         {hasMeasurements && (
           <div className="mb-6 border p-4 rounded-md bg-gray-50 print:border-2 print:border-black print:bg-white">
-            <h3 className="text-lg font-bold mb-2">Customer Measurements (inches):</h3>
-            <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
-              {order.user_measurements?.chest && <div><span className="font-semibold">Chest:</span> {order.user_measurements.chest}</div>}
-              {order.user_measurements?.waist && <div><span className="font-semibold">Waist:</span> {order.user_measurements.waist}</div>}
-              {order.user_measurements?.sleeve_length && <div><span className="font-semibold">Sleeve Length:</span> {order.user_measurements.sleeve_length}</div>}
-              {order.user_measurements?.shoulder && <div><span className="font-semibold">Shoulder:</span> {order.user_measurements.shoulder}</div>}
-              {order.user_measurements?.neck && <div><span className="font-semibold">Neck:</span> {order.user_measurements.neck}</div>}
-            </div>
+            <h3 className="text-lg font-bold mb-2">Customer Measurements:</h3>
+            {order.user_measurements?.measurement_type === 'women' && order.user_measurements.ladies_size && (
+              <p className="text-sm text-gray-700"><span className="font-semibold">Ladies' Size:</span> {order.user_measurements.ladies_size}</p>
+            )}
+            {order.user_measurements?.measurement_type === 'men' && menMeasurements.length > 0 && (
+              <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+                {menMeasurements.map((m, idx) => (
+                  <div key={idx}><span className="font-semibold">{m.label}:</span> {m.value} inches</div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {order.user_measurements?.notes && (
+          <div className="mb-6 border p-4 rounded-md bg-gray-50 print:border-2 print:border-black print:bg-white">
+            <h3 className="text-lg font-bold mb-2">Additional Notes:</h3>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">{order.user_measurements.notes}</p>
           </div>
         )}
 
