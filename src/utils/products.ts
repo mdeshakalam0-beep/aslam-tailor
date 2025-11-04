@@ -38,17 +38,17 @@ export const getProducts = async (): Promise<Product[]> => {
       id: item.id,
       name: item.name,
       imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300', // Use first image as primary
-      price: item.price,
-      originalPrice: item.original_price,
-      discount: item.discount,
-      rating: item.rating,
-      reviewsCount: item.reviews_count,
-      recentPurchase: item.recent_purchase,
-      images: item.image_urls,
-      sizes: item.sizes,
-      description: item.description,
-      boughtByUsers: item.bought_by_users,
-      category_id: item.category_id,
+      price: item.price ?? 0, // Ensure price is always a number
+      originalPrice: item.original_price ?? undefined,
+      discount: item.discount ?? undefined,
+      rating: item.rating ?? 0, // Default to 0 if null
+      reviewsCount: item.reviews_count ?? 0, // Default to 0 if null
+      recentPurchase: item.recent_purchase ?? undefined,
+      images: item.image_urls || [], // Ensure images is an array
+      sizes: item.sizes || [], // Ensure sizes is an array
+      description: item.description ?? '', // Ensure description is a string
+      boughtByUsers: item.bought_by_users ?? 0, // Default to 0 if null
+      category_id: item.category_id ?? undefined,
       category_name: item.categories?.name || 'Uncategorized',
     }));
   } catch (error) {
@@ -79,17 +79,17 @@ export const getProductById = async (id: string): Promise<Product | undefined> =
         id: data.id,
         name: data.name,
         imageUrl: data.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
-        price: data.price,
-        originalPrice: data.original_price,
-        discount: data.discount,
-        rating: data.rating,
-        reviewsCount: data.reviews_count,
-        recentPurchase: data.recent_purchase,
-        images: data.image_urls,
-        sizes: data.sizes,
-        description: data.description,
-        boughtByUsers: data.bought_by_users,
-        category_id: data.category_id,
+        price: data.price ?? 0, // Ensure price is always a number
+        originalPrice: data.original_price ?? undefined,
+        discount: data.discount ?? undefined,
+        rating: data.rating ?? 0, // Default to 0 if null
+        reviewsCount: data.reviews_count ?? 0, // Default to 0 if null
+        recentPurchase: data.recent_purchase ?? undefined,
+        images: data.image_urls || [], // Ensure images is an array
+        sizes: data.sizes || [], // Ensure sizes is an array
+        description: data.description ?? '', // Ensure description is a string
+        boughtByUsers: data.bought_by_users ?? 0, // Default to 0 if null
+        category_id: data.category_id ?? undefined,
         category_name: data.categories?.name || 'Uncategorized',
       };
     }
@@ -121,17 +121,17 @@ export const getProductsByCategory = async (categoryId: string): Promise<Product
       id: item.id,
       name: item.name,
       imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
-      price: item.price,
-      originalPrice: item.original_price,
-      discount: item.discount,
-      rating: item.rating,
-      reviewsCount: item.reviews_count,
-      recentPurchase: item.recent_purchase,
-      images: item.image_urls,
-      sizes: item.sizes,
-      description: item.description,
-      boughtByUsers: item.bought_by_users,
-      category_id: item.category_id,
+      price: item.price ?? 0, // Ensure price is always a number
+      originalPrice: item.original_price ?? undefined,
+      discount: item.discount ?? undefined,
+      rating: item.rating ?? 0, // Default to 0 if null
+      reviewsCount: item.reviews_count ?? 0, // Default to 0 if null
+      recentPurchase: item.recent_purchase ?? undefined,
+      images: item.image_urls || [], // Ensure images is an array
+      sizes: item.sizes || [], // Ensure sizes is an array
+      description: item.description ?? '', // Ensure description is a string
+      boughtByUsers: item.bought_by_users ?? 0, // Default to 0 if null
+      category_id: item.category_id ?? undefined,
       category_name: item.categories?.name || 'Uncategorized',
     }));
   } catch (error) {
@@ -161,17 +161,17 @@ export const getRecommendedProducts = async (currentProductId: string, limit: nu
       id: item.id,
       name: item.name,
       imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
-      price: item.price,
-      originalPrice: item.original_price,
-      discount: item.discount,
-      rating: item.rating,
-      reviewsCount: item.reviews_count,
-      recentPurchase: item.recent_purchase,
-      images: item.image_urls,
-      sizes: item.sizes,
-      description: item.description,
-      boughtByUsers: item.bought_by_users,
-      category_id: item.category_id,
+      price: item.price ?? 0, // Ensure price is always a number
+      originalPrice: item.original_price ?? undefined,
+      discount: item.discount ?? undefined,
+      rating: item.rating ?? 0, // Default to 0 if null
+      reviewsCount: item.reviews_count ?? 0, // Default to 0 if null
+      recentPurchase: item.recent_purchase ?? undefined,
+      images: item.image_urls || [], // Ensure images is an array
+      sizes: item.sizes || [], // Ensure sizes is an array
+      description: item.description ?? '', // Ensure description is a string
+      boughtByUsers: item.bought_by_users ?? 0, // Default to 0 if null
+      category_id: item.category_id ?? undefined,
       category_name: item.categories?.name || 'Uncategorized',
     }));
   } catch (error) {
