@@ -45,7 +45,8 @@ const ProductDetail: React.FC = () => {
     setProduct(fetchedProduct);
 
     if (fetchedProduct) {
-      const fetchedRecommended = await getRecommendedProducts(fetchedProduct.id);
+      // Pass category_id to getRecommendedProducts
+      const fetchedRecommended = await getRecommendedProducts(fetchedProduct.id, fetchedProduct.category_id);
       setRecommendedProducts(fetchedRecommended);
       const fetchedReviews = await getReviewsForProduct(fetchedProduct.id); // Fetch reviews
       setReviews(fetchedReviews);

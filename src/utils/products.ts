@@ -146,38 +146,89 @@ export const getProductsByCategory = async (categoryId: string): Promise<Product
 };
 
 // Fetches recommended products (e.g., a random subset, excluding the current product)
-export const getRecommendedProducts = async (currentProductId: string, limit: number = 4): Promise<Product[]> => {
+export const getRecommendedProducts = async (currentProductId: string, currentProductCategoryId?: string, limit: number = 4): Promise<Product[]> => {
   try {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        categories ( name )
-      `)
-      .neq('id', currentProductId) // Exclude the current product
-      .limit(limit); // Limit the number of recommended products
+    let recommendedProducts: Product[] = [];
 
-    if (error) {
-      throw error;
+    // 1. Try to fetch products from the same category
+    if (currentProductCategoryId) {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          categories ( name )
+        `)
+        .eq('category_id', currentProductCategoryId)
+        .neq('id', currentProductId)
+        .limit(limit);
+
+      if (error) {
+        console.error('Error fetching recommended products by category:', error);
+        // Don't throw, try general recommendations next
+      } else if (data) {
+        recommendedProducts = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
+          price: item.price ?? 0,
+          originalPrice: item.original_price ?? undefined,
+          discount: item.discount ?? undefined,
+          rating: item.rating ?? 0,
+          reviewsCount: item.reviews_count ?? 0,
+          recentPurchase: item.recent_purchase ?? undefined,
+          images: item.image_urls || [],
+          sizes: item.sizes || [],
+          description: item.description ?? '',
+          boughtByUsers: item.bought_by_users ?? 0,
+          category_id: item.category_id ?? undefined,
+          category_name: item.categories?.name || 'Uncategorized',
+        }));
+      }
     }
 
-    return data.map(item => ({
-      id: item.id,
-      name: item.name,
-      imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
-      price: item.price ?? 0, // Ensure price is always a number
-      originalPrice: item.original_price ?? undefined,
-      discount: item.discount ?? undefined,
-      rating: item.rating ?? 0, // Default to 0 if null
-      reviewsCount: item.reviews_count ?? 0, // Default to 0 if null
-      recentPurchase: item.recent_purchase ?? undefined,
-      images: item.image_urls || [], // Ensure images is an array
-      sizes: item.sizes || [], // Ensure sizes is an array
-      description: item.description ?? '', // Ensure description is a string
-      boughtByUsers: item.bought_by_users ?? 0, // Default to 0 if null
-      category_id: item.category_id ?? undefined,
-      category_name: item.categories?.name || 'Uncategorized',
-    }));
+    // 2. If not enough products, fetch general popular products (excluding current product)
+    if (recommendedProducts.length < limit) {
+      const remainingLimit = limit - recommendedProducts.length;
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          categories ( name )
+        `)
+        .neq('id', currentProductId)
+        .limit(remainingLimit); // Fetch remaining needed products
+
+      if (error) {
+        throw error; // Throw if general fetch fails
+      }
+
+      if (data) {
+        const generalProducts = data.map(item => ({
+          id: item.id,
+          name: item.name,
+          imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
+          price: item.price ?? 0,
+          originalPrice: item.original_price ?? undefined,
+          discount: item.discount ?? undefined,
+          rating: item.rating ?? 0,
+          reviewsCount: item.reviews_count ?? 0,
+          recentPurchase: item.recent_purchase ?? undefined,
+          images: item.image_urls || [],
+          sizes: item.sizes || [],
+          description: item.description ?? '',
+          boughtByUsers: item.bought_by_users ?? 0,
+          category_id: item.category_id ?? undefined,
+          category_name: item.categories?.name || 'Uncategorized',
+        }));
+        // Filter out any duplicates if some were already fetched from the same category
+        const uniqueGeneralProducts = generalProducts.filter(gp => !recommendedProducts.some(rp => rp.id === gp.id));
+        recommendedProducts = [...recommendedProducts, ...uniqueGeneralProducts];
+      }
+    }
+    
+    // Shuffle the final list to provide varied recommendations
+    return recommendedProducts.sort(() => Math.random() - 0.5).slice(0, limit);
+
   } catch (error) {
     console.error('Error fetching recommended products:', error);
     showError('Failed to load recommended products.');
