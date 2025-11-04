@@ -269,7 +269,7 @@ const Dashboard: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {topSellingProducts.map((product) => (
-                        <TableRow key={product.id}>
+                        <TableRow key={`product-${product.id}`}>
                           <TableCell>
                             <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded-md" />
                           </TableCell>
@@ -309,7 +309,7 @@ const Dashboard: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {topCustomers.map((customer) => (
-                        <TableRow key={customer.id}>
+                        <TableRow key={`customer-${customer.id}`}>
                           <TableCell className="font-medium">{customer.name}</TableCell>
                           <TableCell>{customer.email}</TableCell>
                           <TableCell>{customer.totalOrders}</TableCell>
