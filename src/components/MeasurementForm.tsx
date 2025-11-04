@@ -47,9 +47,31 @@ const measurementFieldConfig: Record<keyof UserMeasurements, { label: string; ty
   updated_at: { label: 'Updated At', type: 'text' },
 };
 
+// Define all possible measurement fields from UserMeasurements with friendly labels and groups
+const allMeasurementFields: Array<{ key: keyof UserMeasurements; label: string; group: string }> = [
+  { key: 'ladies_size', label: 'Ladies\' Size', group: 'Women' },
+  { key: 'men_shirt_length', label: 'Shirt Length', group: 'Men - Shirt/Kurta/Bandi' },
+  { key: 'men_shirt_chest', label: 'Shirt Chest', group: 'Men - Shirt/Kurta/Bandi' },
+  { key: 'men_shirt_waist', label: 'Shirt Waist', group: 'Men - Shirt/Kurta/Bandi' },
+  { key: 'men_shirt_sleeve_length', label: 'Shirt Sleeve Length', group: 'Men - Shirt/Kurta/Bandi' },
+  { key: 'men_shirt_shoulder', label: 'Shirt Shoulder', group: 'Men - Shirt/Kurta/Bandi' },
+  { key: 'men_shirt_neck', label: 'Shirt Neck', group: 'Men - Shirt/Kurta/Bandi' },
+  { key: 'men_pant_length', label: 'Pant Length', group: 'Men - Pant/Paijama' },
+  { key: 'men_pant_waist', label: 'Pant Waist', group: 'Men - Pant/Paijama' },
+  { key: 'men_pant_hip', label: 'Pant Hip', group: 'Men - Pant/Paijama' },
+  { key: 'men_pant_thigh', label: 'Pant Thigh', group: 'Men - Pant/Paijama' },
+  { key: 'men_pant_bottom', label: 'Pant Bottom', group: 'Men - Pant/Paijama' },
+  { key: 'men_coat_length', label: 'Coat Length', group: 'Men - Coat/Washcoat/Bajezar' },
+  { key: 'men_coat_chest', label: 'Coat Chest', group: 'Men - Coat/Washcoat/Bajezar' },
+  { key: 'men_coat_waist', label: 'Coat Waist', group: 'Men - Coat/Washcoat/Bajezar' },
+  { key: 'men_coat_sleeve_length', label: 'Coat Sleeve Length', group: 'Men - Coat/Washcoat/Bajezar' },
+  { key: 'men_coat_shoulder', label: 'Coat Shoulder', group: 'Men - Coat/Washcoat/Bajezar' },
+  { key: 'notes', label: 'Additional Notes', group: 'General' },
+];
+
 const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, onSaveSuccess, userGender }) => {
   const { session } = useSession();
-  const [selectedMeasurementTypeId, setSelectedMeasurementTypeId] = useState<string | undefined>(initialMeasurements?.measurement_type || undefined);
+  const [selectedMeasurementTypeId, setSelectedMeasurementTypeId] = useState<string | undefined>(undefined);
   const [currentMeasurementType, setCurrentMeasurementType] = useState<MeasurementType | undefined>(undefined);
   const [measurementTypes, setMeasurementTypes] = useState<MeasurementType[]>([]);
   const [formValues, setFormValues] = useState<Partial<UserMeasurements>>({});
@@ -64,7 +86,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
   }, []);
 
   useEffect(() => {
-    if (initialMeasurements) {
+    if (initialMeasurements && measurementTypes.length > 0) { // Ensure measurementTypes are loaded
       // Initialize form values from initialMeasurements
       const initialFormValues: Partial<UserMeasurements> = {};
       for (const key in initialMeasurements) {
@@ -73,12 +95,15 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
         }
       }
       setFormValues(initialFormValues);
-      setSelectedMeasurementTypeId(initialMeasurements.measurement_type || undefined);
-    } else {
+
+      // Find the ID based on the name stored in initialMeasurements.measurement_type
+      const typeByName = measurementTypes.find(type => type.name === initialMeasurements.measurement_type);
+      setSelectedMeasurementTypeId(typeByName?.id || undefined);
+    } else if (!initialMeasurements) {
       setFormValues({});
       setSelectedMeasurementTypeId(undefined);
     }
-  }, [initialMeasurements]);
+  }, [initialMeasurements, measurementTypes]); // Add measurementTypes to dependency array
 
   useEffect(() => {
     // Set initial measurement type based on user's gender if not already set
