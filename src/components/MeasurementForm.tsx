@@ -6,11 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { showSuccess, showError } from '@/utils/toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/components/SessionContextProvider';
-import { UserMeasurements } from '@/types/checkout'; // Import updated UserMeasurements type
+import { UserMeasurements } from '@/types/checkout';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { cn } from '@/lib/utils'; // Import cn utility for conditional class names
 
 interface MeasurementFormProps {
   initialMeasurements?: UserMeasurements;
@@ -187,15 +188,30 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
           {/* Gender/Measurement Type Selection */}
           <div className="space-y-2">
             <Label className="text-base font-semibold text-foreground">Select Measurement Type</Label>
-            <RadioGroup onValueChange={handleGenderChange} value={measurementType} className="flex space-x-4">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="men" id="men" />
-                <Label htmlFor="men">Men's Measurements</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="women" id="women" />
-                <Label htmlFor="women">Ladies' Size</Label>
-              </div>
+            <RadioGroup onValueChange={handleGenderChange} value={measurementType} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Label
+                htmlFor="men"
+                className={cn(
+                  "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200",
+                  measurementType === 'men' && "border-primary ring-2 ring-primary shadow-md"
+                )}
+              >
+                <RadioGroupItem value="men" id="men" className="sr-only" />
+                <span className="text-lg font-medium">Men's Measurements</span>
+                <span className="text-sm text-muted-foreground text-center mt-1">Shirt, Pant, Coat, etc.</span>
+              </Label>
+
+              <Label
+                htmlFor="women"
+                className={cn(
+                  "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all duration-200",
+                  measurementType === 'women' && "border-primary ring-2 ring-primary shadow-md"
+                )}
+              >
+                <RadioGroupItem value="women" id="women" className="sr-only" />
+                <span className="text-lg font-medium">Ladies' Size</span>
+                <span className="text-sm text-muted-foreground text-center mt-1">Standard sizes (XS, S, M, L, XL, XXL)</span>
+              </Label>
             </RadioGroup>
           </div>
 
