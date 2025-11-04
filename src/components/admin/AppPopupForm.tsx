@@ -10,46 +10,35 @@ import { AppPopup, uploadAppPopupImage } from '@/utils/appPopups';
 import { showError } from '@/utils/toast';
 
 interface AppPopupFormProps {
-  initialData?: AppPopup;
+  initialData: AppPopup; // Changed to be always defined
   onSubmit: (data: Omit<AppPopup, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
   loading: boolean;
 }
 
 const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, loading }) => {
-  const [title, setTitle] = useState(initialData?.title || '');
-  const [description, setDescription] = useState(initialData?.description || '');
-  const [imageUrl, setImageUrl] = useState(initialData?.image_url || '');
-  const [ctaText, setCtaText] = useState(initialData?.cta_text || '');
-  const [ctaLink, setCtaLink] = useState(initialData?.cta_link || '');
-  const [order, setOrder] = useState(initialData?.order?.toString() || '0');
-  const [isActive, setIsActive] = useState(initialData?.is_active ?? true);
+  const [title, setTitle] = useState(initialData.title);
+  const [description, setDescription] = useState(initialData.description || '');
+  const [imageUrl, setImageUrl] = useState(initialData.image_url || '');
+  const [ctaText, setCtaText] = useState(initialData.cta_text || '');
+  const [ctaLink, setCtaLink] = useState(initialData.cta_link || '');
+  const [order, setOrder] = useState(initialData.order.toString());
+  const [isActive, setIsActive] = useState(initialData.is_active);
 
   const [useUrlInput, setUseUrlInput] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
-    if (initialData) {
-      setTitle(initialData.title);
-      setDescription(initialData.description || '');
-      setImageUrl(initialData.image_url || '');
-      setCtaText(initialData.cta_text || '');
-      setCtaLink(initialData.cta_link || '');
-      setOrder(initialData.order?.toString() || '0');
-      setIsActive(initialData.is_active ?? true);
-      setUseUrlInput(true); // Assume URL input for existing banners
-      setSelectedFile(null);
-    } else {
-      setTitle('');
-      setDescription('');
-      setImageUrl('');
-      setCtaText('');
-      setCtaLink('');
-      setOrder('0');
-      setIsActive(true);
-      setUseUrlInput(true);
-      setSelectedFile(null);
-    }
+    // initialData is now guaranteed to be an object, so no need for if (initialData)
+    setTitle(initialData.title);
+    setDescription(initialData.description || '');
+    setImageUrl(initialData.image_url || '');
+    setCtaText(initialData.cta_text || '');
+    setCtaLink(initialData.cta_link || '');
+    setOrder(initialData.order.toString());
+    setIsActive(initialData.is_active);
+    setUseUrlInput(true); // Assume URL input for existing banners
+    setSelectedFile(null);
   }, [initialData]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +63,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
           showError('Image upload failed. Please try again.');
           return;
         }
-      } else if (!initialData?.image_url) {
+      } else if (!initialData.image_url) { // No optional chaining needed here
         showError('Please upload an image or provide an image URL.');
         return;
       }
@@ -102,7 +91,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-foreground">
-          {initialData ? 'Edit App Pop-up' : 'Add New App Pop-up'}
+          {initialData.id ? 'Edit App Pop-up' : 'Add New App Pop-up'} {/* Check initialData.id */}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -112,7 +101,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="title"
               type="text"
-              value={title}
+              value={String(title)} // Explicitly cast to String
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Special Offer!"
               required
@@ -122,7 +111,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
               id="description"
-              value={description ?? ''}
+              value={String(description)} // Explicitly cast to String
               onChange={(e) => setDescription(e.target.value)}
               placeholder="A short description for the pop-up."
               rows={3}
@@ -148,7 +137,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
               <Input
                 id="imageUrl"
                 type="url"
-                value={imageUrl ?? ''}
+                value={String(imageUrl)} // Explicitly cast to String
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://example.com/popup.jpg"
               />
@@ -169,7 +158,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
                   {selectedFile.name} selected.
                 </p>
               )}
-              {initialData?.image_url && !selectedFile && (
+              {initialData.image_url && !selectedFile && ( // No optional chaining needed here
                 <p className="text-sm text-muted-foreground mt-2">
                   No new file selected. Existing image will be kept.
                 </p>
@@ -182,7 +171,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="ctaText"
               type="text"
-              value={ctaText ?? ''}
+              value={String(ctaText)} // Explicitly cast to String
               onChange={(e) => setCtaText(e.target.value)}
               placeholder="e.g., Shop Now"
             />
@@ -192,7 +181,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="ctaLink"
               type="url"
-              value={ctaLink ?? ''}
+              value={String(ctaLink)} // Explicitly cast to String
               onChange={(e) => setCtaLink(e.target.value)}
               placeholder="e.g., /products/123"
             />
@@ -202,7 +191,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="order"
               type="number"
-              value={order}
+              value={String(order)} // Explicitly cast to String
               onChange={(e) => setOrder(e.target.value)}
               placeholder="e.g., 1"
               min="0"
@@ -222,7 +211,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {uploadingImage ? 'Uploading Image...' : 'Saving...'}
               </>
-            ) : (initialData ? 'Update Pop-up' : 'Add Pop-up')}
+            ) : (initialData.id ? 'Update Pop-up' : 'Add Pop-up')} {/* Check initialData.id */}
           </Button>
         </form>
       </CardContent>
