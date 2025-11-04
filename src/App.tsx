@@ -24,7 +24,9 @@ import HeroBannerManagement from "./pages/admin/HeroBannerManagement";
 import NotificationManagement from "./pages/admin/NotificationManagement";
 import CategoryManagement from "./pages/admin/CategoryManagement";
 import MeasurementTypeManagement from "./pages/admin/MeasurementTypeManagement";
-import RecentPurchaseNotification from "./components/RecentPurchaseNotification"; // Import RecentPurchaseNotification
+import RecentPurchaseNotification from "./components/RecentPurchaseNotification";
+import AppPopupManagement from "./pages/admin/AppPopupManagement"; // Import new admin page
+import AppPopupDisplay from "./components/AppPopupDisplay"; // Import new AppPopupDisplay
 
 const queryClient = new QueryClient();
 
@@ -55,6 +57,7 @@ const App = () => (
               <Route path="categories" element={<CategoryManagement />} />
               <Route path="measurement-types" element={<MeasurementTypeManagement />} />
               <Route path="banners" element={<HeroBannerManagement />} />
+              <Route path="popups" element={<AppPopupManagement />} /> {/* New Admin Route */}
               <Route path="notifications" element={<NotificationManagement />} />
               <Route path="settings" element={<AppSettings />} />
             </Route>
@@ -62,7 +65,8 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <RecentPurchaseNotification /> {/* Render the fake purchase notifications globally */}
+          <RecentPurchaseNotification />
+          <AppPopupDisplay /> {/* Render the AppPopupDisplay globally */}
         </SessionContextProvider>
       </BrowserRouter>
     </TooltipProvider>

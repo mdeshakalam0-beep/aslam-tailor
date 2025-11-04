@@ -1,0 +1,183 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Pencil, Trash2, PlusCircle, EyeOff, Eye } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import AppPopupForm from '@/components/admin/AppPopupForm';
+import { getAppPopups, createAppPopup, updateAppPopup, deleteAppPopup, AppPopup } from '@/utils/appPopups';
+import { showError } from '@/utils/toast';
+import { Badge } from '@/components/ui/badge';
+
+const AppPopupManagement: React.FC = () => {
+  const [popups, setPopups] = useState<AppPopup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingPopup, setEditingPopup] = useState<AppPopup | undefined>(undefined);
+  const [formLoading, setFormLoading] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [popupToDelete, setPopupToDelete] = useState<string | null>(null);
+
+  const fetchPopups = async () => {
+    setLoading(true);
+    const fetchedPopups = await getAppPopups(true); // Fetch all pop-ups for admin
+    setPopups(fetchedPopups);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchPopups();
+  }, []);
+
+  const handleAddPopup = () => {
+    setEditingPopup(undefined);
+    setIsFormOpen(true);
+  };
+
+  const handleEditPopup = (popup: AppPopup) => {
+    setEditingPopup(popup);
+    setIsFormOpen(true);
+  };
+
+  const handleDeleteClick = (popupId: string) => {
+    setPopupToDelete(popupId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeletePopup = async () => {
+    if (popupToDelete) {
+      const success = await deleteAppPopup(popupToDelete);
+      if (success) {
+        fetchPopups();
+      }
+      setPopupToDelete(null);
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  const handleFormSubmit = async (popupData: Omit<AppPopup, 'id' | 'created_at' | 'updated_at'>) => {
+    setFormLoading(true);
+    let success = false;
+    if (editingPopup) {
+      const updated = await updateAppPopup(editingPopup.id, popupData);
+      success = !!updated;
+    } else {
+      const created = await createAppPopup(popupData);
+      success = !!created;
+    }
+
+    if (success) {
+      fetchPopups();
+      setIsFormOpen(false);
+    }
+    setFormLoading(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-foreground">App Pop-up Management</h2>
+        <Button onClick={handleAddPopup} className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <PlusCircle className="h-5 w-5 mr-2" /> Add New Pop-up
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-foreground">All App Pop-ups</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <p className="text-center text-muted-foreground">Loading pop-ups...</p>
+          ) : popups.length === 0 ? (
+            <p className="text-center text-muted-foreground">No app pop-ups found. Add a new pop-up to get started!</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[80px]">Image</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Order</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {popups.map((popup) => (
+                    <TableRow key={popup.id}>
+                      <TableCell>
+                        {popup.image_url ? (
+                          <img src={popup.image_url} alt={popup.title} className="w-16 h-12 object-cover rounded-md" />
+                        ) : (
+                          <div className="w-16 h-12 bg-muted flex items-center justify-center rounded-md text-muted-foreground text-xs">No Image</div>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium">{popup.title}</TableCell>
+                      <TableCell>{popup.order}</TableCell>
+                      <TableCell>
+                        <Badge variant={popup.is_active ? 'default' : 'secondary'}>
+                          {popup.is_active ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditPopup(popup)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/90" onClick={() => handleDeleteClick(popup.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Add/Edit Pop-up Dialog */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingPopup ? 'Edit App Pop-up' : 'Add New App Pop-up'}</DialogTitle>
+            <DialogDescription>
+              {editingPopup ? 'Make changes to the app pop-up here.' : 'Fill in the details for a new app pop-up.'}
+            </DialogDescription>
+          </DialogHeader>
+          <AppPopupForm
+            initialData={editingPopup}
+            onSubmit={handleFormSubmit}
+            loading={formLoading}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the app pop-up.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={confirmDeletePopup}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default AppPopupManagement;
