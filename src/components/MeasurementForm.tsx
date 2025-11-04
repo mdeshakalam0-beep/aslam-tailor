@@ -217,9 +217,11 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
 
           {measurementType === 'men' && (
             <Accordion type="multiple" className="w-full space-y-4">
-              <AccordionItem value="item-1" className="border rounded-md">
-                <AccordionTrigger className="px-4 py-3 text-lg font-semibold text-foreground hover:no-underline">Shirt / Kurta / Bandi Measurements (inches)</AccordionTrigger>
-                <AccordionContent className="p-4 border-t">
+              <AccordionItem value="item-1" className="rounded-md border bg-card shadow-sm transition-all duration-200">
+                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                  Shirt / Kurta / Bandi Measurements (inches)
+                </AccordionTrigger>
+                <AccordionContent className="p-4 border-t bg-background rounded-b-md">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div><Label htmlFor="menShirtLength">Length</Label><Input id="menShirtLength" type="number" value={menShirtLength} onChange={(e) => setMenShirtLength(e.target.value)} placeholder="e.g., 28" /></div>
                     <div><Label htmlFor="menShirtChest">Chest</Label><Input id="menShirtChest" type="number" value={menShirtChest} onChange={(e) => setMenShirtChest(e.target.value)} placeholder="e.g., 40" /></div>
@@ -231,9 +233,11 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="item-2" className="border rounded-md">
-                <AccordionTrigger className="px-4 py-3 text-lg font-semibold text-foreground hover:no-underline">Pant / Paijama Measurements (inches)</AccordionTrigger>
-                <AccordionContent className="p-4 border-t">
+              <AccordionItem value="item-2" className="rounded-md border bg-card shadow-sm transition-all duration-200">
+                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                  Pant / Paijama Measurements (inches)
+                </AccordionTrigger>
+                <AccordionContent className="p-4 border-t bg-background rounded-b-md">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div><Label htmlFor="menPantLength">Length</Label><Input id="menPantLength" type="number" value={menPantLength} onChange={(e) => setMenPantLength(e.target.value)} placeholder="e.g., 40" /></div>
                     <div><Label htmlFor="menPantWaist">Waist</Label><Input id="menPantWaist" type="number" value={menPantWaist} onChange={(e) => setMenPantWaist(e.target.value)} placeholder="e.g., 32" /></div>
@@ -244,9 +248,11 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ initialMeasurements, 
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="item-3" className="border rounded-md">
-                <AccordionTrigger className="px-4 py-3 text-lg font-semibold text-foreground hover:no-underline">Coat / Washcoat / Bajezar Measurements (inches)</AccordionTrigger>
-                <AccordionContent className="p-4 border-t">
+              <AccordionItem value="item-3" className="rounded-md border bg-card shadow-sm transition-all duration-200">
+                <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                  Coat / Washcoat / Bajezar Measurements (inches)
+                </AccordionTrigger>
+                <AccordionContent className="p-4 border-t bg-background rounded-b-md">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div><Label htmlFor="menCoatLength">Length</Label><Input id="menCoatLength" type="number" value={menCoatLength} onChange={(e) => setMenCoatLength(e.target.value)} placeholder="e.g., 28" /></div>
                     <div><Label htmlFor="menCoatChest">Chest</Label><Input id="menCoatChest" type="number" value={menCoatChest} onChange={(e) => setMenCoatChest(e.target.value)} placeholder="e.g., 40" /></div>
