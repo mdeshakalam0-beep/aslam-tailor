@@ -85,7 +85,7 @@ export const getReviewsForProduct = async (productId: string): Promise<ProductRe
       .from('product_reviews')
       .select(`
         *,
-        profiles ( first_name, last_name, avatar_url )
+        profiles!user_id ( first_name, last_name, avatar_url )
       `)
       .eq('product_id', productId)
       .order('created_at', { ascending: false });
