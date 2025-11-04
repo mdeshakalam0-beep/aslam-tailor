@@ -10,13 +10,16 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ProductCard from '@/components/ProductCard';
 import ProductMeasurementSelector from '@/components/ProductMeasurementSelector';
+import ProductReviewForm from '@/components/ProductReviewForm'; // Import ProductReviewForm
+import ProductReviewCard from '@/components/ProductReviewCard'; // Import ProductReviewCard
 import { addToCart } from '@/utils/cart';
 import { showError, showSuccess } from '@/utils/toast';
 import { getProductById, getRecommendedProducts, Product } from '@/utils/products';
 import { isProductFavorited, addFavorite, removeFavorite } from '@/utils/favorites';
+import { getReviewsForProduct, ProductReview } from '@/utils/reviews'; // Import review utilities
 import { useSession } from '@/components/SessionContextProvider';
 import { cn } from '@/lib/utils';
-import { Switch } from '@/components/ui/switch'; // Import Switch component
+import { Switch } from '@/components/ui/switch';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,31 +27,34 @@ const ProductDetail: React.FC = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | undefined>(undefined);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<ProductReview[]>([]); // State for reviews
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [isFavorited, setIsFavorited] = useState(false);
   const [isCustomMeasurementActive, setIsCustomMeasurementActive] = useState(false);
-  const [isSizeSelectionActive, setIsSizeSelectionActive] = useState(true); // New state for size selection toggle
+  const [isSizeSelectionActive, setIsSizeSelectionActive] = useState(true);
 
   const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
   );
 
+  const fetchProductAndReviews = async () => {
+    if (!id) return;
+    setLoading(true);
+    const fetchedProduct = await getProductById(id);
+    setProduct(fetchedProduct);
+
+    if (fetchedProduct) {
+      const fetchedRecommended = await getRecommendedProducts(fetchedProduct.id);
+      setRecommendedProducts(fetchedRecommended);
+      const fetchedReviews = await getReviewsForProduct(fetchedProduct.id); // Fetch reviews
+      setReviews(fetchedReviews);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchProductData = async () => {
-      if (!id) return;
-      setLoading(true);
-      const fetchedProduct = await getProductById(id);
-      setProduct(fetchedProduct);
-
-      if (fetchedProduct) {
-        const fetchedRecommended = await getRecommendedProducts(fetchedProduct.id);
-        setRecommendedProducts(fetchedRecommended);
-      }
-      setLoading(false);
-    };
-
-    fetchProductData();
+    fetchProductAndReviews();
   }, [id]);
 
   useEffect(() => {
@@ -79,24 +85,24 @@ const ProductDetail: React.FC = () => {
 
   const handleSizeSelect = (size: string) => {
     setSelectedSize(size);
-    setIsCustomMeasurementActive(false); // Deactivate custom measurements when a size is selected
-    setIsSizeSelectionActive(true); // Ensure size selection is active
+    setIsCustomMeasurementActive(false);
+    setIsSizeSelectionActive(true);
   };
 
   const handleSizeToggle = (checked: boolean) => {
     setIsSizeSelectionActive(checked);
     if (checked) {
-      setIsCustomMeasurementActive(false); // Deactivate custom measurements if size selection is turned on
+      setIsCustomMeasurementActive(false);
     } else {
-      setSelectedSize(undefined); // Clear selected size if size selection is turned off
+      setSelectedSize(undefined);
     }
   };
 
   const handleMeasurementToggle = (isActive: boolean) => {
     setIsCustomMeasurementActive(isActive);
     if (isActive) {
-      setSelectedSize(undefined); // Clear selected size if custom measurement is activated
-      setIsSizeSelectionActive(false); // Deactivate size selection if custom measurement is turned on
+      setSelectedSize(undefined);
+      setIsSizeSelectionActive(false);
     }
   };
 
@@ -160,6 +166,10 @@ const ProductDetail: React.FC = () => {
       const success = await addFavorite(session.user.id, product.id);
       if (success) setIsFavorited(true);
     }
+  };
+
+  const handleReviewSubmitted = () => {
+    fetchProductAndReviews(); // Re-fetch reviews after a new one is submitted
   };
 
   return (
@@ -240,7 +250,7 @@ const ProductDetail: React.FC = () => {
                 id="size-selection-toggle"
                 checked={isSizeSelectionActive}
                 onCheckedChange={handleSizeToggle}
-                disabled={isCustomMeasurementActive} // Disable if custom measurement is active
+                disabled={isCustomMeasurementActive}
               />
             </div>
             <div className={cn(!isSizeSelectionActive && "opacity-50 pointer-events-none")}>
@@ -249,7 +259,7 @@ const ProductDetail: React.FC = () => {
                 onValueChange={handleSizeSelect}
                 value={selectedSize}
                 className="flex flex-wrap gap-2"
-                disabled={!isSizeSelectionActive} // Disable if size selection is off
+                disabled={!isSizeSelectionActive}
               >
                 {product.sizes.map((size) => (
                   <div key={size} className="flex items-center space-x-2">
@@ -272,7 +282,7 @@ const ProductDetail: React.FC = () => {
               session={session} 
               isActive={isCustomMeasurementActive}
               onToggle={handleMeasurementToggle}
-              isDisabled={isSizeSelectionActive} // Disable if size selection is active
+              isDisabled={isSizeSelectionActive}
             />
           </div>
 
@@ -286,6 +296,28 @@ const ProductDetail: React.FC = () => {
             </Button>
           </div>
         </div>
+
+        {/* Product Reviews Section */}
+        <section className="mt-8 px-4 md:px-0">
+          <h2 className="text-2xl font-bold mb-4 text-foreground">Customer Reviews ({reviews.length})</h2>
+          {session?.user ? (
+            <ProductReviewForm productId={product.id} session={session} onReviewSubmitted={handleReviewSubmitted} />
+          ) : (
+            <p className="text-muted-foreground text-center p-4 border rounded-lg bg-card mb-4">
+              <Link to="/login" className="text-primary hover:underline">Log in</Link> to write a review.
+            </p>
+          )}
+
+          <div className="mt-6 space-y-4">
+            {reviews.length === 0 ? (
+              <p className="text-muted-foreground text-center p-4 border rounded-lg bg-card">No reviews yet. Be the first to review!</p>
+            ) : (
+              reviews.map((review) => (
+                <ProductReviewCard key={review.id} review={review} />
+              ))
+            )}
+          </div>
+        </section>
 
         {/* Recommended Products Section */}
         <section className="mt-8 px-4 md:px-0">

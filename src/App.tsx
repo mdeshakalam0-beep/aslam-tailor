@@ -23,7 +23,8 @@ import AppSettings from "./pages/admin/AppSettings";
 import HeroBannerManagement from "./pages/admin/HeroBannerManagement";
 import NotificationManagement from "./pages/admin/NotificationManagement";
 import CategoryManagement from "./pages/admin/CategoryManagement";
-import MeasurementTypeManagement from "./pages/admin/MeasurementTypeManagement"; // Import new admin measurement type management
+import MeasurementTypeManagement from "./pages/admin/MeasurementTypeManagement";
+import RecentPurchaseNotification from "./components/RecentPurchaseNotification"; // Import RecentPurchaseNotification
 
 const queryClient = new QueryClient();
 
@@ -52,7 +53,7 @@ const App = () => (
               <Route path="orders" element={<OrderManagement />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="categories" element={<CategoryManagement />} />
-              <Route path="measurement-types" element={<MeasurementTypeManagement />} /> {/* New admin measurement type route */}
+              <Route path="measurement-types" element={<MeasurementTypeManagement />} />
               <Route path="banners" element={<HeroBannerManagement />} />
               <Route path="notifications" element={<NotificationManagement />} />
               <Route path="settings" element={<AppSettings />} />
@@ -61,6 +62,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <RecentPurchaseNotification /> {/* Render the fake purchase notifications globally */}
         </SessionContextProvider>
       </BrowserRouter>
     </TooltipProvider>
