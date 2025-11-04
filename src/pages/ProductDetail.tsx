@@ -11,11 +11,12 @@ import { Label } from '@/components/ui/label';
 import ProductCard from '@/components/ProductCard';
 import ProductMeasurementSelector from '@/components/ProductMeasurementSelector';
 import { addToCart } from '@/utils/cart';
-import { showError, showSuccess } from '@/utils/toast'; // Import showSuccess
+import { showError, showSuccess } from '@/utils/toast';
 import { getProductById, getRecommendedProducts, Product } from '@/utils/products';
 import { isProductFavorited, addFavorite, removeFavorite } from '@/utils/favorites';
 import { useSession } from '@/components/SessionContextProvider';
-import { cn } from '@/lib/utils'; // Import cn for conditional classes
+import { cn } from '@/lib/utils';
+import { Switch } from '@/components/ui/switch'; // Import Switch component
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +27,8 @@ const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [isFavorited, setIsFavorited] = useState(false);
-  const [isCustomMeasurementActive, setIsCustomMeasurementActive] = useState(false); // State for custom measurement toggle
+  const [isCustomMeasurementActive, setIsCustomMeasurementActive] = useState(false);
+  const [isSizeSelectionActive, setIsSizeSelectionActive] = useState(true); // New state for size selection toggle
 
   const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
@@ -78,27 +80,37 @@ const ProductDetail: React.FC = () => {
   const handleSizeSelect = (size: string) => {
     setSelectedSize(size);
     setIsCustomMeasurementActive(false); // Deactivate custom measurements when a size is selected
+    setIsSizeSelectionActive(true); // Ensure size selection is active
+  };
+
+  const handleSizeToggle = (checked: boolean) => {
+    setIsSizeSelectionActive(checked);
+    if (checked) {
+      setIsCustomMeasurementActive(false); // Deactivate custom measurements if size selection is turned on
+    } else {
+      setSelectedSize(undefined); // Clear selected size if size selection is turned off
+    }
   };
 
   const handleMeasurementToggle = (isActive: boolean) => {
     setIsCustomMeasurementActive(isActive);
     if (isActive) {
       setSelectedSize(undefined); // Clear selected size if custom measurement is activated
+      setIsSizeSelectionActive(false); // Deactivate size selection if custom measurement is turned on
     }
   };
 
   const handleAddToCart = () => {
     if (isCustomMeasurementActive) {
-      // Add product with a placeholder size for custom measurements
       addToCart({
         id: product.id,
         name: product.name,
         imageUrl: product.images[0],
         price: product.price,
-        selectedSize: "Custom Fit", // Placeholder for custom measurements
+        selectedSize: "Custom Fit",
       });
       showSuccess('Product added to cart with custom measurement option!');
-    } else if (selectedSize) {
+    } else if (isSizeSelectionActive && selectedSize) {
       addToCart({
         id: product.id,
         name: product.name,
@@ -122,7 +134,7 @@ const ProductDetail: React.FC = () => {
       });
       showSuccess('Product added to cart with custom measurement option!');
       navigate('/cart');
-    } else if (selectedSize) {
+    } else if (isSizeSelectionActive && selectedSize) {
       addToCart({
         id: product.id,
         name: product.name,
@@ -218,35 +230,49 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* Size Selection */}
-          <div className={cn("space-y-2", isCustomMeasurementActive && "opacity-50 pointer-events-none")}>
-            <Label className="text-base font-semibold text-foreground">Select Size</Label>
-            <RadioGroup
-              onValueChange={handleSizeSelect}
-              value={selectedSize}
-              className="flex flex-wrap gap-2"
-              disabled={isCustomMeasurementActive} // Disable if custom measurement is active
-            >
-              {product.sizes.map((size) => (
-                <div key={size} className="flex items-center space-x-2">
-                  <RadioGroupItem value={size} id={`size-${size}`} className="peer sr-only" />
-                  <Label
-                    htmlFor={`size-${size}`}
-                    className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-2 px-4 text-sm font-medium uppercase text-popover-foreground shadow-sm hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                  >
-                    {size}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
+          <div className={cn("space-y-2")}>
+            <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
+              <Label htmlFor="size-selection-toggle" className="flex items-center space-x-2 cursor-pointer">
+                <Ruler className="h-5 w-5 text-muted-foreground" />
+                <span>Enable Size Selection</span>
+              </Label>
+              <Switch
+                id="size-selection-toggle"
+                checked={isSizeSelectionActive}
+                onCheckedChange={handleSizeToggle}
+                disabled={isCustomMeasurementActive} // Disable if custom measurement is active
+              />
+            </div>
+            <div className={cn(!isSizeSelectionActive && "opacity-50 pointer-events-none")}>
+              <Label className="text-base font-semibold text-foreground">Select Size</Label>
+              <RadioGroup
+                onValueChange={handleSizeSelect}
+                value={selectedSize}
+                className="flex flex-wrap gap-2"
+                disabled={!isSizeSelectionActive} // Disable if size selection is off
+              >
+                {product.sizes.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <RadioGroupItem value={size} id={`size-${size}`} className="peer sr-only" />
+                    <Label
+                      htmlFor={`size-${size}`}
+                      className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-2 px-4 text-sm font-medium uppercase text-popover-foreground shadow-sm hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    >
+                      {size}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
           </div>
 
           {/* In-page Measurement Selector */}
           <div className={cn("pt-6 border-t border-border mt-6")}>
             <ProductMeasurementSelector 
               session={session} 
-              isActive={isCustomMeasurementActive} // Pass active state
-              onToggle={handleMeasurementToggle} // Pass toggle handler
-              isDisabled={!!selectedSize} // Disable if a standard size is selected
+              isActive={isCustomMeasurementActive}
+              onToggle={handleMeasurementToggle}
+              isDisabled={isSizeSelectionActive} // Disable if size selection is active
             />
           </div>
 

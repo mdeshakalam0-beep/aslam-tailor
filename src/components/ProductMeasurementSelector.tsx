@@ -288,7 +288,7 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
             id="measurement-toggle"
             checked={isActive}
             onCheckedChange={onToggle}
-            disabled={isDisabled} // Disable the switch if a standard size is selected
+            disabled={isDisabled} // Disable the switch if size selection is active
           />
         </div>
       </CardHeader>
@@ -388,7 +388,7 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
           {selectedMeasurementType === 'women' && (
             <div className="space-y-2">
               <Label htmlFor="ladiesSize" className="text-base font-semibold text-foreground">Select Size</Label>
-              <Select onValueChange={setSelectedLadiesSize} value={ladiesSize} disabled={isFormDisabled}>
+              <Select onValueChange={setLadiesSize} value={ladiesSize} disabled={isFormDisabled}>
                 <SelectTrigger id="ladiesSize" className="w-full">
                   <SelectValue placeholder="Select your size" />
                 </SelectTrigger>
