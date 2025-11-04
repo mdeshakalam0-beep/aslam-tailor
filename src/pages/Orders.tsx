@@ -213,7 +213,7 @@ const Orders: React.FC = () => {
 
                   <div className="space-y-3">
                     {order.items.map((item, itemIndex) => (
-                      <div key={itemIndex} className="flex items-center space-x-4 border-t pt-3 first:border-t-0 first:pt-0">
+                      <Link to={`/products/${item.id}`} key={itemIndex} className="flex items-center space-x-4 border-t pt-3 first:border-t-0 first:pt-0 hover:bg-muted/50 rounded-md p-2 -mx-2 transition-colors">
                         <img src={item.imageUrl} alt={item.name} className="w-16 h-16 object-cover rounded-md" />
                         <div className="flex-1">
                           <p className="font-medium text-foreground">{item.name}</p>
@@ -222,7 +222,7 @@ const Orders: React.FC = () => {
                           </p>
                           <p className="text-sm text-muted-foreground">Price: ₹{item.price.toLocaleString()}</p>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </CardContent>
