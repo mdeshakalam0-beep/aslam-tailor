@@ -36,9 +36,18 @@ const Favorites: React.FC = () => {
 
       setLoading(true);
       const favoriteProductIds = await getFavorites(session.user.id);
-      const products = favoriteProductIds
-        .map(id => getProductById(id))
-        .filter((product): product is Product => product !== undefined); // Filter out undefined products
+      
+      const productsPromises = favoriteProductIds.map(id => getProductById(id));
+      const resolvedProducts = await Promise.all(productsPromises);
+
+      // Filter out undefined products and ensure uniqueness by product.id
+      const uniqueProductsMap = new Map<string, Product>();
+      resolvedProducts.forEach(product => {
+        if (product && !uniqueProductsMap.has(product.id)) {
+          uniqueProductsMap.set(product.id, product);
+        }
+      });
+      const products = Array.from(uniqueProductsMap.values());
 
       setFavoriteProducts(products);
       setLoading(false);
