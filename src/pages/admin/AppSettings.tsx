@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { showSuccess, showError } from '@/utils/toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, UploadCloud, Image as ImageIcon } from 'lucide-react'; // Import icons
+import { Loader2, UploadCloud, Image as ImageIcon, XCircle } from 'lucide-react'; // Import XCircle
+import { getAppSettings, upsertAppSetting, uploadAppSettingImage, deleteAppSettingImage } from '@/utils/appSettings'; // Import new utils
 
 interface AppSetting {
   key: string;
@@ -17,9 +18,12 @@ const AppSettings: React.FC = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [selectedQrFile, setSelectedQrFile] = useState<File | null>(null);
   const [phonePeDeepLink, setPhonePeDeepLink] = useState('');
+  const [loginBgImageUrl, setLoginBgImageUrl] = useState<string | null>(null); // New state for login background image
+  const [selectedLoginBgFile, setSelectedLoginBgFile] = useState<File | null>(null); // New state for login background file
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingQr, setUploadingQr] = useState(false);
+  const [uploadingLoginBg, setUploadingLoginBg] = useState(false); // New state for login background upload
 
   useEffect(() => {
     fetchAppSettings();
@@ -28,15 +32,11 @@ const AppSettings: React.FC = () => {
   const fetchAppSettings = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('app_settings')
-        .select('key, value');
-
-      if (error) throw error;
-
-      data.forEach(setting => {
+      const settings = await getAppSettings();
+      settings.forEach(setting => {
         if (setting.key === 'qr_code_url') setQrCodeUrl(setting.value);
-        if (setting.key === 'phonepe_deep_link') setPhonePeDeepLink(setting.value);
+        if (setting.key === 'phonepe_deep_link') setPhonePeDeepLink(setting.value || '');
+        if (setting.key === 'login_bg_image_url') setLoginBgImageUrl(setting.value); // Set new setting
       });
     } catch (error) {
       console.error('Error fetching app settings:', error);
@@ -54,41 +54,24 @@ const AppSettings: React.FC = () => {
     }
   };
 
-  const uploadQrCodeImage = async (file: File): Promise<string | null> => {
-    setUploadingQr(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `qr_code_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`; // Store directly in the 'app-settings' bucket
+  const handleLoginBgFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setSelectedLoginBgFile(event.target.files[0]);
+    } else {
+      setSelectedLoginBgFile(null);
+    }
+  };
 
-      // First, delete any existing QR code image if its URL is known
-      if (qrCodeUrl) {
-        const oldFileName = qrCodeUrl.split('/').pop();
-        if (oldFileName) {
-          await supabase.storage.from('app-settings').remove([oldFileName]);
-        }
+  const handleRemoveLoginBgImage = async () => {
+    if (loginBgImageUrl) {
+      const success = await deleteAppSettingImage(loginBgImageUrl);
+      if (success) {
+        await upsertAppSetting('login_bg_image_url', null);
+        setLoginBgImageUrl(null);
+        showSuccess('Login background image removed successfully!');
+      } else {
+        showError('Failed to remove login background image.');
       }
-
-      const { error: uploadError } = await supabase.storage
-        .from('app-settings')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true, // Upsert to replace if file with same name exists (though we use unique names)
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data } = supabase.storage.from('app-settings').getPublicUrl(filePath);
-      showSuccess('QR Code image uploaded successfully!');
-      return data.publicUrl;
-    } catch (error) {
-      console.error('Error uploading QR Code image:', error);
-      showError('Failed to upload QR Code image.');
-      return null;
-    } finally {
-      setUploadingQr(false);
     }
   };
 
@@ -97,36 +80,43 @@ const AppSettings: React.FC = () => {
     setSaving(true);
     try {
       let finalQrCodeUrl = qrCodeUrl;
+      let finalLoginBgImageUrl = loginBgImageUrl;
 
+      // Handle QR Code Image Upload
       if (selectedQrFile) {
-        const uploadedUrl = await uploadQrCodeImage(selectedQrFile);
+        const uploadedUrl = await uploadAppSettingImage(selectedQrFile, 'qr-codes'); // Specify folder
         if (uploadedUrl) {
           finalQrCodeUrl = uploadedUrl;
         } else {
           setSaving(false);
-          return; // Stop if QR upload failed
+          return;
         }
       } else if (qrCodeUrl === null) {
-        // If no file selected and no existing URL, ensure it's null in DB
         finalQrCodeUrl = null;
       }
 
-      const settingsToUpdate = [
-        { key: 'qr_code_url', value: finalQrCodeUrl },
-        { key: 'phonepe_deep_link', value: phonePeDeepLink },
-      ];
-
-      // Upsert each setting
-      for (const setting of settingsToUpdate) {
-        const { error } = await supabase
-          .from('app_settings')
-          .upsert(setting, { onConflict: 'key' }); // Use onConflict to update if key exists
-
-        if (error) throw error;
+      // Handle Login Background Image Upload
+      if (selectedLoginBgFile) {
+        const uploadedUrl = await uploadAppSettingImage(selectedLoginBgFile, 'login-backgrounds'); // Specify folder
+        if (uploadedUrl) {
+          finalLoginBgImageUrl = uploadedUrl;
+        } else {
+          setSaving(false);
+          return;
+        }
+      } else if (loginBgImageUrl === null) {
+        finalLoginBgImageUrl = null;
       }
 
-      setQrCodeUrl(finalQrCodeUrl); // Update local state with the new URL
-      setSelectedQrFile(null); // Clear selected file after successful upload/save
+      // Upsert each setting
+      await upsertAppSetting('qr_code_url', finalQrCodeUrl);
+      await upsertAppSetting('phonepe_deep_link', phonePeDeepLink);
+      await upsertAppSetting('login_bg_image_url', finalLoginBgImageUrl); // Save new setting
+
+      setQrCodeUrl(finalQrCodeUrl);
+      setSelectedQrFile(null);
+      setLoginBgImageUrl(finalLoginBgImageUrl); // Update local state with the new URL
+      setSelectedLoginBgFile(null); // Clear selected file after successful upload/save
       showSuccess('App settings saved successfully!');
     } catch (error) {
       console.error('Error saving app settings:', error);
@@ -200,7 +190,57 @@ const AppSettings: React.FC = () => {
                   Example: `phonepe://pay?pa=yourupi@bank&pn=YourName&am=`
                 </p>
               </div>
-              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={saving || uploadingQr}>
+
+              {/* New: Login Page Background Image */}
+              <div className="border-t pt-4 mt-4">
+                <Label htmlFor="loginBgImage">Login Page Background Image (Optional)</Label>
+                <div className="flex items-center space-x-4 mt-2">
+                  {loginBgImageUrl && !selectedLoginBgFile ? (
+                    <div className="relative w-24 h-24 flex-shrink-0">
+                      <img src={loginBgImageUrl} alt="Current Login Background" className="w-full h-full object-contain border rounded-md" />
+                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-1 rounded-full">Current</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-0 right-0 h-6 w-6 text-destructive hover:text-destructive/90 bg-background/70 rounded-full"
+                        onClick={handleRemoveLoginBgImage}
+                        type="button"
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : selectedLoginBgFile ? (
+                    <div className="relative w-24 h-24 flex-shrink-0">
+                      <img src={URL.createObjectURL(selectedLoginBgFile)} alt="Selected Login Background" className="w-full h-full object-contain border rounded-md" />
+                      <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-1 rounded-full">New</span>
+                    </div>
+                  ) : (
+                    <div className="w-24 h-24 flex-shrink-0 border rounded-md flex items-center justify-center bg-muted text-muted-foreground">
+                      <ImageIcon className="h-8 w-8" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <Input
+                      id="loginBgImage"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLoginBgFileChange}
+                      disabled={uploadingLoginBg}
+                      className="file:text-primary file:bg-primary-foreground file:border-primary file:hover:bg-primary/90 file:hover:text-primary-foreground"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Upload an image to use as a subtle background on the login page.
+                    </p>
+                  </div>
+                </div>
+                {uploadingLoginBg && (
+                  <p className="text-sm text-muted-foreground mt-2 flex items-center">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading Login Background...
+                  </p>
+                )}
+              </div>
+
+              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={saving || uploadingQr || uploadingLoginBg}>
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
