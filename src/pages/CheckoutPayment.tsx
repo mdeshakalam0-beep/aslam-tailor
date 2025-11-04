@@ -89,7 +89,12 @@ const CheckoutPayment: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('measurements')
-        .select('chest, waist, sleeve_length, shoulder, neck')
+        .select(`
+          measurement_type, notes, ladies_size,
+          men_shirt_length, men_shirt_chest, men_shirt_waist, men_shirt_sleeve_length, men_shirt_shoulder, men_shirt_neck,
+          men_pant_length, men_pant_waist, men_pant_hip, men_pant_thigh, men_pant_bottom,
+          men_coat_length, men_coat_chest, men_coat_waist, men_coat_sleeve_length, men_coat_shoulder
+        `)
         .eq('user_id', session.user.id)
         .maybeSingle();
 
