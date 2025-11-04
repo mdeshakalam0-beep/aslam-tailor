@@ -117,16 +117,16 @@ const OrderDetailsDialogUser: React.FC<OrderDetailsDialogUserProps> = ({ order, 
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right font-semibold">Order Date:</Label>
-            <span className="col-span-3">{format(new Date(order.order_date), 'PPP')}</span>
+            <span className="col-span-3 break-words">{format(new Date(order.order_date), 'PPP')}</span>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right font-semibold">Total Amount:</Label>
-            <span className="col-span-3 font-bold text-lg">₹{order.total_amount.toLocaleString()}</span>
+            <span className="col-span-3 font-bold text-lg break-words">₹{order.total_amount.toLocaleString()}</span>
           </div>
           {order.donation_amount && order.donation_amount > 0 && (
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right font-semibold">Donation:</Label>
-              <span className="col-span-3">₹{order.donation_amount.toLocaleString()}</span>
+              <span className="col-span-3 break-words">₹{order.donation_amount.toLocaleString()}</span>
             </div>
           )}
           <div className="grid grid-cols-4 items-center gap-4">
@@ -141,17 +141,17 @@ const OrderDetailsDialogUser: React.FC<OrderDetailsDialogUserProps> = ({ order, 
           {order.address_details && (
             <div className="col-span-4 border-t pt-4 mt-4">
               <h3 className="text-lg font-semibold mb-2">Shipping Address</h3>
-              <p className="text-sm text-muted-foreground">{order.address_details.fullName}, {order.address_details.phone}</p>
-              <p className="text-sm text-muted-foreground">{order.address_details.streetAddress}, {order.address_details.landmark && `${order.address_details.landmark}, `}{order.address_details.postOffice && `${order.address_details.postOffice}, `}{order.address_details.city}, {order.address_details.state} - {order.address_details.pincode}</p>
+              <p className="text-sm text-muted-foreground break-words">{order.address_details.fullName}, {order.address_details.phone}</p>
+              <p className="text-sm text-muted-foreground break-words">{order.address_details.streetAddress}, {order.address_details.landmark && `${order.address_details.landmark}, `}{order.address_details.postOffice && `${order.address_details.postOffice}, `}{order.address_details.city}, {order.address_details.state} - {order.address_details.pincode}</p>
             </div>
           )}
 
           {order.payment_method && (
             <div className="col-span-4 border-t pt-4 mt-4">
               <h3 className="text-lg font-semibold mb-2">Payment Information</h3>
-              <p className="text-sm text-muted-foreground">Method: {formatPaymentMethod(order.payment_method)}</p>
+              <p className="text-sm text-muted-foreground break-words">Method: {formatPaymentMethod(order.payment_method)}</p>
               {order.transaction_id && (
-                <p className="text-sm text-muted-foreground">Transaction ID: {order.transaction_id}</p>
+                <p className="text-sm text-muted-foreground break-words">Transaction ID: {order.transaction_id}</p>
               )}
             </div>
           )}
@@ -160,12 +160,12 @@ const OrderDetailsDialogUser: React.FC<OrderDetailsDialogUserProps> = ({ order, 
             <div className="col-span-4 border-t pt-4 mt-4">
               <h3 className="text-lg font-semibold mb-2">Customer Measurements</h3>
               {order.user_measurements?.measurement_type === 'women' && order.user_measurements.ladies_size && (
-                <p className="text-sm text-muted-foreground"><span className="font-medium">Ladies' Size:</span> {order.user_measurements.ladies_size}</p>
+                <p className="text-sm text-muted-foreground break-words"><span className="font-medium">Ladies' Size:</span> {order.user_measurements.ladies_size}</p>
               )}
               {order.user_measurements?.measurement_type === 'men' && menMeasurements.length > 0 && (
                 <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
                   {menMeasurements.map((m, idx) => (
-                    <div key={idx}><span className="font-medium">{m.label}:</span> {m.value} inches</div>
+                    <div key={idx} className="break-words"><span className="font-medium">{m.label}:</span> {m.value} inches</div>
                   ))}
                 </div>
               )}
@@ -175,7 +175,7 @@ const OrderDetailsDialogUser: React.FC<OrderDetailsDialogUserProps> = ({ order, 
           {order.user_measurements?.notes && (
             <div className="col-span-4 border-t pt-4 mt-4">
               <h3 className="text-lg font-semibold mb-2">Additional Notes</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{order.user_measurements.notes}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">{order.user_measurements.notes}</p>
             </div>
           )}
 
@@ -186,11 +186,11 @@ const OrderDetailsDialogUser: React.FC<OrderDetailsDialogUserProps> = ({ order, 
                 <div key={index} className="flex items-center space-x-4">
                   <img src={item.imageUrl} alt={item.name} className="w-16 h-16 object-cover rounded-md" />
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground break-words">{item.name}</p>
+                    <p className="text-sm text-muted-foreground break-words">
                       Quantity: {item.quantity} {item.selectedSize && `(Size: ${item.selectedSize})`}
                     </p>
-                    <p className="text-sm text-muted-foreground">Price: ₹{item.price.toLocaleString()}</p>
+                    <p className="text-sm text-muted-foreground break-words">Price: ₹{item.price.toLocaleString()}</p>
                   </div>
                 </div>
               ))}
