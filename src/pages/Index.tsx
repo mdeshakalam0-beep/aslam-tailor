@@ -41,8 +41,8 @@ const Index: React.FC = () => {
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
-      <main className="container mx-auto p-0 md:p-4">
-        <div className="space-y-6">
+      <main className="container mx-auto p-0 md:p-2"> {/* Changed md:p-4 to md:p-2 */}
+        <div className="space-y-4 md:space-y-6"> {/* Adjusted space-y for smaller gap */}
           <BrandRibbon />
           <HeroCarousel />
           <SearchBar onSearch={handleSearchResults} />
