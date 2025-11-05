@@ -41,26 +41,11 @@ const NotificationDropdown: React.FC = () => {
         event: '*', 
         schema: 'public', 
         table: 'notifications',
-        filter: `user_id=eq.${session?.user?.id}` // Filter for user-specific notifications
+        // No filter here, we'll filter in the callback
       }, (payload) => {
-        // Also listen for general notifications (user_id is null)
+        // Filter client-side for user-specific or general notifications
         if (payload.new?.user_id === null || payload.new?.user_id === session?.user?.id) {
           console.log('Realtime notification received:', payload);
-          fetchAndSetNotifications(); // Re-fetch all notifications
-          if (payload.eventType === 'INSERT' && !payload.new?.is_read) {
-            // Play sound only for new, unread notifications
-            audioRef.current?.play();
-          }
-        }
-      })
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
-        table: 'notifications',
-        filter: `user_id=is.null` // Filter for general notifications
-      }, (payload) => {
-        if (payload.new?.user_id === null) {
-          console.log('Realtime general notification received:', payload);
           fetchAndSetNotifications(); // Re-fetch all notifications
           if (payload.eventType === 'INSERT' && !payload.new?.is_read) {
             // Play sound only for new, unread notifications
