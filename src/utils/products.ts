@@ -17,6 +17,10 @@ export interface Product {
   category_id?: string; // New: Link to category
   category_name?: string; // New: Category name for display
   name: string;
+  is_cancellable: boolean; // New: Is product cancellable
+  cancellation_window_days: number; // New: Days for cancellation window
+  is_returnable: boolean; // New: Is product returnable
+  return_window_days: number; // New: Days for return window
 }
 
 // Fetches all products from Supabase
@@ -50,6 +54,10 @@ export const getProducts = async (): Promise<Product[]> => {
       boughtByUsers: item.bought_by_users ?? 0, // Default to 0 if null
       category_id: item.category_id ?? undefined,
       category_name: item.categories?.name || 'Uncategorized',
+      is_cancellable: item.is_cancellable ?? false,
+      cancellation_window_days: item.cancellation_window_days ?? 0,
+      is_returnable: item.is_returnable ?? false,
+      return_window_days: item.return_window_days ?? 0,
     }));
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -95,6 +103,10 @@ export const getProductById = async (id: string | undefined): Promise<Product | 
         boughtByUsers: data.bought_by_users ?? 0, // Default to 0 if null
         category_id: data.category_id ?? undefined,
         category_name: data.categories?.name || 'Uncategorized',
+        is_cancellable: data.is_cancellable ?? false,
+        cancellation_window_days: data.cancellation_window_days ?? 0,
+        is_returnable: data.is_returnable ?? false,
+        return_window_days: data.return_window_days ?? 0,
       };
     }
     return undefined;
@@ -137,6 +149,10 @@ export const getProductsByCategory = async (categoryId: string): Promise<Product
       boughtByUsers: item.bought_by_users ?? 0, // Default to 0 if null
       category_id: item.category_id ?? undefined,
       category_name: item.categories?.name || 'Uncategorized',
+      is_cancellable: item.is_cancellable ?? false,
+      cancellation_window_days: item.cancellation_window_days ?? 0,
+      is_returnable: item.is_returnable ?? false,
+      return_window_days: item.return_window_days ?? 0,
     }));
   } catch (error) {
     console.error('Error fetching products by category:', error);
@@ -182,6 +198,10 @@ export const getRecommendedProducts = async (currentProductId: string, currentPr
           boughtByUsers: item.bought_by_users ?? 0,
           category_id: item.category_id ?? undefined,
           category_name: item.categories?.name || 'Uncategorized',
+          is_cancellable: item.is_cancellable ?? false,
+          cancellation_window_days: item.cancellation_window_days ?? 0,
+          is_returnable: item.is_returnable ?? false,
+          return_window_days: item.return_window_days ?? 0,
         }));
       }
     }
@@ -219,6 +239,10 @@ export const getRecommendedProducts = async (currentProductId: string, currentPr
           boughtByUsers: item.bought_by_users ?? 0,
           category_id: item.category_id ?? undefined,
           category_name: item.categories?.name || 'Uncategorized',
+          is_cancellable: item.is_cancellable ?? false,
+          cancellation_window_days: item.cancellation_window_days ?? 0,
+          is_returnable: item.is_returnable ?? false,
+          return_window_days: item.return_window_days ?? 0,
         }));
         // Filter out any duplicates if some were already fetched from the same category
         const uniqueGeneralProducts = generalProducts.filter(gp => !recommendedProducts.some(rp => rp.id === gp.id));
@@ -271,6 +295,10 @@ export const searchProducts = async (query: string, limit: number = 10): Promise
       boughtByUsers: item.bought_by_users ?? 0,
       category_id: item.category_id ?? undefined,
       category_name: item.categories?.name || 'Uncategorized',
+      is_cancellable: item.is_cancellable ?? false,
+      cancellation_window_days: item.cancellation_window_days ?? 0,
+      is_returnable: item.is_returnable ?? false,
+      return_window_days: item.return_window_days ?? 0,
     }));
   } catch (error) {
     console.error('Error searching products:', error);
@@ -295,6 +323,10 @@ export const createProduct = async (productData: Omit<Product, 'id' | 'imageUrl'
         image_urls: productData.images,
         sizes: productData.sizes,
         category_id: productData.category_id, // New: Include category_id
+        is_cancellable: productData.is_cancellable,
+        cancellation_window_days: productData.cancellation_window_days,
+        is_returnable: productData.is_returnable,
+        return_window_days: productData.return_window_days,
       })
       .select()
       .single();
@@ -325,6 +357,10 @@ export const updateProduct = async (id: string, productData: Partial<Omit<Produc
         image_urls: productData.images,
         sizes: productData.sizes,
         category_id: productData.category_id, // New: Include category_id
+        is_cancellable: productData.is_cancellable,
+        cancellation_window_days: productData.cancellation_window_days,
+        is_returnable: productData.is_returnable,
+        return_window_days: productData.return_window_days,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)

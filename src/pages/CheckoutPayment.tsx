@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/components/SessionContextProvider';
 import { CheckoutAddress, CheckoutItem, UserMeasurements } from '@/types/checkout'; // Import UserMeasurements type
 import { addDays } from 'date-fns'; // Import addDays
+import { getProductById } from '@/utils/products'; // Import getProductById to fetch product details
 
 interface AppSettings {
   qr_code_url?: string;
@@ -151,7 +152,26 @@ const CheckoutPayment: React.FC = () => {
       }));
 
       const orderDate = new Date();
-      const deliveryDate = addDays(orderDate, 10); // Calculate delivery date 10 days from now
+      const deliveryDate = addDays(orderDate, 10); // Calculate default delivery date 10 days from now
+
+      // Fetch product details for cancellation/return windows
+      // For simplicity, we'll use the settings of the first product in the cart.
+      // A more robust solution might aggregate policies or store per-item.
+      let cancellationDeadline: Date | null = null;
+      let returnDeadline: Date | null = null;
+
+      if (cartItems.length > 0) {
+        const firstProductDetails = await getProductById(cartItems[0].id);
+        if (firstProductDetails) {
+          if (firstProductDetails.is_cancellable && firstProductDetails.cancellation_window_days > 0) {
+            cancellationDeadline = addDays(orderDate, firstProductDetails.cancellation_window_days);
+          }
+          // Return window is typically from delivery date
+          if (firstProductDetails.is_returnable && firstProductDetails.return_window_days > 0) {
+            returnDeadline = addDays(deliveryDate, firstProductDetails.return_window_days);
+          }
+        }
+      }
 
       const { error } = await supabase.from('orders').insert({
         user_id: session.user.id,
@@ -165,6 +185,8 @@ const CheckoutPayment: React.FC = () => {
         transaction_id: selectedPaymentMethod === 'qr_code' ? transactionId : null,
         donation_amount: donateAmount ? 10 : null,
         user_measurements: userMeasurements, // Include user measurements
+        cancellation_deadline: cancellationDeadline?.toISOString() || null, // Store cancellation deadline
+        return_deadline: returnDeadline?.toISOString() || null, // Store return deadline
       });
 
       if (error) {

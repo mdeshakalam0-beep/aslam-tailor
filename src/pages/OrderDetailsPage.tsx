@@ -5,12 +5,23 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { format, isBefore, isAfter } from 'date-fns'; // Import isBefore, isAfter
 import { UserMeasurements } from '@/types/checkout';
 import { supabase } from '@/integrations/supabase/client';
-import { showError } from '@/utils/toast';
+import { showError, showSuccess } from '@/utils/toast'; // Import showSuccess
 import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'; // Import AlertDialog components
 
 interface OrderItem {
   id: string;
@@ -46,6 +57,8 @@ interface Order {
   user_id: string;
   updated_at?: string;
   user_measurements?: UserMeasurements;
+  cancellation_deadline?: string; // New: Cancellation deadline
+  return_deadline?: string; // New: Return deadline
 }
 
 const OrderDetailsPage: React.FC = () => {
@@ -53,33 +66,35 @@ const OrderDetailsPage: React.FC = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
+
+  const fetchOrder = async () => {
+    if (!orderId) {
+      setError('Order ID is missing.');
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+
+      if (error) throw error;
+      setOrder(data as Order);
+    } catch (err) {
+      console.error('Error fetching order details:', err);
+      setError('Failed to load order details. Please try again.');
+      showError('Failed to load order details.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchOrder = async () => {
-      if (!orderId) {
-        setError('Order ID is missing.');
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('id', orderId)
-          .single();
-
-        if (error) throw error;
-        setOrder(data as Order);
-      } catch (err) {
-        console.error('Error fetching order details:', err);
-        setError('Failed to load order details. Please try again.');
-        showError('Failed to load order details.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOrder();
   }, [orderId]);
 
@@ -103,7 +118,48 @@ const OrderDetailsPage: React.FC = () => {
       case 'shipped': return 'outline';
       case 'cancelled': return 'destructive';
       case 'processing': return 'accent';
+      case 'returned': return 'warning'; // New status variant
       default: return 'secondary';
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!order) return;
+    setIsCancelling(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .eq('id', order.id);
+
+      if (error) throw error;
+      showSuccess('Order cancelled successfully!');
+      fetchOrder(); // Re-fetch order to update status
+    } catch (err) {
+      console.error('Error cancelling order:', err);
+      showError('Failed to cancel order.');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleReturnOrder = async () => {
+    if (!order) return;
+    setIsReturning(true);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: 'returned', updated_at: new Date().toISOString() })
+        .eq('id', order.id);
+
+      if (error) throw error;
+      showSuccess('Order return requested successfully!');
+      fetchOrder(); // Re-fetch order to update status
+    } catch (err) {
+      console.error('Error returning order:', err);
+      showError('Failed to request return.');
+    } finally {
+      setIsReturning(false);
     }
   };
 
@@ -161,6 +217,12 @@ const OrderDetailsPage: React.FC = () => {
     { label: 'Coat Shoulder', value: order.user_measurements.men_coat_shoulder },
   ].filter(m => m.value !== null && m.value !== undefined) : [];
 
+  const canCancel = order.status === 'pending' || order.status === 'processing' || order.status === 'shipped';
+  const isCancellationWindowOpen = order.cancellation_deadline && isAfter(new Date(order.cancellation_deadline), new Date());
+
+  const canReturn = order.status === 'completed';
+  const isReturnWindowOpen = order.return_deadline && isAfter(new Date(order.return_deadline), new Date());
+
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
@@ -206,6 +268,32 @@ const OrderDetailsPage: React.FC = () => {
                 {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
               </Badge>
             </div>
+
+            {order.cancellation_deadline && (
+              <div>
+                <Label className="font-semibold">Cancellation Window:</Label>
+                <p className="text-sm text-muted-foreground">
+                  {isCancellationWindowOpen ? (
+                    <span className="text-blue-600">Cancel by {format(new Date(order.cancellation_deadline), 'PPP')}</span>
+                  ) : (
+                    <span className="text-red-600">Cancellation window closed on {format(new Date(order.cancellation_deadline), 'PPP')}</span>
+                  )}
+                </p>
+              </div>
+            )}
+
+            {order.return_deadline && (
+              <div>
+                <Label className="font-semibold">Return Window:</Label>
+                <p className="text-sm text-muted-foreground">
+                  {isReturnWindowOpen ? (
+                    <span className="text-purple-600">Return by {format(new Date(order.return_deadline), 'PPP')}</span>
+                  ) : (
+                    <span className="text-red-600">Return window closed on {format(new Date(order.return_deadline), 'PPP')}</span>
+                  )}
+                </p>
+              </div>
+            )}
 
             {order.address_details && (
               <div className="border-t pt-4 mt-4">
@@ -264,6 +352,57 @@ const OrderDetailsPage: React.FC = () => {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 mt-6 border-t pt-4">
+              {canCancel && isCancellationWindowOpen && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" disabled={isCancelling}>
+                      {isCancelling ? 'Cancelling...' : 'Cancel Order'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will cancel your order.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>No, keep order</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleCancelOrder} disabled={isCancelling}>
+                        {isCancelling ? 'Cancelling...' : 'Yes, cancel order'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+
+              {canReturn && isReturnWindowOpen && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="secondary" disabled={isReturning}>
+                      {isReturning ? 'Requesting Return...' : 'Request Return'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure you want to return this order?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will initiate a return request for your order. Our team will contact you for further steps.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>No, keep order</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleReturnOrder} disabled={isReturning}>
+                        {isReturning ? 'Requesting...' : 'Yes, request return'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           </CardContent>
         </Card>

@@ -36,6 +36,8 @@ interface Order {
   user_id: string;
   updated_at?: string;
   user_measurements?: UserMeasurements; // Added user_measurements
+  cancellation_deadline?: string; // New: Cancellation deadline
+  return_deadline?: string; // New: Return deadline
 }
 
 interface DeliverySlipProps {
@@ -109,6 +111,18 @@ const DeliverySlip: React.FC<DeliverySlipProps> = ({ order, customerName }) => {
             <div className="col-span-2 text-center mt-2">
               <p className="text-base font-semibold text-green-700 print:text-sm">Estimated Delivery Date:</p>
               <p className="text-xl font-bold text-green-700 print:text-lg">{format(new Date(order.delivery_date), 'dd MMM yyyy')}</p>
+            </div>
+          )}
+          {order.cancellation_deadline && (
+            <div className="col-span-2 text-center mt-2">
+              <p className="text-base font-semibold text-blue-700 print:text-sm">Cancellation Deadline:</p>
+              <p className="text-xl font-bold text-blue-700 print:text-lg">{format(new Date(order.cancellation_deadline), 'dd MMM yyyy')}</p>
+            </div>
+          )}
+          {order.return_deadline && (
+            <div className="col-span-2 text-center mt-2">
+              <p className="text-base font-semibold text-purple-700 print:text-sm">Return Deadline:</p>
+              <p className="text-xl font-bold text-purple-700 print:text-lg">{format(new Date(order.return_deadline), 'dd MMM yyyy')}</p>
             </div>
           )}
         </div>

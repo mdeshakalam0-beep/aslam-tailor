@@ -43,6 +43,8 @@ interface Order {
   donation_amount?: number;
   updated_at?: string;
   user_measurements?: UserMeasurements; // Added user_measurements
+  cancellation_deadline?: string; // New: Cancellation deadline
+  return_deadline?: string; // New: Return deadline
 }
 
 const Orders: React.FC = () => {
@@ -120,6 +122,8 @@ const Orders: React.FC = () => {
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       order.status === 'completed' ? 'bg-green-100 text-green-800' :
                       order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                      order.status === 'returned' ? 'bg-orange-100 text-orange-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -134,6 +138,16 @@ const Orders: React.FC = () => {
                         Estimated Delivery: {format(new Date(order.delivery_date), 'PPP')}
                       </p>
                     )}
+                    {order.cancellation_deadline && new Date(order.cancellation_deadline) > new Date() && (
+                      <p className="text-sm text-blue-600 font-semibold mb-2">
+                        Cancel by: {format(new Date(order.cancellation_deadline), 'PPP')}
+                      </p>
+                    )}
+                    {order.return_deadline && new Date(order.return_deadline) > new Date() && order.status === 'completed' && (
+                      <p className="text-sm text-purple-600 font-semibold mb-2">
+                        Return by: {format(new Date(order.return_deadline), 'PPP')}
+                      </p>
+                    )}
                     <p className="text-lg font-bold text-foreground mb-4">
                       Total: ₹{order.total_amount.toLocaleString()}
                       {order.donation_amount && order.donation_amount > 0 && (
@@ -145,7 +159,7 @@ const Orders: React.FC = () => {
                     <div className="space-y-3">
                       {order.items.slice(0, 3).map((item, itemIndex) => ( // Show first 3 items as summary
                         <div key={itemIndex} className="flex items-center space-x-4 border-t pt-3 first:border-t-0 first:pt-0">
-                          <img src={item.imageUrl} alt={item.name} className="w-12 h-12 object-cover rounded-md" />
+                          <img src={item.imageUrl} alt={item.name} className="w-12 h-12 object-cover rounded-md mr-2" />
                           <div className="flex-1">
                             <p className="font-medium text-foreground">{item.name}</p>
                             <p className="text-sm text-muted-foreground">

@@ -56,6 +56,8 @@ interface Order {
   user_id: string;
   updated_at?: string;
   user_measurements?: UserMeasurements; // Added user_measurements
+  cancellation_deadline?: string; // New: Cancellation deadline
+  return_deadline?: string; // New: Return deadline
 }
 
 interface OrderDetailsDialogProps {
@@ -71,12 +73,20 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
   const [selectedDeliveryDate, setSelectedDeliveryDate] = useState<Date | undefined>(
     order?.delivery_date ? parseISO(order.delivery_date) : undefined
   );
+  const [selectedCancellationDeadline, setSelectedCancellationDeadline] = useState<Date | undefined>(
+    order?.cancellation_deadline ? parseISO(order.cancellation_deadline) : undefined
+  );
+  const [selectedReturnDeadline, setSelectedReturnDeadline] = useState<Date | undefined>(
+    order?.return_deadline ? parseISO(order.return_deadline) : undefined
+  );
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (order) {
       setCurrentStatus(order.status);
       setSelectedDeliveryDate(order.delivery_date ? parseISO(order.delivery_date) : undefined);
+      setSelectedCancellationDeadline(order.cancellation_deadline ? parseISO(order.cancellation_deadline) : undefined);
+      setSelectedReturnDeadline(order.return_deadline ? parseISO(order.return_deadline) : undefined);
     }
   }, [order]);
 
@@ -100,6 +110,7 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
       case 'shipped': return 'outline';
       case 'cancelled': return 'destructive';
       case 'processing': return 'accent';
+      case 'returned': return 'warning'; // New status variant
       default: return 'secondary';
     }
   };
@@ -113,6 +124,8 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
         status: currentStatus,
         updated_at: new Date().toISOString(),
         delivery_date: selectedDeliveryDate ? selectedDeliveryDate.toISOString() : null, // Save delivery date
+        cancellation_deadline: selectedCancellationDeadline ? selectedCancellationDeadline.toISOString() : null, // Save cancellation deadline
+        return_deadline: selectedReturnDeadline ? selectedReturnDeadline.toISOString() : null, // Save return deadline
       };
 
       const { error } = await supabase
@@ -236,6 +249,7 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
                   <SelectItem value="shipped">Shipped</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="returned">Returned</SelectItem>
                 </SelectContent>
               </Select>
               <Badge variant={getStatusBadgeVariant(currentStatus)}>
@@ -265,6 +279,60 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
                   mode="single"
                   selected={selectedDeliveryDate}
                   onSelect={setSelectedDeliveryDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Cancellation Deadline Picker for Admin */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="cancellationDeadline" className="text-right font-semibold">Cancellation Deadline:</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal",
+                    !selectedCancellationDeadline && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedCancellationDeadline ? format(selectedCancellationDeadline, "PPP") : <span>Set deadline</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedCancellationDeadline}
+                  onSelect={setSelectedCancellationDeadline}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Return Deadline Picker for Admin */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="returnDeadline" className="text-right font-semibold">Return Deadline:</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal",
+                    !selectedReturnDeadline && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedReturnDeadline ? format(selectedReturnDeadline, "PPP") : <span>Set deadline</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedReturnDeadline}
+                  onSelect={setSelectedReturnDeadline}
                   initialFocus
                 />
               </PopoverContent>

@@ -44,6 +44,8 @@ interface Order {
   user_id: string;
   updated_at?: string;
   user_measurements?: UserMeasurements; // Added user_measurements
+  cancellation_deadline?: string; // New: Cancellation deadline
+  return_deadline?: string; // New: Return deadline
 }
 
 interface Profile {
@@ -106,6 +108,7 @@ const OrderManagement: React.FC = () => {
       case 'shipped': return 'outline';
       case 'cancelled': return 'destructive';
       case 'processing': return 'accent';
+      case 'returned': return 'warning'; // New status variant
       default: return 'secondary';
     }
   };

@@ -30,6 +30,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(initialData?.category_id || undefined); // New state for category
   const [categories, setCategories] = useState<Category[]>([]); // State to store available categories
 
+  const [isCancellable, setIsCancellable] = useState(initialData?.is_cancellable ?? false); // New state
+  const [cancellationWindowDays, setCancellationWindowDays] = useState(initialData?.cancellation_window_days?.toString() || '0'); // New state
+  const [isReturnable, setIsReturnable] = useState(initialData?.is_returnable ?? false); // New state
+  const [returnWindowDays, setReturnWindowDays] = useState(initialData?.return_window_days?.toString() || '0'); // New state
+
   const [useUrlInput, setUseUrlInput] = useState(true); // State to toggle between URL and file upload
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -53,6 +58,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       setImageUrls(initialData.images.join('\n'));
       setSizes(initialData.sizes.join(', '));
       setSelectedCategoryId(initialData.category_id || undefined); // Set initial category
+      setIsCancellable(initialData.is_cancellable ?? false);
+      setCancellationWindowDays(initialData.cancellation_window_days?.toString() || '0');
+      setIsReturnable(initialData.is_returnable ?? false);
+      setReturnWindowDays(initialData.return_window_days?.toString() || '0');
       // If initialData has images, assume URL input was used or display them as URLs
       setUseUrlInput(true); 
       setSelectedFiles([]); // Clear selected files on edit
@@ -61,6 +70,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       setUseUrlInput(true);
       setSelectedFiles([]);
       setSelectedCategoryId(undefined); // Clear selected category for new product
+      setIsCancellable(false);
+      setCancellationWindowDays('0');
+      setIsReturnable(false);
+      setReturnWindowDays('0');
     }
   }, [initialData]);
 
@@ -143,6 +156,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       images: finalImageUrls,
       sizes: sizes.split(',').map(s => s.trim()).filter(s => s !== ''),
       category_id: selectedCategoryId, // New: Include selected category ID
+      is_cancellable: isCancellable,
+      cancellation_window_days: isCancellable ? parseInt(cancellationWindowDays) : 0,
+      is_returnable: isReturnable,
+      return_window_days: isReturnable ? parseInt(returnWindowDays) : 0,
     };
 
     await onSubmit(productData);
@@ -311,6 +328,53 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
               required
             />
           </div>
+
+          {/* Cancellation Settings */}
+          <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
+            <Label htmlFor="isCancellable">Allow Cancellation</Label>
+            <Switch
+              id="isCancellable"
+              checked={isCancellable}
+              onCheckedChange={setIsCancellable}
+            />
+          </div>
+          {isCancellable && (
+            <div>
+              <Label htmlFor="cancellationWindowDays">Cancellation Window (Days after order)</Label>
+              <Input
+                id="cancellationWindowDays"
+                type="number"
+                value={cancellationWindowDays}
+                onChange={(e) => setCancellationWindowDays(e.target.value)}
+                placeholder="e.g., 7"
+                min="0"
+              />
+            </div>
+          )}
+
+          {/* Return Settings */}
+          <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
+            <Label htmlFor="isReturnable">Allow Return</Label>
+            <Switch
+              id="isReturnable"
+              checked={isReturnable}
+              onCheckedChange={setIsReturnable}
+            />
+          </div>
+          {isReturnable && (
+            <div>
+              <Label htmlFor="returnWindowDays">Return Window (Days after delivery)</Label>
+              <Input
+                id="returnWindowDays"
+                type="number"
+                value={returnWindowDays}
+                onChange={(e) => setReturnWindowDays(e.target.value)}
+                placeholder="e.g., 14"
+                min="0"
+              />
+            </div>
+          )}
+
           <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploadingImages}>
             {loading || uploadingImages ? (
               <>
