@@ -24,7 +24,7 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="flex items-center justify-between p-4 bg-background border-b border-border sticky top-0 z-10">
+    <header className="flex items-center justify-between px-4 py-3 bg-background border-b border-border sticky top-0 z-10"> {/* Changed p-4 to px-4 py-3 */}
       <div className="flex items-center space-x-2">
         {shopLogoUrl ? (
           <img src={shopLogoUrl} alt="Shop Logo" className="w-10 h-10 object-contain" />
