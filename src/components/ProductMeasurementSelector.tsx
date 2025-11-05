@@ -111,12 +111,14 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
       }
       const userGender = profileData.gender || 'not_specified';
 
-      // Fetch user's measurements
+      // Fetch user's most recent measurements
       const { data: measurementsData, error: fetchError } = await supabase
         .from('measurements')
         .select('*')
         .eq('user_id', session.user.id)
-        .maybeSingle();
+        .order('updated_at', { ascending: false }) // Order by most recent
+        .limit(1) // Get only one result
+        .maybeSingle(); // Use maybeSingle after limiting to 1
 
       if (fetchError) {
         throw fetchError;
