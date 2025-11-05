@@ -33,6 +33,7 @@ interface AddressDetails {
 interface Order {
   id: string;
   order_date: string;
+  delivery_date?: string; // Added delivery_date
   total_amount: number;
   status: string;
   items: OrderItem[];
@@ -155,7 +156,7 @@ const OrderManagement: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Order ID</TableHead><TableHead>Customer</TableHead><TableHead>Items</TableHead><TableHead>Amount</TableHead><TableHead>Payment</TableHead><TableHead>Status</TableHead><TableHead>Date</TableHead><TableHead className="text-right">Actions</TableHead>
+                    <TableHead>Order ID</TableHead><TableHead>Customer</TableHead><TableHead>Items</TableHead><TableHead>Amount</TableHead><TableHead>Payment</TableHead><TableHead>Status</TableHead><TableHead>Order Date</TableHead><TableHead>Delivery Date</TableHead><TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -189,6 +190,7 @@ const OrderManagement: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>{format(new Date(order.order_date), 'PPP')}</TableCell>
+                      <TableCell>{order.delivery_date ? format(new Date(order.delivery_date), 'PPP') : 'N/A'}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleViewEditOrder(order)}>
                           <Eye className="h-4 w-4" />

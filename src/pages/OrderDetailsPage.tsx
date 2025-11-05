@@ -35,6 +35,7 @@ interface AddressDetails {
 interface Order {
   id: string;
   order_date: string;
+  delivery_date?: string; // Added delivery_date
   total_amount: number;
   status: string;
   items: OrderItem[];
@@ -185,6 +186,14 @@ const OrderDetailsPage: React.FC = () => {
                 <p className="font-bold text-lg">₹{order.total_amount.toLocaleString()}</p>
               </div>
             </div>
+            {order.delivery_date && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-semibold text-green-600">Estimated Delivery:</Label>
+                  <p className="text-green-600 font-bold">{format(new Date(order.delivery_date), 'PPP')}</p>
+                </div>
+              </div>
+            )}
             {order.donation_amount && order.donation_amount > 0 && (
               <div>
                 <Label className="font-semibold">Donation:</Label>

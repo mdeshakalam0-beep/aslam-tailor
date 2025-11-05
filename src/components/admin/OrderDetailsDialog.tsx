@@ -12,12 +12,15 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns'; // Import parseISO
 import { supabase } from '@/integrations/supabase/client';
 import { showSuccess, showError } from '@/utils/toast';
-import { Loader2, Printer } from 'lucide-react';
+import { Loader2, Printer, CalendarIcon } from 'lucide-react'; // Import CalendarIcon
 import DeliverySlip from './DeliverySlip';
 import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'; // Import Popover
+import { Calendar } from '@/components/ui/calendar'; // Import Calendar
+import { cn } from '@/lib/utils'; // Import cn
 
 interface OrderItem {
   id: string;
@@ -42,6 +45,7 @@ interface AddressDetails {
 interface Order {
   id: string;
   order_date: string;
+  delivery_date?: string; // Added delivery_date
   total_amount: number;
   status: string;
   items: OrderItem[];
@@ -64,11 +68,15 @@ interface OrderDetailsDialogProps {
 
 const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, onClose, onOrderUpdated, customerName }) => {
   const [currentStatus, setCurrentStatus] = useState(order?.status || '');
+  const [selectedDeliveryDate, setSelectedDeliveryDate] = useState<Date | undefined>(
+    order?.delivery_date ? parseISO(order.delivery_date) : undefined
+  );
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     if (order) {
       setCurrentStatus(order.status);
+      setSelectedDeliveryDate(order.delivery_date ? parseISO(order.delivery_date) : undefined);
     }
   }, [order]);
 
@@ -96,25 +104,31 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
     }
   };
 
-  const handleStatusChange = async () => {
-    if (!order || currentStatus === order.status) return;
+  const handleUpdateOrder = async () => {
+    if (!order) return;
 
     setIsUpdating(true);
     try {
+      const updates: Partial<Order> = {
+        status: currentStatus,
+        updated_at: new Date().toISOString(),
+        delivery_date: selectedDeliveryDate ? selectedDeliveryDate.toISOString() : null, // Save delivery date
+      };
+
       const { error } = await supabase
         .from('orders')
-        .update({ status: currentStatus, updated_at: new Date().toISOString() })
+        .update(updates)
         .eq('id', order.id);
 
       if (error) {
         throw error;
       }
-      showSuccess('Order status updated successfully!');
+      showSuccess('Order updated successfully!');
       onOrderUpdated();
       onClose();
     } catch (err) {
-      console.error('Error updating order status:', err);
-      showError('Failed to update order status.');
+      console.error('Error updating order:', err);
+      showError('Failed to update order.');
     } finally {
       setIsUpdating(false);
     }
@@ -230,6 +244,33 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
             </div>
           </div>
 
+          {/* Delivery Date Picker for Admin */}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="deliveryDate" className="text-right font-semibold">Delivery Date:</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal",
+                    !selectedDeliveryDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDeliveryDate ? format(selectedDeliveryDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDeliveryDate}
+                  onSelect={setSelectedDeliveryDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
           {order.address_details && (
             <div className="col-span-4 border-t pt-4 mt-4">
               <h3 className="text-lg font-semibold mb-2">Shipping Address</h3>
@@ -300,7 +341,7 @@ const OrderDetailsDialog: React.FC<OrderDetailsDialogProps> = ({ order, isOpen, 
             >
               <Printer className="mr-2 h-4 w-4" /> Print Delivery Slip
             </Button>
-            <Button onClick={handleStatusChange} disabled={isUpdating || currentStatus === order.status} className="w-full sm:w-auto">
+            <Button onClick={handleUpdateOrder} disabled={isUpdating} className="w-full sm:w-auto">
               {isUpdating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

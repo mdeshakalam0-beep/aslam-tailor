@@ -21,6 +21,7 @@ import { showSuccess, showError } from '@/utils/toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/components/SessionContextProvider';
 import { CheckoutAddress, CheckoutItem, UserMeasurements } from '@/types/checkout'; // Import UserMeasurements type
+import { addDays } from 'date-fns'; // Import addDays
 
 interface AppSettings {
   qr_code_url?: string;
@@ -149,8 +150,13 @@ const CheckoutPayment: React.FC = () => {
         selectedSize: item.selectedSize,
       }));
 
+      const orderDate = new Date();
+      const deliveryDate = addDays(orderDate, 10); // Calculate delivery date 10 days from now
+
       const { error } = await supabase.from('orders').insert({
         user_id: session.user.id,
+        order_date: orderDate.toISOString(), // Ensure order_date is also explicitly set
+        delivery_date: deliveryDate.toISOString(), // Add the calculated delivery date
         total_amount: totalAmount,
         status: 'pending',
         items: orderItems,

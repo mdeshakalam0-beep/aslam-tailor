@@ -25,6 +25,7 @@ interface AddressDetails {
 interface Order {
   id: string;
   order_date: string;
+  delivery_date?: string; // Added delivery_date
   total_amount: number;
   status: string;
   items: OrderItem[];
@@ -104,6 +105,12 @@ const DeliverySlip: React.FC<DeliverySlipProps> = ({ order, customerName }) => {
             <p className="text-sm font-semibold print:text-xs">Order Date:</p>
             <p className="text-lg font-bold print:text-base">{format(new Date(order.order_date), 'dd MMM yyyy')}</p>
           </div>
+          {order.delivery_date && (
+            <div className="col-span-2 text-center mt-2">
+              <p className="text-base font-semibold text-green-700 print:text-sm">Estimated Delivery Date:</p>
+              <p className="text-xl font-bold text-green-700 print:text-lg">{format(new Date(order.delivery_date), 'dd MMM yyyy')}</p>
+            </div>
+          )}
         </div>
 
         {/* Customer & Shipping Address */}

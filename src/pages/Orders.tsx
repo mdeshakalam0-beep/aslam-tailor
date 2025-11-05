@@ -7,7 +7,7 @@ import { useSession } from '@/components/SessionContextProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { showSuccess, showError } from '@/utils/toast';
 import { format } from 'date-fns';
-import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
+import { UserMeasurements } from '@/types/checkout'; 
 // Removed import for OrderDetailsDialogUser as it's no longer used
 
 interface OrderItem {
@@ -33,6 +33,7 @@ interface AddressDetails {
 interface Order {
   id: string;
   order_date: string;
+  delivery_date?: string; // Added delivery_date
   total_amount: number;
   status: string;
   items: OrderItem[];
@@ -128,6 +129,11 @@ const Orders: React.FC = () => {
                     <p className="text-sm text-muted-foreground mb-2">
                       Order Date: {format(new Date(order.order_date), 'PPP')}
                     </p>
+                    {order.delivery_date && (
+                      <p className="text-sm text-green-600 font-semibold mb-2">
+                        Estimated Delivery: {format(new Date(order.delivery_date), 'PPP')}
+                      </p>
+                    )}
                     <p className="text-lg font-bold text-foreground mb-4">
                       Total: ₹{order.total_amount.toLocaleString()}
                       {order.donation_amount && order.donation_amount > 0 && (
