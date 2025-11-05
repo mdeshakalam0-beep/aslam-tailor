@@ -20,10 +20,13 @@ const AppSettings: React.FC = () => {
   const [phonePeDeepLink, setPhonePeDeepLink] = useState('');
   const [loginBgImageUrl, setLoginBgImageUrl] = useState<string | null>(null); // New state for login background image
   const [selectedLoginBgFile, setSelectedLoginBgFile] = useState<File | null>(null); // New state for login background file
+  const [shopLogoUrl, setShopLogoUrl] = useState<string | null>(null); // New state for shop logo
+  const [selectedShopLogoFile, setSelectedShopLogoFile] = useState<File | null>(null); // New state for shop logo file
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingQr, setUploadingQr] = useState(false);
   const [uploadingLoginBg, setUploadingLoginBg] = useState(false); // New state for login background upload
+  const [uploadingShopLogo, setUploadingShopLogo] = useState(false); // New state for shop logo upload
 
   useEffect(() => {
     fetchAppSettings();
@@ -37,6 +40,7 @@ const AppSettings: React.FC = () => {
         if (setting.key === 'qr_code_url') setQrCodeUrl(setting.value);
         if (setting.key === 'phonepe_deep_link') setPhonePeDeepLink(setting.value || '');
         if (setting.key === 'login_bg_image_url') setLoginBgImageUrl(setting.value); // Set new setting
+        if (setting.key === 'shop_logo_url') setShopLogoUrl(setting.value); // Set shop logo setting
       });
     } catch (error) {
       console.error('Error fetching app settings:', error);
@@ -62,6 +66,14 @@ const AppSettings: React.FC = () => {
     }
   };
 
+  const handleShopLogoFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setSelectedShopLogoFile(event.target.files[0]);
+    } else {
+      setSelectedShopLogoFile(null);
+    }
+  };
+
   const handleRemoveLoginBgImage = async () => {
     if (loginBgImageUrl) {
       const success = await deleteAppSettingImage(loginBgImageUrl);
@@ -75,12 +87,26 @@ const AppSettings: React.FC = () => {
     }
   };
 
+  const handleRemoveShopLogo = async () => {
+    if (shopLogoUrl) {
+      const success = await deleteAppSettingImage(shopLogoUrl);
+      if (success) {
+        await upsertAppSetting('shop_logo_url', null);
+        setShopLogoUrl(null);
+        showSuccess('Shop logo removed successfully!');
+      } else {
+        showError('Failed to remove shop logo.');
+      }
+    }
+  };
+
   const handleSaveSettings = async (event: React.FormEvent) => {
     event.preventDefault();
     setSaving(true);
     try {
       let finalQrCodeUrl = qrCodeUrl;
       let finalLoginBgImageUrl = loginBgImageUrl;
+      let finalShopLogoUrl = shopLogoUrl;
 
       // Handle QR Code Image Upload
       if (selectedQrFile) {
@@ -108,15 +134,31 @@ const AppSettings: React.FC = () => {
         finalLoginBgImageUrl = null;
       }
 
+      // Handle Shop Logo Upload
+      if (selectedShopLogoFile) {
+        const uploadedUrl = await uploadAppSettingImage(selectedShopLogoFile, 'shop-logos'); // Specify folder
+        if (uploadedUrl) {
+          finalShopLogoUrl = uploadedUrl;
+        } else {
+          setSaving(false);
+          return;
+        }
+      } else if (shopLogoUrl === null) {
+        finalShopLogoUrl = null;
+      }
+
       // Upsert each setting
       await upsertAppSetting('qr_code_url', finalQrCodeUrl);
       await upsertAppSetting('phonepe_deep_link', phonePeDeepLink);
       await upsertAppSetting('login_bg_image_url', finalLoginBgImageUrl); // Save new setting
+      await upsertAppSetting('shop_logo_url', finalShopLogoUrl); // Save shop logo setting
 
       setQrCodeUrl(finalQrCodeUrl);
       setSelectedQrFile(null);
       setLoginBgImageUrl(finalLoginBgImageUrl); // Update local state with the new URL
       setSelectedLoginBgFile(null); // Clear selected file after successful upload/save
+      setShopLogoUrl(finalShopLogoUrl); // Update local state with the new URL
+      setSelectedShopLogoFile(null); // Clear selected file after successful upload/save
       showSuccess('App settings saved successfully!');
     } catch (error) {
       console.error('Error saving app settings:', error);
@@ -240,7 +282,56 @@ const AppSettings: React.FC = () => {
                 )}
               </div>
 
-              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={saving || uploadingQr || uploadingLoginBg}>
+              {/* New: Shop Logo */}
+              <div className="border-t pt-4 mt-4">
+                <Label htmlFor="shopLogo">Shop Logo (Optional)</Label>
+                <div className="flex items-center space-x-4 mt-2">
+                  {shopLogoUrl && !selectedShopLogoFile ? (
+                    <div className="relative w-24 h-24 flex-shrink-0">
+                      <img src={shopLogoUrl} alt="Current Shop Logo" className="w-full h-full object-contain border rounded-md" />
+                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-1 rounded-full">Current</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-0 right-0 h-6 w-6 text-destructive hover:text-destructive/90 bg-background/70 rounded-full"
+                        onClick={handleRemoveShopLogo}
+                        type="button"
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : selectedShopLogoFile ? (
+                    <div className="relative w-24 h-24 flex-shrink-0">
+                      <img src={URL.createObjectURL(selectedShopLogoFile)} alt="Selected Shop Logo" className="w-full h-full object-contain border rounded-md" />
+                      <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-1 rounded-full">New</span>
+                    </div>
+                  ) : (
+                    <div className="w-24 h-24 flex-shrink-0 border rounded-md flex items-center justify-center bg-muted text-muted-foreground">
+                      <ImageIcon className="h-8 w-8" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <Input
+                      id="shopLogo"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleShopLogoFileChange}
+                      disabled={uploadingShopLogo}
+                      className="file:text-primary file:bg-primary-foreground file:border-primary file:hover:bg-primary/90 file:hover:text-primary-foreground"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Upload your shop logo. This will appear in the header.
+                    </p>
+                  </div>
+                </div>
+                {uploadingShopLogo && (
+                  <p className="text-sm text-muted-foreground mt-2 flex items-center">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading Shop Logo...
+                  </p>
+                )}
+              </div>
+
+              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={saving || uploadingQr || uploadingLoginBg || uploadingShopLogo}>
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
