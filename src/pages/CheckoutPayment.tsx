@@ -98,7 +98,9 @@ const CheckoutPayment: React.FC = () => {
           men_coat_length, men_coat_chest, men_coat_waist, men_coat_sleeve_length, men_coat_shoulder
         `)
         .eq('user_id', session.user.id)
-        .maybeSingle();
+        .order('updated_at', { ascending: false }) // Order by most recent
+        .limit(1) // Get only one result
+        .maybeSingle(); // Use maybeSingle after limiting to 1
 
       if (error) throw error;
       setUserMeasurements(data || null);
