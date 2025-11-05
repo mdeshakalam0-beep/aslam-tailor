@@ -10,6 +10,7 @@ import { showSuccess, showError } from '@/utils/toast';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { UserCircle2 } from 'lucide-react'; // For a placeholder avatar
+import { Textarea } from '@/components/ui/textarea'; // Import Textarea
 
 const Profile: React.FC = () => {
   const { session } = useSession();
@@ -19,6 +20,15 @@ const Profile: React.FC = () => {
   const [email, setEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  // New state for address fields
+  const [phone, setPhone] = useState<string | null>(null);
+  const [streetAddress, setStreetAddress] = useState<string | null>(null);
+  const [city, setCity] = useState<string | null>(null);
+  const [state, setState] = useState<string | null>(null);
+  const [pincode, setPincode] = useState<string | null>(null);
+  const [postOffice, setPostOffice] = useState<string | null>(null);
+  const [landmark, setLandmark] = useState<string | null>(null);
 
   useEffect(() => {
     if (session) {
@@ -34,7 +44,7 @@ const Profile: React.FC = () => {
 
       const { data, error, status } = await supabase
         .from('profiles')
-        .select(`first_name, last_name, avatar_url`)
+        .select(`first_name, last_name, avatar_url, phone, street_address, city, state, pincode, post_office, landmark`)
         .eq('id', user.id)
         .single();
 
@@ -46,6 +56,14 @@ const Profile: React.FC = () => {
         setFirstName(data.first_name);
         setLastName(data.last_name);
         setAvatarUrl(data.avatar_url);
+        // Set new address fields
+        setPhone(data.phone);
+        setStreetAddress(data.street_address);
+        setCity(data.city);
+        setState(data.state);
+        setPincode(data.pincode);
+        setPostOffice(data.post_office);
+        setLandmark(data.landmark);
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
@@ -67,6 +85,14 @@ const Profile: React.FC = () => {
         last_name: lastName,
         avatar_url: newAvatarUrl !== undefined ? newAvatarUrl : avatarUrl, // Use newAvatarUrl if provided, otherwise current state
         updated_at: new Date().toISOString(),
+        // Include new address fields
+        phone: phone,
+        street_address: streetAddress,
+        city: city,
+        state: state,
+        pincode: pincode,
+        post_office: postOffice,
+        landmark: landmark,
       };
 
       // Explicitly specify onConflict for upsert to ensure it uses the primary key for conflict resolution
@@ -188,6 +214,85 @@ const Profile: React.FC = () => {
                     placeholder="Enter your last name"
                   />
                 </div>
+
+                {/* Address Section */}
+                <div className="space-y-4 border-t pt-4 mt-4">
+                  <h3 className="text-xl font-semibold text-foreground">Your Saved Address</h3>
+                  <div>
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={phone || ''}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="streetAddress">Street Address / Village / Road</Label>
+                    <Textarea
+                      id="streetAddress"
+                      value={streetAddress || ''}
+                      onChange={(e) => setStreetAddress(e.target.value)}
+                      placeholder="House No., Building Name, Street, Village, Road"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        type="text"
+                        value={city || ''}
+                        onChange={(e) => setCity(e.target.value)}
+                        placeholder="City"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="state">State</Label>
+                      <Input
+                        id="state"
+                        type="text"
+                        value={state || ''}
+                        onChange={(e) => setState(e.target.value)}
+                        placeholder="State"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="pincode">Pincode</Label>
+                      <Input
+                        id="pincode"
+                        type="text"
+                        value={pincode || ''}
+                        onChange={(e) => setPincode(e.target.value)}
+                        placeholder="Pincode"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="postOffice">Post Office (Optional)</Label>
+                      <Input
+                        id="postOffice"
+                        type="text"
+                        value={postOffice || ''}
+                        onChange={(e) => setPostOffice(e.target.value)}
+                        placeholder="Post Office"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="landmark">Landmark / Near / Famous (Optional)</Label>
+                    <Input
+                      id="landmark"
+                      type="text"
+                      value={landmark || ''}
+                      onChange={(e) => setLandmark(e.target.value)}
+                      placeholder="e.g., Near XYZ Temple"
+                    />
+                  </div>
+                </div>
+
                 <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploading}>
                   {loading ? 'Saving...' : 'Update Profile'}
                 </Button>

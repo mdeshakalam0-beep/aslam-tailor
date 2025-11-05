@@ -8,9 +8,12 @@ import { ArrowLeft } from 'lucide-react';
 import AddressForm from '@/components/AddressForm';
 import { showError } from '@/utils/toast';
 import { CheckoutAddress, CheckoutItem } from '@/types/checkout';
+import { supabase } from '@/integrations/supabase/client'; // Import supabase
+import { useSession } from '@/components/SessionContextProvider'; // Import useSession
 
 const CheckoutAddress: React.FC = () => {
   const navigate = useNavigate();
+  const { session } = useSession(); // Use session to check if user is logged in
   const [address, setAddress] = useState<CheckoutAddress>({
     fullName: '',
     phone: '',
@@ -32,11 +35,43 @@ const CheckoutAddress: React.FC = () => {
       navigate('/cart'); // Redirect if cart is empty
     }
 
-    const storedAddress = localStorage.getItem('checkout_address_details');
-    if (storedAddress) {
-      setAddress(JSON.parse(storedAddress));
-    }
-  }, [navigate]);
+    const fetchAndSetAddress = async () => {
+      if (session?.user) {
+        // Try to fetch address from user's profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('first_name, last_name, phone, street_address, city, state, pincode, post_office, landmark')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') { // PGRST116 means no rows found
+          console.error('Error fetching profile address:', profileError);
+          showError('Failed to load saved address.');
+        }
+
+        if (profileData) {
+          setAddress({
+            fullName: `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim(),
+            phone: profileData.phone || '',
+            streetAddress: profileData.street_address || '',
+            city: profileData.city || '',
+            state: profileData.state || '',
+            pincode: profileData.pincode || '',
+            postOffice: profileData.post_office || '',
+            landmark: profileData.landmark || '',
+          });
+        }
+      } else {
+        // If not logged in, or no profile address, check local storage for previous checkout address
+        const storedAddress = localStorage.getItem('checkout_address_details');
+        if (storedAddress) {
+          setAddress(JSON.parse(storedAddress));
+        }
+      }
+    };
+
+    fetchAndSetAddress();
+  }, [navigate, session]);
 
   const handleAddressChange = (field: string, value: string) => {
     setAddress((prev) => ({ ...prev, [field]: value }));
