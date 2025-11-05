@@ -23,19 +23,20 @@ const Measurement: React.FC = () => {
 
     try {
       setLoading(true);
-      // Fetch user's measurements
+      // Fetch user's most recent measurement
       const { data: measurementsData, error: fetchError } = await supabase
         .from('measurements')
         .select('*')
         .eq('user_id', session.user.id)
-        .maybeSingle();
+        .order('updated_at', { ascending: false }) // Order by most recent
+        .limit(1); // Get only one result
 
       if (fetchError) {
         throw fetchError;
       }
 
-      if (measurementsData) {
-        setInitialMeasurements(measurementsData as UserMeasurements);
+      if (measurementsData && measurementsData.length > 0) {
+        setInitialMeasurements(measurementsData[0] as UserMeasurements);
       } else {
         setInitialMeasurements(undefined); // No existing measurements
       }
