@@ -11,6 +11,7 @@ import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { UserCircle2 } from 'lucide-react'; // For a placeholder avatar
 import { Textarea } from '@/components/ui/textarea'; // Import Textarea
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'; // Import Accordion components
 
 const Profile: React.FC = () => {
   const { session } = useSession();
@@ -173,7 +174,7 @@ const Profile: React.FC = () => {
                     <img
                       src={avatarUrl}
                       alt="Avatar"
-                      className="w-24 h-24 rounded-full object-contain border-2 border-primary p-1" // Changed object-cover to object-contain and added p-1 for padding
+                      className="w-24 h-24 rounded-full object-contain border-2 border-primary p-1"
                     />
                   ) : (
                     <UserCircle2 className="w-24 h-24 text-muted-foreground" />
@@ -215,83 +216,89 @@ const Profile: React.FC = () => {
                   />
                 </div>
 
-                {/* Address Section */}
-                <div className="space-y-4 border-t pt-4 mt-4">
-                  <h3 className="text-xl font-semibold text-foreground">Your Saved Address</h3>
-                  <div>
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={phone || ''}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Enter phone number"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="streetAddress">Street Address / Village / Road</Label>
-                    <Textarea
-                      id="streetAddress"
-                      value={streetAddress || ''}
-                      onChange={(e) => setStreetAddress(e.target.value)}
-                      placeholder="House No., Building Name, Street, Village, Road"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        type="text"
-                        value={city || ''}
-                        onChange={(e) => setCity(e.target.value)}
-                        placeholder="City"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state">State</Label>
-                      <Input
-                        id="state"
-                        type="text"
-                        value={state || ''}
-                        onChange={(e) => setState(e.target.value)}
-                        placeholder="State"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="pincode">Pincode</Label>
-                      <Input
-                        id="pincode"
-                        type="text"
-                        value={pincode || ''}
-                        onChange={(e) => setPincode(e.target.value)}
-                        placeholder="Pincode"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="postOffice">Post Office (Optional)</Label>
-                      <Input
-                        id="postOffice"
-                        type="text"
-                        value={postOffice || ''}
-                        onChange={(e) => setPostOffice(e.target.value)}
-                        placeholder="Post Office"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="landmark">Landmark / Near / Famous (Optional)</Label>
-                    <Input
-                      id="landmark"
-                      type="text"
-                      value={landmark || ''}
-                      onChange={(e) => setLandmark(e.target.value)}
-                      placeholder="e.g., Near XYZ Temple"
-                    />
-                  </div>
-                </div>
+                {/* Address Section using Accordion */}
+                <Accordion type="single" collapsible className="w-full border-t pt-4 mt-4">
+                  <AccordionItem value="address-section" className="border-b-0">
+                    <AccordionTrigger className="text-xl font-semibold text-foreground hover:no-underline py-2">
+                      Your Saved Address
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-4">
+                      <div>
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={phone || ''}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="Enter phone number"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="streetAddress">Street Address / Village / Road</Label>
+                        <Textarea
+                          id="streetAddress"
+                          value={streetAddress || ''}
+                          onChange={(e) => setStreetAddress(e.target.value)}
+                          placeholder="House No., Building Name, Street, Village, Road"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="city">City</Label>
+                          <Input
+                            id="city"
+                            type="text"
+                            value={city || ''}
+                            onChange={(e) => setCity(e.target.value)}
+                            placeholder="City"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="state">State</Label>
+                          <Input
+                            id="state"
+                            type="text"
+                            value={state || ''}
+                            onChange={(e) => setState(e.target.value)}
+                            placeholder="State"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="pincode">Pincode</Label>
+                          <Input
+                            id="pincode"
+                            type="text"
+                            value={pincode || ''}
+                            onChange={(e) => setPincode(e.target.value)}
+                            placeholder="Pincode"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="postOffice">Post Office (Optional)</Label>
+                          <Input
+                            id="postOffice"
+                            type="text"
+                            value={postOffice || ''}
+                            onChange={(e) => setPostOffice(e.target.value)}
+                            placeholder="Post Office"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="landmark">Landmark / Near / Famous (Optional)</Label>
+                        <Input
+                          id="landmark"
+                          type="text"
+                          value={landmark || ''}
+                          onChange={(e) => setLandmark(e.target.value)}
+                          placeholder="e.g., Near XYZ Temple"
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
 
                 <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploading}>
                   {loading ? 'Saving...' : 'Update Profile'}
