@@ -99,10 +99,20 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [id]: id.startsWith('men_') || id === 'ladies_size' ? (value === '' ? null : parseFloat(value)) : value,
-    }));
+    setFormData((prev) => {
+      let parsedValue: string | number | null = value;
+      if (id.startsWith('men_') && value !== '') {
+        parsedValue = parseFloat(value);
+      } else if (id === 'ladies_size') {
+        parsedValue = value === '' ? null : value; // Keep as string or null
+      } else if (value === '') {
+        parsedValue = null; // For number fields, empty string means null
+      }
+      return {
+        ...prev,
+        [id]: parsedValue,
+      };
+    });
   };
 
   const handleSelectMeasurementType = (value: string) => {
