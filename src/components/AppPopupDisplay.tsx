@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'; // Import DialogHeader, DialogTitle, DialogDescription
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
@@ -44,7 +44,15 @@ const AppPopupDisplay: React.FC = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-md p-0 border-none bg-transparent shadow-none">
+      <DialogContent 
+        className="max-w-md p-0 border-none bg-transparent shadow-none"
+        aria-labelledby="app-popup-title"
+        aria-describedby="app-popup-description"
+      >
+        <DialogHeader className="sr-only"> {/* Visually hidden header for accessibility */}
+          <DialogTitle id="app-popup-title">App Pop-up</DialogTitle>
+          <DialogDescription id="app-popup-description">Important announcements or offers.</DialogDescription>
+        </DialogHeader>
         <div className="relative w-full">
           {popups.length > 1 ? (
             <Carousel
@@ -61,9 +69,13 @@ const AppPopupDisplay: React.FC = () => {
                         <img src={popup.image_url} alt={popup.title} className="w-full h-48 object-cover" />
                       )}
                       <div className="p-4 text-center">
-                        <h3 className="text-xl font-bold text-foreground mb-2">{popup.title}</h3>
+                        <h3 className="text-xl font-bold text-foreground mb-2">
+                          {popup.title}
+                        </h3>
                         {popup.description && (
-                          <p className="text-muted-foreground text-sm mb-4">{popup.description}</p>
+                          <p className="text-muted-foreground text-sm mb-4">
+                            {popup.description}
+                          </p>
                         )}
                         {popup.cta_text && popup.cta_link && (
                           <Button asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
@@ -86,9 +98,13 @@ const AppPopupDisplay: React.FC = () => {
                 <img src={popups[0].image_url} alt={popups[0].title} className="w-full h-48 object-cover" />
               )}
               <div className="p-4 text-center">
-                <h3 className="text-xl font-bold text-foreground mb-2">{popups[0].title}</h3>
+                <h3 className="text-xl font-bold text-foreground mb-2">
+                  {popups[0].title}
+                </h3>
                 {popups[0].description && (
-                  <p className="text-muted-foreground text-sm mb-4">{popups[0].description}</p>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    {popups[0].description}
+                  </p>
                 )}
                 {popups[0].cta_text && popups[0].cta_link && (
                   <Button asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/90">

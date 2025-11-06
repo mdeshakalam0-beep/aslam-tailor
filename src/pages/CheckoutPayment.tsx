@@ -357,11 +357,15 @@ const CheckoutPayment: React.FC = () => {
 
       {/* Order Success Dialog */}
       <Dialog open={showOrderSuccessDialog} onOpenChange={setShowOrderSuccessDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent 
+          className="sm:max-w-[425px]"
+          aria-labelledby="order-success-title"
+          aria-describedby="order-success-description"
+        >
           <DialogHeader className="flex flex-col items-center justify-center text-center space-y-4">
             <CheckCircle2 className="h-20 w-20 text-green-500 animate-pop-in" />
-            <DialogTitle className="text-green-600 text-2xl font-bold">Order Placed Successfully!</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            <DialogTitle id="order-success-title" className="text-green-600 text-2xl font-bold">Order Placed Successfully!</DialogTitle>
+            <DialogDescription id="order-success-description" className="text-muted-foreground">
               Your order has been placed and will be processed shortly. Thank you for shopping with us!
             </DialogDescription>
           </DialogHeader>
