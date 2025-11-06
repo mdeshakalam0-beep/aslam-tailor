@@ -146,28 +146,28 @@ const Profile: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    // If there's no active session according to our context,
-    // the user is effectively logged out or their session expired.
     if (!session) {
       showSuccess('You are already logged out.');
-      // No need to navigate here, SessionContextProvider will handle it
       return;
     }
 
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        // If the error indicates a missing session, treat it as a successful logout
-        // as the user is no longer authenticated from the client's perspective.
-        if (error.message.includes('Auth session missing')) {
+        // If the error indicates a missing session or forbidden,
+        // treat it as a successful logout from the client's perspective
+        // and let SessionContextProvider handle the redirect.
+        if (error.message.includes('Auth session missing') || error.status === 403) {
+          console.warn('Logout failed with Auth session missing or 403, forcing client-side logout.');
+          // Manually clear session data if signOut failed with 403
+          // This will trigger onAuthStateChange with null in SessionContextProvider
+          await supabase.auth.setSession(null); 
           showSuccess('Logged out successfully!');
-          // No need to navigate here, SessionContextProvider will handle it
           return;
         }
         throw error;
       }
       showSuccess('Logged out successfully!');
-      // No need to navigate here, SessionContextProvider will handle it
     } catch (error) {
       console.error('Error logging out:', error);
       showError('Failed to log out.');
