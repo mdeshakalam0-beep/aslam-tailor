@@ -22,6 +22,8 @@ const AppSettings: React.FC = () => {
   const [selectedLoginBgFile, setSelectedLoginBgFile] = useState<File | null>(null); // New state for login background file
   const [shopLogoUrl, setShopLogoUrl] = useState<string | null>(null); // New state for shop logo
   const [selectedShopLogoFile, setSelectedShopLogoFile] = useState<File | null>(null); // New state for shop logo file
+  const [whatsappNumber1, setWhatsappNumber1] = useState<string>(''); // New state for WhatsApp number 1
+  const [whatsappNumber2, setWhatsappNumber2] = useState<string>(''); // New state for WhatsApp number 2
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingQr, setUploadingQr] = useState(false);
@@ -41,6 +43,8 @@ const AppSettings: React.FC = () => {
         if (setting.key === 'phonepe_deep_link') setPhonePeDeepLink(setting.value || '');
         if (setting.key === 'login_bg_image_url') setLoginBgImageUrl(setting.value); // Set new setting
         if (setting.key === 'shop_logo_url') setShopLogoUrl(setting.value); // Set shop logo setting
+        if (setting.key === 'whatsapp_number_1') setWhatsappNumber1(setting.value || ''); // Set WhatsApp number 1
+        if (setting.key === 'whatsapp_number_2') setWhatsappNumber2(setting.value || ''); // Set WhatsApp number 2
       });
     } catch (error) {
       console.error('Error fetching app settings:', error);
@@ -152,6 +156,8 @@ const AppSettings: React.FC = () => {
       await upsertAppSetting('phonepe_deep_link', phonePeDeepLink);
       await upsertAppSetting('login_bg_image_url', finalLoginBgImageUrl); // Save new setting
       await upsertAppSetting('shop_logo_url', finalShopLogoUrl); // Save shop logo setting
+      await upsertAppSetting('whatsapp_number_1', whatsappNumber1); // Save WhatsApp number 1
+      await upsertAppSetting('whatsapp_number_2', whatsappNumber2); // Save WhatsApp number 2
 
       setQrCodeUrl(finalQrCodeUrl);
       setSelectedQrFile(null);
@@ -329,6 +335,37 @@ const AppSettings: React.FC = () => {
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading Shop Logo...
                   </p>
                 )}
+              </div>
+
+              {/* New: WhatsApp Contact Numbers */}
+              <div className="border-t pt-4 mt-4">
+                <h3 className="text-lg font-semibold text-foreground mb-2">WhatsApp Contact Numbers</h3>
+                <div>
+                  <Label htmlFor="whatsappNumber1">WhatsApp Number 1 (Optional)</Label>
+                  <Input
+                    id="whatsappNumber1"
+                    type="tel"
+                    value={whatsappNumber1}
+                    onChange={(e) => setWhatsappNumber1(e.target.value)}
+                    placeholder="e.g., +919876543210"
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Enter the first WhatsApp number including country code (e.g., +91).
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <Label htmlFor="whatsappNumber2">WhatsApp Number 2 (Optional)</Label>
+                  <Input
+                    id="whatsappNumber2"
+                    type="tel"
+                    value={whatsappNumber2}
+                    onChange={(e) => setWhatsappNumber2(e.target.value)}
+                    placeholder="e.g., +919988776655"
+                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Enter the second WhatsApp number including country code (e.g., +91).
+                  </p>
+                </div>
               </div>
 
               <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={saving || uploadingQr || uploadingLoginBg || uploadingShopLogo}>

@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { showSuccess, showError } from '@/utils/toast';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
-import { UserCircle2 } from 'lucide-react'; // For a placeholder avatar
+import { UserCircle2, MessageCircle } from 'lucide-react'; // For a placeholder avatar and WhatsApp icon
 import { Textarea } from '@/components/ui/textarea'; // Import Textarea
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'; // Import Accordion components
+import { getAppSettings } from '@/utils/appSettings'; // Import getAppSettings
 
 const Profile: React.FC = () => {
   const { session } = useSession();
@@ -31,12 +32,30 @@ const Profile: React.FC = () => {
   const [postOffice, setPostOffice] = useState<string | null>(null);
   const [landmark, setLandmark] = useState<string | null>(null);
 
+  // New state for WhatsApp numbers
+  const [whatsappNumber1, setWhatsappNumber1] = useState<string | null>(null);
+  const [whatsappNumber2, setWhatsappNumber2] = useState<string | null>(null);
+
   useEffect(() => {
     if (session) {
       getProfile();
       setEmail(session.user?.email || null);
     }
+    fetchAppSettingsForContact(); // Fetch WhatsApp numbers on component mount
   }, [session]);
+
+  const fetchAppSettingsForContact = async () => {
+    try {
+      const settings = await getAppSettings();
+      const num1 = settings.find(setting => setting.key === 'whatsapp_number_1')?.value || null;
+      const num2 = settings.find(setting => setting.key === 'whatsapp_number_2')?.value || null;
+      setWhatsappNumber1(num1);
+      setWhatsappNumber2(num2);
+    } catch (error) {
+      console.error('Error fetching WhatsApp numbers:', error);
+      showError('Failed to load contact numbers.');
+    }
+  };
 
   const getProfile = async () => {
     try {
@@ -317,6 +336,38 @@ const Profile: React.FC = () => {
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+
+                {/* New: Contact Admin Section */}
+                {(whatsappNumber1 || whatsappNumber2) && (
+                  <Accordion type="single" collapsible className="w-full border-t pt-4 mt-4">
+                    <AccordionItem value="contact-admin-section" className="border-b-0">
+                      <AccordionTrigger className="text-xl font-semibold text-foreground hover:no-underline py-2">
+                        Contact Admin
+                      </AccordionTrigger>
+                      <AccordionContent className="space-y-3 pt-4">
+                        <p className="text-muted-foreground text-sm">
+                          किसी भी समस्या या प्रश्न के लिए, आप हमारे एडमिन से WhatsApp पर संपर्क कर सकते हैं:
+                        </p>
+                        {whatsappNumber1 && (
+                          <Button asChild variant="outline" className="w-full justify-start bg-green-500 text-white hover:bg-green-600">
+                            <a href={`https://wa.me/${whatsappNumber1.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                              <MessageCircle className="h-5 w-5 mr-2" />
+                              WhatsApp Admin 1: {whatsappNumber1}
+                            </a>
+                          </Button>
+                        )}
+                        {whatsappNumber2 && (
+                          <Button asChild variant="outline" className="w-full justify-start bg-green-500 text-white hover:bg-green-600">
+                            <a href={`https://wa.me/${whatsappNumber2.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                              <MessageCircle className="h-5 w-5 mr-2" />
+                              WhatsApp Admin 2: {whatsappNumber2}
+                            </a>
+                          </Button>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                )}
 
                 <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploading}>
                   {loading ? 'Saving...' : 'Update Profile'}
