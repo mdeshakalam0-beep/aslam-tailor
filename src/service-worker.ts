@@ -11,6 +11,7 @@ const urlsToCache = [
   '/public/icons/icon-512x512.png',
   '/public/icons/icon-maskable-192x192.png',
   '/public/icons/icon-maskable-512x512.png',
+  '/notification.mp3' // Added notification sound to cache
   // Add other critical assets here that should be cached
 ];
 
