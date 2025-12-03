@@ -1,3 +1,5 @@
+Sitemap: https://aslamtailor.shop/sitemap.xml
+
 User-agent: Googlebot
 Allow: /
 
@@ -12,3 +14,4 @@ Allow: /
 
 User-agent: *
 Allow: /
+
