@@ -6,7 +6,6 @@ import { addToCart } from '@/utils/cart';
 import { showError } from '@/utils/toast';
 import { isProductFavorited, addFavorite, removeFavorite } from '@/utils/favorites';
 import { useSession } from '@/components/SessionContextProvider';
-import { Link } from 'react-router-dom';
 
 interface ProductCardProps {
   product: {
@@ -38,7 +37,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   }, [session, product.id]);
 
   const handleAddToCart = (event: React.MouseEvent) => {
-    // Prevent Link navigation when clicking this button
     event.preventDefault();
     event.stopPropagation();
 
@@ -59,7 +57,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   const handleToggleFavorite = async (event: React.MouseEvent) => {
-    // Prevent Link navigation when clicking favorite
     event.preventDefault();
     event.stopPropagation();
 
@@ -77,50 +74,47 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    // Wrap the whole card with Link so clicking anywhere (except buttons) opens product detail.
-    <Link to={`/product/${product.id}`} aria-label={`Open ${product.name}`}>
-      <Card className="overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow relative">
-        <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover" />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-2 right-2 text-primary bg-background/70 rounded-full p-1"
-          onClick={handleToggleFavorite}
-        >
-          {isFavorited ? (
-            <HeartIconFilled className="h-5 w-5 fill-primary" />
-          ) : (
-            <HeartIconOutline className="h-5 w-5" />
-          )}
+    <Card className="overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow relative">
+      <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover" />
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-2 right-2 text-primary bg-background/70 rounded-full p-1"
+        onClick={handleToggleFavorite}
+      >
+        {isFavorited ? (
+          <HeartIconFilled className="h-5 w-5 fill-primary" />
+        ) : (
+          <HeartIconOutline className="h-5 w-5" />
+        )}
+      </Button>
+      <CardContent className="p-3">
+        <h3 className="text-base font-semibold text-foreground truncate">{product.name}</h3>
+        <div className="flex items-center justify-between mt-1">
+          <div className="flex items-baseline space-x-1">
+            <span className="text-lg font-bold text-primary">₹{product.price.toLocaleString()}</span>
+            {product.originalPrice && (
+              <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice.toLocaleString()}</span>
+            )}
+            {product.discount && (
+              <span className="text-xs font-medium text-green-600 ml-1">{product.discount}% off</span>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center mt-1 text-sm text-muted-foreground">
+          <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
+          <span>{product.rating} ({product.reviewsCount})</span>
+        </div>
+        {product.recentPurchase && (
+          <p className="text-xs text-gray-500 mt-1">
+            {product.recentPurchase}
+          </p>
+        )}
+        <Button variant="outline" size="sm" className="w-full mt-3 bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleAddToCart}>
+          Add to Cart
         </Button>
-        <CardContent className="p-3">
-          <h3 className="text-base font-semibold text-foreground truncate">{product.name}</h3>
-          <div className="flex items-center justify-between mt-1">
-            <div className="flex items-baseline space-x-1">
-              <span className="text-lg font-bold text-primary">₹{product.price.toLocaleString()}</span>
-              {product.originalPrice && (
-                <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice.toLocaleString()}</span>
-              )}
-              {product.discount && (
-                <span className="text-xs font-medium text-green-600 ml-1">{product.discount}% off</span>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center mt-1 text-sm text-muted-foreground">
-            <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
-            <span>{product.rating} ({product.reviewsCount})</span>
-          </div>
-          {product.recentPurchase && (
-            <p className="text-xs text-gray-500 mt-1">
-              {product.recentPurchase}
-            </p>
-          )}
-          <Button variant="outline" size="sm" className="w-full mt-3 bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleAddToCart}>
-            Add to Cart
-          </Button>
-        </CardContent>
-      </Card>
-    </Link>
+      </CardContent>
+    </Card>
   );
 };
 
