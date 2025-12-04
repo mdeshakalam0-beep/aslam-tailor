@@ -3,20 +3,20 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Star, Heart as HeartIconFilled, Heart as HeartIconOutline, Ruler } from 'lucide-react';
+import { ArrowLeft, Star, Heart as HeartIconFilled, Heart as HeartIconOutline, Ruler, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import ProductCard from '@/components/ProductCard';
 import ProductMeasurementSelector from '@/components/ProductMeasurementSelector';
-import ProductReviewForm from '@/components/ProductReviewForm'; // Import ProductReviewForm
-import ProductReviewCard from '@/components/ProductReviewCard'; // Import ProductReviewCard
+import ProductReviewForm from '@/components/ProductReviewForm';
+import ProductReviewCard from '@/components/ProductReviewCard';
 import { addToCart } from '@/utils/cart';
 import { showError, showSuccess } from '@/utils/toast';
 import { getProductById, getRecommendedProducts, Product } from '@/utils/products';
 import { isProductFavorited, addFavorite, removeFavorite } from '@/utils/favorites';
-import { getReviewsForProduct, ProductReview } from '@/utils/reviews'; // Import review utilities
+import { getReviewsForProduct, ProductReview } from '@/utils/reviews';
 import { useSession } from '@/components/SessionContextProvider';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
@@ -27,12 +27,16 @@ const ProductDetail: React.FC = () => {
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | undefined>(undefined);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
-  const [reviews, setReviews] = useState<ProductReview[]>([]); // State for reviews
+  const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [isFavorited, setIsFavorited] = useState(false);
   const [isCustomMeasurementActive, setIsCustomMeasurementActive] = useState(false);
   const [isSizeSelectionActive, setIsSizeSelectionActive] = useState(true);
+
+  // lightbox state
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
@@ -45,10 +49,9 @@ const ProductDetail: React.FC = () => {
     setProduct(fetchedProduct);
 
     if (fetchedProduct) {
-      // Pass category_id to getRecommendedProducts
       const fetchedRecommended = await getRecommendedProducts(fetchedProduct.id, fetchedProduct.category_id);
       setRecommendedProducts(fetchedRecommended);
-      const fetchedReviews = await getReviewsForProduct(fetchedProduct.id); // Fetch reviews
+      const fetchedReviews = await getReviewsForProduct(fetchedProduct.id);
       setReviews(fetchedReviews);
     }
     setLoading(false);
@@ -56,6 +59,9 @@ const ProductDetail: React.FC = () => {
 
   useEffect(() => {
     fetchProductAndReviews();
+    // reset lightbox on product change
+    setIsLightboxOpen(false);
+    setLightboxIndex(0);
   }, [id]);
 
   useEffect(() => {
@@ -125,6 +131,7 @@ const ProductDetail: React.FC = () => {
         price: product.price,
         selectedSize: selectedSize,
       });
+      showSuccess('Product added to cart!');
     } else {
       showError('Please select a size or enable custom measurements.');
     }
@@ -170,7 +177,29 @@ const ProductDetail: React.FC = () => {
   };
 
   const handleReviewSubmitted = () => {
-    fetchProductAndReviews(); // Re-fetch reviews after a new one is submitted
+    fetchProductAndReviews();
+  };
+
+  // Lightbox controls
+  const openLightboxAt = (index: number) => {
+    setLightboxIndex(index);
+    setIsLightboxOpen(true);
+  };
+  const closeLightbox = () => setIsLightboxOpen(false);
+  const prevLightbox = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setLightboxIndex((i) => (i - 1 + product.images.length) % product.images.length);
+  };
+  const nextLightbox = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setLightboxIndex((i) => (i + 1) % product.images.length);
+  };
+
+  // WhatsApp share with image + product link (include image URL so clients that preview images can show)
+  const getWhatsAppShareUrl = () => {
+    const productUrl = `${window.location.origin}/product/${product.id}`;
+    const text = `${product.name}\nPrice: ₹${product.price}\n\n${productUrl}\n\nImage: ${product.images[lightboxIndex || 0] ?? product.images[0]}`;
+    return `https://wa.me/?text=${encodeURIComponent(text)}`;
   };
 
   return (
@@ -198,11 +227,18 @@ const ProductDetail: React.FC = () => {
               <CarouselContent>
                 {product.images.map((image, index) => (
                   <CarouselItem key={index}>
-                    <img
-                      src={image}
-                      alt={`${product.name} - ${index + 1}`}
-                      className="w-full h-64 md:h-96 object-cover rounded-md"
-                    />
+                    {/* Make image object-contain so any size fits. Clicking opens lightbox */}
+                    <div
+                      className="w-full h-64 md:h-96 flex items-center justify-center bg-gray-50 cursor-zoom-in"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); openLightboxAt(index); }}
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.name} - ${index + 1}`}
+                        className="max-w-full max-h-full object-contain rounded-md"
+                        loading="lazy"
+                      />
+                    </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
@@ -235,7 +271,6 @@ const ProductDetail: React.FC = () => {
             <div className="flex items-center text-sm text-muted-foreground mb-4">
               <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
               <span>{product.rating} ({product.reviewsCount} reviews)</span>
-              {/* Removed "Bought by users" text */}
             </div>
             <p className="text-muted-foreground leading-relaxed">{product.description}</p>
           </div>
@@ -279,8 +314,8 @@ const ProductDetail: React.FC = () => {
 
           {/* In-page Measurement Selector */}
           <div className={cn("pt-6 border-t border-border mt-6")}>
-            <ProductMeasurementSelector 
-              session={session} 
+            <ProductMeasurementSelector
+              session={session}
               isActive={isCustomMeasurementActive}
               onToggle={handleMeasurementToggle}
               isDisabled={isSizeSelectionActive}
@@ -324,15 +359,112 @@ const ProductDetail: React.FC = () => {
         <section className="mt-8 px-4 md:px-0">
           <h2 className="text-2xl font-bold mb-4 text-foreground">Recommended Products</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {recommendedProducts.map((product) => (
-              <Link to={`/products/${product.id}`} key={product.id} className="block">
-                <ProductCard product={product} />
+            {recommendedProducts.map((p) => (
+              // use singular route to match your App.tsx routing
+              <Link to={`/product/${p.id}`} key={p.id} className="block">
+                <ProductCard product={p} />
               </Link>
             ))}
           </div>
         </section>
       </main>
       <BottomNavigation />
+
+      {/* Lightbox modal */}
+      {isLightboxOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={closeLightbox}
+        >
+          <div className="absolute inset-0 bg-black/70" />
+
+          <div
+            className="relative z-10 max-w-[96vw] max-h-[96vh] bg-transparent rounded-md overflow-hidden flex flex-col items-stretch"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* top controls */}
+            <div className="flex items-center justify-between p-2">
+              <button onClick={closeLightbox} className="p-2 rounded-full bg-white/80" aria-label="Close">
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={getWhatsAppShareUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-green-600 text-white font-medium shadow"
+                >
+                  Share on WhatsApp
+                </a>
+                <a
+                  href={`/product/${product.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-white text-slate-900 font-medium border"
+                >
+                  Open Product Page
+                </a>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const link = `${window.location.origin}/product/${product.id}`;
+                    navigator.clipboard?.writeText(link);
+                  }}
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-white text-slate-900 font-medium border"
+                >
+                  Copy Link
+                </button>
+              </div>
+            </div>
+
+            {/* image area with prev/next */}
+            <div className="flex items-center justify-center flex-1 bg-black/90 p-4">
+              <button
+                onClick={prevLightbox}
+                className="p-2 rounded-full bg-white/20 text-white mr-4"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+
+              <img
+                src={product.images[lightboxIndex]}
+                alt={`${product.name} - ${lightboxIndex + 1}`}
+                className="max-w-[90vw] max-h-[80vh] object-contain rounded"
+              />
+
+              <button
+                onClick={nextLightbox}
+                className="p-2 rounded-full bg-white/20 text-white ml-4"
+                aria-label="Next"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* thumbnails */}
+            <div className="flex gap-2 items-center overflow-x-auto bg-white p-2">
+              {product.images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => { e.stopPropagation(); setLightboxIndex(i); }}
+                  className={cn(
+                    "rounded-md overflow-hidden border",
+                    i === lightboxIndex ? "border-primary" : "border-transparent"
+                  )}
+                >
+                  <img src={img} alt={`${product.name} thumb ${i+1}`} className="w-20 h-20 object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
