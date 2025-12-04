@@ -28,7 +28,8 @@ import BrandManagement from './pages/admin/BrandManagement';
 import AppPopupManagement from './pages/admin/AppPopupManagement';
 import AppSettings from './pages/admin/AppSettings';
 import NotificationManagement from './pages/admin/NotificationManagement';
-import BannerManagement from './pages/admin/BannerManagement';
+// <-- Changed this import to the actual file present in your repo -->
+import HeroBannerManagement from './pages/admin/HeroBannerManagement';
 import ProductManagement from './pages/admin/ProductManagement';
 
 // other components used around routes
@@ -73,7 +74,8 @@ const App: React.FC = () => {
                 <Route path="users" element={<UserManagement />} />
                 <Route path="categories" element={<CategoryManagement />} />
                 <Route path="measurement-types" element={<MeasurementTypeManagement />} />
-                <Route path="banners" element={<BannerManagement />} />
+                {/* use the HeroBannerManagement component that exists in your repo */}
+                <Route path="banners" element={<HeroBannerManagement />} />
                 <Route path="notifications" element={<NotificationManagement />} />
                 <Route path="brands" element={<BrandManagement />} />
                 <Route path="popups" element={<AppPopupManagement />} />
