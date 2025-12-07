@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 interface SessionContextType {
   session: Session | null;
   userRole: string | null;
+  loading: boolean; // Add loading to context
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -14,7 +15,7 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true); // Keep this true initially
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -49,26 +50,24 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
         role = await fetchUserRole(currentSession.user.id);
         if (!isMounted) return;
         setUserRole(role);
+        // Redirect from login page to home if logged in
         if (location.pathname === '/login') {
           navigate('/');
         }
       } else {
+        // User is signed out. Clear role.
         if (!isMounted) return;
         setUserRole(null);
-        if (location.pathname !== '/login') {
-          navigate('/login');
-        }
+        // IMPORTANT: Do NOT redirect here for non-protected pages.
+        // ProtectedRoute component will handle redirects for specific routes.
       }
+      setLoading(false); // Set loading to false after initial check and role determination
     };
 
     // Initial session check
     supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       if (isMounted) {
-        handleAuthStateChange(initialSession).finally(() => {
-          if (isMounted) {
-            setLoading(false); // Set loading to false after initial check and role determination
-          }
-        });
+        handleAuthStateChange(initialSession);
       }
     });
 
@@ -84,18 +83,10 @@ export const SessionContextProvider: React.FC<{ children: React.ReactNode }> = (
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate, location.pathname]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-foreground">Loading...</p>
-      </div>
-    );
-  }
+  }, [navigate]); // Removed location.pathname from dependency array to prevent unnecessary re-runs
 
   return (
-    <SessionContext.Provider value={{ session, userRole }}>
+    <SessionContext.Provider value={{ session, userRole, loading }}>
       {children}
       <Toaster />
     </SessionContext.Provider>

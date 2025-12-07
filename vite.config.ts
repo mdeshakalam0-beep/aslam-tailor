@@ -11,9 +11,12 @@ export default defineConfig(() => ({
     port: 8080,
   },
   plugins: [
-    dyadComponentTagger(), 
+    dyadComponentTagger(),
     react(),
     VitePWA({ // Configure VitePWA
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'service-worker.ts',
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {

@@ -13,7 +13,7 @@ import Favorites from "./pages/Favorites";
 import CheckoutAddress from "./pages/CheckoutAddress";
 import CheckoutPayment from "./pages/CheckoutPayment";
 import CategoryProducts from "./pages/CategoryProducts";
-import OrderDetailsPage from "./pages/OrderDetailsPage"; // Import the new OrderDetailsPage
+import OrderDetailsPage from "./pages/OrderDetailsPage";
 import { SessionContextProvider } from "./components/SessionContextProvider";
 import AdminLayout from "./components/admin/AdminLayout";
 import ProductManagement from "./pages/admin/ProductManagement";
@@ -28,8 +28,8 @@ import MeasurementTypeManagement from "./pages/admin/MeasurementTypeManagement";
 import RecentPurchaseNotification from "./components/RecentPurchaseNotification";
 import AppPopupManagement from "./pages/admin/AppPopupManagement";
 import AppPopupDisplay from "./components/AppPopupDisplay";
-import BrandManagement from "./pages/admin/BrandManagement"; // Import new BrandManagement
-import { parseISO } from 'date-fns'; // Import parseISO
+import BrandManagement from "./pages/admin/BrandManagement";
+import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
 
 const queryClient = new QueryClient();
 
@@ -41,18 +41,22 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Index />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/:orderId" element={<OrderDetailsPage />} /> {/* New route for order details page */}
-            <Route path="/measurement" element={<Measurement />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/favorites" element={<Favorites />} />
-            <Route path="/categories/:categoryId" element={<CategoryProducts />} />
-            <Route path="/checkout/address" element={<CheckoutAddress />} />
-            <Route path="/checkout/payment" element={<CheckoutPayment />} />
+            
+            {/* Protected User Routes */}
+            <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+            <Route path="/orders/:orderId" element={<ProtectedRoute><OrderDetailsPage /></ProtectedRoute>} />
+            <Route path="/measurement" element={<ProtectedRoute><Measurement /></ProtectedRoute>} />
+            <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+            <Route path="/checkout/address" element={<ProtectedRoute><CheckoutAddress /></ProtectedRoute>} />
+            <Route path="/checkout/payment" element={<ProtectedRoute><CheckoutPayment /></ProtectedRoute>} />
 
-            {/* Admin Routes */}
+            {/* Public Routes (can be accessed without login) */}
+            <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/categories/:categoryId" element={<CategoryProducts />} />
+
+            {/* Admin Routes (already protected by AdminLayout) */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<ProductManagement />} />
@@ -63,7 +67,7 @@ const App = () => (
               <Route path="banners" element={<HeroBannerManagement />} />
               <Route path="popups" element={<AppPopupManagement />} />
               <Route path="notifications" element={<NotificationManagement />} />
-              <Route path="brands" element={<BrandManagement />} /> {/* New Admin Route */}
+              <Route path="brands" element={<BrandManagement />} />
               <Route path="settings" element={<AppSettings />} />
             </Route>
 
