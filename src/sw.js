@@ -1,23 +1,24 @@
-// src/sw.js  (paste EXACTLY this plain JS file)
-import { precacheAndRoute, cleanupOutdatedCaches, createHandlerBoundToURL } from 'workbox-precaching';
-import { clientsClaim } from 'workbox-core';
-import { registerRoute, NavigationRoute } from 'workbox-routing';
+// src/sw.js
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.2.0/workbox-sw.js');
 
+// Ensure workbox is available globally after importScripts
+declare const workbox: any;
+
+workbox.core.clientsClaim();
 self.skipWaiting();
-clientsClaim();
 
 // Workbox will inject the manifest array here at build time
-precacheAndRoute(self.__WB_MANIFEST || []);
+workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || []);
 
 // Clean up old caches automatically
-cleanupOutdatedCaches();
+workbox.precaching.cleanupOutdatedCaches();
 
 // SPA navigation route: serve index.html for navigation requests
-const handler = createHandlerBoundToURL('/index.html');
-const navRoute = new NavigationRoute(handler, {
+const handler = workbox.precaching.createHandlerBoundToURL('/index.html');
+const navRoute = new workbox.routing.NavigationRoute(handler, {
   // allow all navigation paths (you can narrow this if needed)
   allowlist: [/./],
 });
-registerRoute(navRoute);
+workbox.routing.registerRoute(navRoute);
 
 // Add further caching rules below if you need
