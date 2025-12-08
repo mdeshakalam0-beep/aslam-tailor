@@ -1,12 +1,6 @@
 // src/sw.js
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.2.0/workbox-sw.js');
 
-// Ensure workbox is available globally after importScripts
-declare const workbox: any;
-
-workbox.core.clientsClaim();
-self.skipWaiting();
-
 // Workbox will inject the manifest array here at build time
 workbox.precaching.precacheAndRoute(self.__WB_MANIFEST || []);
 
