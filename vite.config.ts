@@ -16,8 +16,8 @@ export default defineConfig(() => ({
     VitePWA({ // Configure VitePWA
       strategies: 'injectManifest',
       srcDir: 'src',
-      filename: 'sw.js', // Changed output filename to sw.js
-      swSrc: 'src/service-worker.ts', // Specify the source service worker file
+      filename: 'sw.js',
+      swSrc: 'src/sw.js', // Updated to use src/sw.js
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
