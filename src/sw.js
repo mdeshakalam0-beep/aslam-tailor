@@ -10,6 +10,13 @@ try {
   if (workbox) {
     console.log('Workbox loaded successfully.');
     
+    // Ensure index.html is explicitly precached if not already in the manifest
+    // This is a workaround if vite-plugin-pwa doesn't inject it correctly.
+    const indexHtmlEntry = self.__WB_MANIFEST.find(entry => entry.url === '/index.html');
+    if (!indexHtmlEntry) {
+      self.__WB_MANIFEST.push({ url: '/index.html', revision: '1' }); // Add with a dummy revision
+    }
+
     workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
 
     workbox.precaching.cleanupOutdatedCaches();

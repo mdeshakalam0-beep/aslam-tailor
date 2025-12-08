@@ -206,8 +206,7 @@ const ProductDetail: React.FC = () => {
 
   return (
     <>
-      {/* ProductMetaTags should be a direct child of the Fragment or another component */}
-      {product && <ProductMetaTags product={product} />} 
+      {product && <ProductMetaTags product={product} />} {/* ProductMetaTags should be a direct child of the Fragment or another component */}
       <div className="min-h-screen bg-background pb-16 md:pb-0">
         <Header />
         <main className="container mx-auto p-0 md:p-4">
