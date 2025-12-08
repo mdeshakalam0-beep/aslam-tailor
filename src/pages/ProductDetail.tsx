@@ -204,9 +204,9 @@ const ProductDetail: React.FC = () => {
     return `https://wa.me/?text=${encodeURIComponent(text + ' ' + productUrl)}`;
   };
 
-  // ProductMetaTags should be a direct child of the Fragment or another component
   return (
     <>
+      {/* ProductMetaTags should be a direct child of the Fragment or another component */}
       {product && <ProductMetaTags product={product} />} 
       <div className="min-h-screen bg-background pb-16 md:pb-0">
         <Header />
