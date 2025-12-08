@@ -20,8 +20,8 @@ import { getReviewsForProduct, ProductReview } from '@/utils/reviews';
 import { useSession } from '@/components/SessionContextProvider';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
-import ProductMetaTags from '@/components/ProductMetaTags'; // Re-enabled import
-import ShareButton from '@/components/ShareButton'; // Re-enabled import
+import ProductMetaTags from '@/components/ProductMetaTags'; 
+import ShareButton from '@/components/ShareButton'; 
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
