@@ -20,8 +20,8 @@ import { getReviewsForProduct, ProductReview } from '@/utils/reviews';
 import { useSession } from '@/components/SessionContextProvider';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
-import ProductMetaTags from '@/components/ProductMetaTags'; // Import ProductMetaTags
-import ShareButton from '@/components/ShareButton'; // Import ShareButton
+// import ProductMetaTags from '@/components/ProductMetaTags'; // Temporarily removed
+// import ShareButton from '@/components/ShareButton'; // Temporarily removed
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,7 +37,7 @@ const ProductDetail: React.FC = () => {
   const [isSizeSelectionActive, setIsSizeSelectionActive] = useState(true);
 
   // lightbox state
-  const [isLightboxOpen, setIsLightboxOpen] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false); // Changed from 0 to false
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const plugin = useRef(
@@ -206,7 +206,7 @@ const ProductDetail: React.FC = () => {
 
   return (
     <>
-      {product && <ProductMetaTags product={product} />} 
+      {/* {product && <ProductMetaTags product={product} />} */}
       <div className="min-h-screen bg-background pb-16 md:pb-0">
         <Header />
         <main className="container mx-auto p-0 md:p-4">
@@ -271,12 +271,12 @@ const ProductDetail: React.FC = () => {
             </div>
 
             {/* Share Button */}
-            <ShareButton
+            {/* <ShareButton
               title={product.name}
               text={`Check out this amazing product: ${product.name} for ₹${product.price.toLocaleString()}!`}
               url={`${window.location.origin}/products/${product.id}`}
               imageUrl={product.images[0]}
-            />
+            /> */}
 
             {/* Size Selection */}
             <div className={cn("space-y-2")}>
