@@ -4,15 +4,21 @@
 // before Workbox attempts to use it.
 self.__WB_MANIFEST = self.__WB_MANIFEST || [];
 
+// Explicitly add /index.html to the precache manifest if not already present.
+// This is a fallback to ensure it's always precached for navigation.
+const indexHtmlEntry = self.__WB_MANIFEST.find(entry => 
+  typeof entry === 'string' ? entry === '/index.html' : entry.url === '/index.html'
+);
+if (!indexHtmlEntry) {
+  self.__WB_MANIFEST.push({ url: '/index.html', revision: null }); // Use null revision for simplicity if not versioned
+}
+
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.4.0/workbox-sw.js'); // Updated version
 
 try {
   if (workbox) {
     console.log('Workbox loaded successfully.');
     
-    // The vite-plugin-pwa configuration in vite.config.ts should handle injecting index.html
-    // into self.__WB_MANIFEST. Manual push is removed to avoid conflicts.
-
     workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
 
     workbox.precaching.cleanupOutdatedCaches();
