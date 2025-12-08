@@ -21,9 +21,9 @@ export default defineConfig(() => ({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,mp3}'], // Added mp3 for notification sound
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,mp3}', 'index.html'], // Added index.html
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'notification.mp3'], // Added notification.mp3
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'notification.mp3', 'index.html'], // Added notification.mp3 and index.html
       manifest: {
         name: 'Aslam Tailor & Clothes',
         short_name: 'Aslam Tailor',
