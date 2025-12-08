@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Star, Heart as HeartIconFilled, Heart as HeartIconOutline, Ruler, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Star, Heart as HeartIconFilled, Heart as HeartIconOutline, Ruler, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -20,6 +20,8 @@ import { getReviewsForProduct, ProductReview } from '@/utils/reviews';
 import { useSession } from '@/components/SessionContextProvider';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
+import ProductMetaTags from '@/components/ProductMetaTags'; // Import ProductMetaTags
+import ShareButton from '@/components/ShareButton'; // Import ShareButton
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -197,17 +199,16 @@ const ProductDetail: React.FC = () => {
 
   // WhatsApp share with image + product link (include image URL so clients that preview images can show)
   const getWhatsAppShareUrl = () => {
-    const productUrl = `${window.location.origin}/product/${product.id}`;
-    const text = `${product.name}\nPrice: ₹${product.price}\n\n${productUrl}\n\nImage: ${product.images[lightboxIndex || 0] ?? product.images[0]}`;
-    return `https://wa.me/?text=${encodeURIComponent(text)}`;
+    const productUrl = `${window.location.origin}/products/${product.id}`; // Use /products/:id route
+    const text = `${product.name}\nPrice: ₹${product.price.toLocaleString()}\n\n${product.description.substring(0, 100)}...\n\nCheck it out:`;
+    return `https://wa.me/?text=${encodeURIComponent(text + ' ' + productUrl)}`;
   };
 
   return (
     <div className="min-h-screen bg-background pb-16 md:pb-0">
+      {product && <ProductMetaTags product={product} />} {/* Add ProductMetaTags here */}
       <Header />
       <main className="container mx-auto p-0 md:p-4">
-        {/* Removed the div containing the back button and h1 product name */}
-
         <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm space-y-6">
           {/* Product Image Carousel */}
           <div className="relative w-full overflow-hidden rounded-lg">
@@ -263,10 +264,18 @@ const ProductDetail: React.FC = () => {
             </div>
             <div className="flex items-center text-sm text-muted-foreground mb-4">
               <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
-              <span>{product.rating} ({product.reviewsCount} reviews)</span>
+              <span>{product.rating} ({product.reviewsCount})</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">{product.description}</p>
           </div>
+
+          {/* Share Button */}
+          <ShareButton
+            title={product.name}
+            text={`Check out this amazing product: ${product.name} for ₹${product.price.toLocaleString()}!`}
+            url={`${window.location.origin}/products/${product.id}`}
+            imageUrl={product.images[0]}
+          />
 
           {/* Size Selection */}
           <div className={cn("space-y-2")}>
@@ -354,7 +363,7 @@ const ProductDetail: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {recommendedProducts.map((p) => (
               // use singular route to match your App.tsx routing
-              <Link to={`/product/${p.id}`} key={p.id} className="block">
+              <Link to={`/products/${p.id}`} key={p.id} className="block"> {/* Changed to /products/:id */}
                 <ProductCard product={p} />
               </Link>
             ))}
@@ -384,17 +393,9 @@ const ProductDetail: React.FC = () => {
               </button>
 
               <div className="flex items-center gap-2">
+                {/* Removed old WhatsApp share button from here */}
                 <a
-                  href={getWhatsAppShareUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-green-600 text-white font-medium shadow"
-                >
-                  Share on WhatsApp
-                </a>
-                <a
-                  href={`/product/${product.id}`}
+                  href={`/products/${product.id}`} {/* Changed to /products/:id */}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
@@ -405,8 +406,9 @@ const ProductDetail: React.FC = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    const link = `${window.location.origin}/product/${product.id}`;
+                    const link = `${window.location.origin}/products/${product.id}`; // Changed to /products/:id
                     navigator.clipboard?.writeText(link);
+                    showSuccess('Product link copied to clipboard!');
                   }}
                   className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-white text-slate-900 font-medium border"
                 >
