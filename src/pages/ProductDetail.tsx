@@ -37,7 +37,7 @@ const ProductDetail: React.FC = () => {
   const [isSizeSelectionActive, setIsSizeSelectionActive] = useState(true);
 
   // lightbox state
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const plugin = useRef(
@@ -206,7 +206,6 @@ const ProductDetail: React.FC = () => {
 
   return (
     <>
-      {/* ProductMetaTags should be a direct child of the Fragment or another component */}
       {product && <ProductMetaTags product={product} />} 
       <div className="min-h-screen bg-background pb-16 md:pb-0">
         <Header />
