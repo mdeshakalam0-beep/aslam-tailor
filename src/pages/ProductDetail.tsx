@@ -206,14 +206,7 @@ const ProductDetail: React.FC = () => {
     <div className="min-h-screen bg-background pb-16 md:pb-0">
       <Header />
       <main className="container mx-auto p-0 md:p-4">
-        <div className="flex items-center p-4 md:p-0 mb-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-          </Button>
-          <h1 className="text-2xl font-bold text-foreground ml-2">{product.name}</h1>
-        </div>
+        {/* Removed the div containing the back button and h1 product name */}
 
         <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm space-y-6">
           {/* Product Image Carousel */}
