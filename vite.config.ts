@@ -2,10 +2,10 @@ import { defineConfig } from "vite";
 import dyadComponentTagger from "@dyad-sh/react-vite-component-tagger";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { VitePWA } from 'vite-plugin-pwa'; // Import VitePWA
+import { VitePWA } from 'vite-plugin-pwa'; 
 
 export default defineConfig(() => ({
-  base: "/", // Add this line
+  base: "/",
   server: {
     host: "::",
     port: 8080,
@@ -13,17 +13,20 @@ export default defineConfig(() => ({
   plugins: [
     dyadComponentTagger(),
     react(),
-    VitePWA({ // Configure VitePWA
+    VitePWA({ 
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.js',
-      swSrc: 'src/sw.js', // Updated to use src/sw.js
+      // swSrc: 'src/sw.js', // Ye line hata di kyunki srcDir aur filename already defined hain
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,mp3}', 'index.html'], // Added index.html
+      
+      // FIX: 'workbox' ki jagah 'injectManifest' use karna padta hai jab strategy 'injectManifest' ho
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,mp3}'],
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'notification.mp3', 'index.html'], // Added notification.mp3 and index.html
+
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'notification.mp3', 'index.html'], 
       manifest: {
         name: 'Aslam Tailor & Clothes',
         short_name: 'Aslam Tailor',
@@ -57,7 +60,8 @@ export default defineConfig(() => ({
         ]
       },
       devOptions: {
-        enabled: true // Enable PWA in development for testing
+        enabled: true,
+        type: 'module', // Development me module type kabhi kabhi zaruri hota hai
       }
     })
   ],
