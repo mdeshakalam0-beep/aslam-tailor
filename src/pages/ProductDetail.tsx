@@ -395,7 +395,7 @@ const ProductDetail: React.FC = () => {
               <div className="flex items-center gap-2">
                 {/* Removed old WhatsApp share button from here */}
                 <a
-                  href={`/products/${product.id}`} {/* Changed to /products/:id */}
+                  href={`/products/${product.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
