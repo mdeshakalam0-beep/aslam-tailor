@@ -1,41 +1,45 @@
 // src/sw.js
+import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching';
+import { NavigationRoute, registerRoute } from 'workbox-routing';
+import { clientsClaim } from 'workbox-core';
 
-// Ensure self.__WB_MANIFEST is defined as an array, even if empty,
-// before Workbox attempts to use it.
-self.__WB_MANIFEST = self.__WB_MANIFEST || [];
+// Step 1: Skip waiting and claim clients immediately
+self.skipWaiting();
+clientsClaim();
 
-// Explicitly add /index.html to the precache manifest if not already present.
-// This is a fallback to ensure it's always precached for navigation.
-const indexHtmlEntry = self.__WB_MANIFEST.find(entry => 
+// Step 2: Handle the injected manifest safely
+// Hum directly self.__WB_MANIFEST ko assign nahi kar sakte, isliye naya variable banayenge
+let manifest = self.__WB_MANIFEST;
+
+if (!manifest) {
+  manifest = [];
+}
+
+// Step 3: Explicitly add /index.html if not present (User's logic preserved)
+const indexHtmlEntry = manifest.find(entry => 
   typeof entry === 'string' ? entry === '/index.html' : entry.url === '/index.html'
 );
+
 if (!indexHtmlEntry) {
-  self.__WB_MANIFEST.push({ url: '/index.html', revision: null }); // Use null revision for simplicity if not versioned
+  manifest.push({ url: '/index.html', revision: null });
 }
 
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.4.0/workbox-sw.js'); // Updated version
+// Step 4: Precache assets
+precacheAndRoute(manifest);
 
+// Step 5: Clean up old caches
+cleanupOutdatedCaches();
+
+// Step 6: Setup Navigation Route (SPA fallback to index.html)
 try {
-  if (workbox) {
-    console.log('Workbox loaded successfully.');
-    
-    workbox.precaching.precacheAndRoute(self.__WB_MANIFEST);
-
-    workbox.precaching.cleanupOutdatedCaches();
-
-    const handler = workbox.precaching.createHandlerBoundToURL('/index.html');
-    const navRoute = new workbox.routing.NavigationRoute(handler, {
-      allowlist: [/./],
-    });
-    workbox.routing.registerRoute(navRoute);
-
-    self.addEventListener('install', () => self.skipWaiting());
-    self.addEventListener('activate', () => clients.claim());
-
-    // Add further caching rules below if you need
-  } else {
-    console.error('Workbox failed to load in Service Worker.');
-  }
-} catch (e) {
-  console.error('Service Worker initialization failed:', e);
+  const handler = createHandlerBoundToURL('/index.html');
+  const navRoute = new NavigationRoute(handler, {
+    allowlist: [/./],
+  });
+  registerRoute(navRoute);
+} catch (error) {
+  console.warn('Error setting up navigation fallback:', error);
 }
+
+// Log for debugging
+console.log('Service Worker loaded successfully with manifest:', manifest);
