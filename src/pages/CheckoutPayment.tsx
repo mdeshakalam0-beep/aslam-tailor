@@ -23,6 +23,7 @@ import { useSession } from '@/components/SessionContextProvider';
 import { CheckoutAddress, CheckoutItem, UserMeasurements } from '@/types/checkout'; // Import UserMeasurements type
 import { addDays } from 'date-fns'; // Import addDays
 import { getProductById } from '@/utils/products'; // Import getProductById to fetch product details
+import { createShiprocketOrder, ShiprocketOrderResponse } from '@/utils/shiprocket'; // Import Shiprocket utility
 
 interface AppSettings {
   qr_code_url?: string;
@@ -41,6 +42,7 @@ const CheckoutPayment: React.FC = () => {
   const [donateAmount, setDonateAmount] = useState(false);
   const [appSettings, setAppSettings] = useState<AppSettings>({});
   const [showOrderSuccessDialog, setShowOrderSuccessDialog] = useState(false);
+  const [shiprocketTrackingId, setShiprocketTrackingId] = useState<string | null>(null); // New state for Shiprocket tracking ID
 
   useEffect(() => {
     const storedCart = localStorage.getItem('checkout_cart_items');
@@ -175,7 +177,8 @@ const CheckoutPayment: React.FC = () => {
         }
       }
 
-      const { error } = await supabase.from('orders').insert({
+      // 1. Create order in Supabase
+      const { data: supabaseOrder, error: supabaseError } = await supabase.from('orders').insert({
         user_id: session.user.id,
         order_date: orderDate.toISOString(), // Ensure order_date is also explicitly set
         delivery_date: deliveryDate.toISOString(), // Add the calculated delivery date
@@ -189,10 +192,40 @@ const CheckoutPayment: React.FC = () => {
         user_measurements: userMeasurements, // Include user measurements
         cancellation_deadline: cancellationDeadline?.toISOString() || null, // Store cancellation deadline
         return_deadline: returnDeadline?.toISOString() || null, // Store return deadline
-      });
+      }).select().single();
 
-      if (error) {
-        throw error;
+      if (supabaseError) {
+        throw supabaseError;
+      }
+
+      // 2. Create order in Shiprocket
+      let shiprocketResponse: ShiprocketOrderResponse | null = null;
+      try {
+        shiprocketResponse = await createShiprocketOrder({
+          order_id: supabaseOrder.id, // Use Supabase order ID as Shiprocket order ID
+          order_date: orderDate.toISOString().slice(0, 16).replace('T', ' '), // Format for Shiprocket: YYYY-MM-DD HH:MM
+          customer_email: session.user.email || 'customer@example.com', // Fallback email
+          address_details: address,
+          items: cartItems,
+          total_amount: totalAmount,
+          payment_method: selectedPaymentMethod,
+          user_measurements: userMeasurements,
+        });
+
+        if (shiprocketResponse && shiprocketResponse.awb_code) {
+          setShiprocketTrackingId(shiprocketResponse.awb_code);
+          // Optionally update Supabase order with Shiprocket details
+          await supabase.from('orders').update({
+            shiprocket_order_id: shiprocketResponse.order_id,
+            shiprocket_shipment_id: shiprocketResponse.shipment_id,
+            awb_code: shiprocketResponse.awb_code,
+            courier_name: shiprocketResponse.courier_name,
+          }).eq('id', supabaseOrder.id);
+        }
+      } catch (shiprocketErr) {
+        console.error('Failed to create Shiprocket order after Supabase order:', shiprocketErr);
+        showError('Order placed, but failed to create Shiprocket shipment. Please contact support.');
+        // Continue with Supabase order success, but log Shiprocket failure
       }
 
       showSuccess('Order placed successfully!');
@@ -367,6 +400,11 @@ const CheckoutPayment: React.FC = () => {
             <DialogTitle id="order-success-title" className="text-green-600 text-2xl font-bold">Order Placed Successfully!</DialogTitle>
             <DialogDescription id="order-success-description" className="text-muted-foreground">
               Your order has been placed and will be processed shortly. Thank you for shopping with us!
+              {shiprocketTrackingId && (
+                <p className="mt-2 text-sm font-semibold text-primary">
+                  Tracking ID: {shiprocketTrackingId}
+                </p>
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-2 mt-4">
