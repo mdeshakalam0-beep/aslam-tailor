@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Home, Package, ShoppingBag, Users, Settings, LogOut, Image, BellRing, LayoutList, Ruler, Megaphone, Menu, Tag } from 'lucide-react'; // Added Tag icon
+import { Home, Package, ShoppingBag, Users, Settings, LogOut, Image, BellRing, LayoutList, Ruler, Megaphone, Menu, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/components/SessionContextProvider';
@@ -55,13 +55,8 @@ const AdminLayout: React.FC = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        // If the error indicates a missing session or forbidden,
-        // treat it as a successful logout from the client's perspective
-        // and let SessionContextProvider handle the redirect.
         if (error.message.includes('Auth session missing') || error.status === 403) {
           console.warn('Logout failed with Auth session missing or 403, forcing client-side logout.');
-          // Manually clear session data if signOut failed with 403
-          // This will trigger onAuthStateChange with null in SessionContextProvider
           await supabase.auth.setSession(null); 
           showSuccess('Logged out successfully!');
           navigate('/login');
@@ -79,14 +74,14 @@ const AdminLayout: React.FC = () => {
 
   if (!session || userRole !== 'admin') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-foreground">Access Denied. You are not authorized to view this page.</p>
+      <div className="min-h-screen flex items-center justify-center bg-off-white-page-bg">
+        <p className="text-text-primary-heading">Access Denied. You are not authorized to view this page.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-off-white-page-bg">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 bg-sidebar text-sidebar-foreground p-4 border-r border-sidebar-border flex-col">
         <div className="flex items-center space-x-2 mb-8">
@@ -174,11 +169,11 @@ const AdminLayout: React.FC = () => {
             </Sheet>
           </div>
 
-          <h1 className="text-2xl font-bold text-foreground md:ml-0 ml-4">
+          <h1 className="text-2xl font-bold text-text-primary-heading md:ml-0 ml-4">
             {getPageTitle()}
           </h1>
           <div className="flex items-center space-x-2">
-            <span className="text-muted-foreground">Welcome, Admin!</span>
+            <span className="text-text-secondary-body">Welcome, Admin!</span>
           </div>
         </header>
         <main className="flex-1 p-4 md:p-6 overflow-auto">

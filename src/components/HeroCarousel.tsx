@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { Button } from '@/components/ui/button';
-import { getHeroBanners, HeroBanner } from '@/utils/banners'; // Import getHeroBanners and HeroBanner interface
-import { Link } from 'react-router-dom'; // Import Link for CTA
+import { getHeroBanners, HeroBanner } from '@/utils/banners';
+import { Link } from 'react-router-dom';
 
 const HeroCarousel: React.FC = () => {
   const [slides, setSlides] = useState<HeroBanner[]>([]);
@@ -25,7 +25,7 @@ const HeroCarousel: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="relative w-full h-[200px] md:h-[400px] flex items-center justify-center bg-muted rounded-lg shadow-md">
+      <div className="relative w-full h-[200px] md:h-[400px] flex items-center justify-center bg-primary-pale-pink rounded-large shadow-elev">
         <p className="text-muted-foreground">Loading banners...</p>
       </div>
     );
@@ -33,14 +33,14 @@ const HeroCarousel: React.FC = () => {
 
   if (slides.length === 0) {
     return (
-      <div className="relative w-full h-[200px] md:h-[400px] flex items-center justify-center bg-muted rounded-lg shadow-md">
+      <div className="relative w-full h-[200px] md:h-[400px] flex items-center justify-center bg-primary-pale-pink rounded-large shadow-elev">
         <p className="text-muted-foreground">No banners available.</p>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg shadow-md">
+    <div className="relative w-full overflow-hidden rounded-large shadow-elev">
       <Carousel
         plugins={[plugin.current]}
         className="w-full"
@@ -55,7 +55,7 @@ const HeroCarousel: React.FC = () => {
                   <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">
                     {slide.headline}
                   </h2>
-                  <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+                  <Button asChild className="bg-accent-rose text-white hover:bg-accent-dark rounded-large px-7 py-3 shadow-elev">
                     <Link to={slide.cta_link}>
                       {slide.cta_text}
                     </Link>

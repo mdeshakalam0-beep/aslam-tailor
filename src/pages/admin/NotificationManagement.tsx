@@ -18,7 +18,7 @@ import {
 import { getNotifications, createNotification, deleteNotification, Notification } from '@/utils/notifications';
 import { showError } from '@/utils/toast';
 import { format } from 'date-fns';
-import { supabase } from '@/integrations/supabase/client'; // Import supabase client
+import { supabase } from '@/integrations/supabase/client';
 
 interface UserProfile {
   id: string;
@@ -37,11 +37,10 @@ const NotificationManagement: React.FC = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [notificationToDelete, setNotificationToDelete] = useState<string | null>(null);
-  const [users, setUsers] = useState<UserProfile[]>([]); // State to store users for targeted notifications
+  const [users, setUsers] = useState<UserProfile[]>([]);
 
   const fetchNotifications = async () => {
     setLoading(true);
-    // Admin can fetch all notifications (user_id can be null or specific)
     const fetchedNotifications = await getNotifications(null); 
     setNotifications(fetchedNotifications);
     setLoading(false);
@@ -57,7 +56,7 @@ const NotificationManagement: React.FC = () => {
 
       const usersWithEmails = data.map(profile => ({
         ...profile,
-        email: `user_${profile.id.substring(0, 4)}@example.com`, // Placeholder email
+        email: `user_${profile.id.substring(0, 4)}@example.com`,
       }));
       setUsers(usersWithEmails);
     } catch (error) {
@@ -130,40 +129,40 @@ const NotificationManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-foreground">Notification Management</h2>
-        <Button onClick={() => setIsFormOpen(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <h2 className="text-3xl font-bold text-text-primary-heading">Notification Management</h2>
+        <Button onClick={() => setIsFormOpen(true)} className="bg-accent-rose text-white hover:bg-accent-dark rounded-small">
           <PlusCircle className="h-5 w-5 mr-2" /> Send New Notification
         </Button>
       </div>
 
-      <Card>
+      <Card className="shadow-elev border border-card-border rounded-default">
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-foreground">All Notifications</CardTitle>
+          <CardTitle className="text-xl font-bold text-text-primary-heading">All Notifications</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground">Loading notifications...</p>
+            <p className="text-center text-text-secondary-body">Loading notifications...</p>
           ) : notifications.length === 0 ? (
-            <p className="text-center text-muted-foreground">No notifications sent yet.</p>
+            <p className="text-center text-text-secondary-body">No notifications sent yet.</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Message</TableHead>
-                    <TableHead>Recipient</TableHead>
-                    <TableHead>Sent At</TableHead>
-                    <TableHead>Read</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-text-primary-heading">Message</TableHead>
+                    <TableHead className="text-text-primary-heading">Recipient</TableHead>
+                    <TableHead className="text-text-primary-heading">Sent At</TableHead>
+                    <TableHead className="text-text-primary-heading">Read</TableHead>
+                    <TableHead className="text-right text-text-primary-heading">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {notifications.map((notification) => (
                     <TableRow key={notification.id}>
-                      <TableCell className="max-w-[300px] truncate">{notification.message}</TableCell>
-                      <TableCell>{getRecipientName(notification)}</TableCell>
-                      <TableCell>{format(new Date(notification.created_at), 'PPP p')}</TableCell>
-                      <TableCell>{notification.is_read ? 'Yes' : 'No'}</TableCell>
+                      <TableCell className="max-w-[300px] truncate text-text-secondary-body">{notification.message}</TableCell>
+                      <TableCell className="text-text-secondary-body">{getRecipientName(notification)}</TableCell>
+                      <TableCell className="text-text-secondary-body">{format(new Date(notification.created_at), 'PPP p')}</TableCell>
+                      <TableCell className="text-text-secondary-body">{notification.is_read ? 'Yes' : 'No'}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive/90" onClick={() => handleDeleteClick(notification.id)}>
                           <Trash2 className="h-4 w-4" />
@@ -180,10 +179,10 @@ const NotificationManagement: React.FC = () => {
 
       {/* Send Notification Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px]" aria-labelledby="notification-form-title">
+        <DialogContent className="sm:max-w-[600px] rounded-default shadow-elev border border-card-border" aria-labelledby="notification-form-title">
           <DialogHeader>
-            <DialogTitle id="notification-form-title">Send New Notification</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="notification-form-title" className="text-text-primary-heading">Send New Notification</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               Compose and send a notification to users.
             </DialogDescription>
           </DialogHeader>
@@ -197,6 +196,7 @@ const NotificationManagement: React.FC = () => {
                 placeholder="Enter your notification message here..."
                 rows={4}
                 required
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -205,10 +205,10 @@ const NotificationManagement: React.FC = () => {
                 checked={sendToAll}
                 onCheckedChange={(checked) => {
                   setSendToAll(!!checked);
-                  if (checked) setTargetUserId(''); // Clear target user if sending to all
+                  if (checked) setTargetUserId('');
                 }}
               />
-              <Label htmlFor="sendToAll">Send to All Users</Label>
+              <Label htmlFor="sendToAll" className="text-text-secondary-body">Send to All Users</Label>
             </div>
             {!sendToAll && (
               <div>
@@ -220,15 +220,16 @@ const NotificationManagement: React.FC = () => {
                   onChange={(e) => setTargetUserId(e.target.value)}
                   placeholder="Enter user ID (e.g., from User Management)"
                   required={!sendToAll}
+                  className="border border-card-border rounded-small focus:ring-accent-rose"
                 />
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-text-secondary-body mt-1">
                   You can find user IDs in the User Management section.
                 </p>
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsFormOpen(false)} type="button">Cancel</Button>
-              <Button type="submit" disabled={formLoading}>
+              <Button variant="outline" onClick={() => setIsFormOpen(false)} type="button" className="rounded-small border-card-border">Cancel</Button>
+              <Button type="submit" disabled={formLoading} className="bg-accent-rose text-white hover:bg-accent-dark rounded-small">
                 {formLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -245,16 +246,16 @@ const NotificationManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent aria-labelledby="notification-delete-title">
+        <DialogContent className="rounded-default shadow-elev border border-card-border" aria-labelledby="notification-delete-title">
           <DialogHeader>
-            <DialogTitle id="notification-delete-title">Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="notification-delete-title" className="text-text-primary-heading">Are you absolutely sure?</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               This action cannot be undone. This will permanently delete the notification.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDeleteNotification}>Delete</Button>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="rounded-small border-card-border">Cancel</Button>
+            <Button variant="destructive" onClick={confirmDeleteNotification} className="bg-destructive text-white hover:bg-destructive/90 rounded-small">Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

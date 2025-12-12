@@ -9,8 +9,8 @@ import { showSuccess, showError } from '@/utils/toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
 import { Loader2, Image as ImageIcon } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'; // Import Select components
-import { getCategories, Category } from '@/utils/categories'; // Import getCategories
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getCategories, Category } from '@/utils/categories';
 
 interface ProductFormProps {
   initialData?: Product;
@@ -27,15 +27,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
   const [rating, setRating] = useState(initialData?.rating?.toString() || '');
   const [imageUrls, setImageUrls] = useState(initialData?.images.join('\n') || '');
   const [sizes, setSizes] = useState(initialData?.sizes.join(', ') || '');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(initialData?.category_id || undefined); // New state for category
-  const [categories, setCategories] = useState<Category[]>([]); // State to store available categories
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(initialData?.category_id || undefined);
+  const [categories, setCategories] = useState<Category[]>([]);
 
-  const [isCancellable, setIsCancellable] = useState(initialData?.is_cancellable ?? false); // New state
-  const [cancellationWindowDays, setCancellationWindowDays] = useState(initialData?.cancellation_window_days?.toString() || '0'); // New state
-  const [isReturnable, setIsReturnable] = useState(initialData?.is_returnable ?? false); // New state
-  const [returnWindowDays, setReturnWindowDays] = useState(initialData?.return_window_days?.toString() || '0'); // New state
+  const [isCancellable, setIsCancellable] = useState(initialData?.is_cancellable ?? false);
+  const [cancellationWindowDays, setCancellationWindowDays] = useState(initialData?.cancellation_window_days?.toString() || '0');
+  const [isReturnable, setIsReturnable] = useState(initialData?.is_returnable ?? false);
+  const [returnWindowDays, setReturnWindowDays] = useState(initialData?.return_window_days?.toString() || '0');
 
-  const [useUrlInput, setUseUrlInput] = useState(true); // State to toggle between URL and file upload
+  const [useUrlInput, setUseUrlInput] = useState(true);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
 
@@ -57,19 +57,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       setRating(initialData.rating?.toString() || '');
       setImageUrls(initialData.images.join('\n'));
       setSizes(initialData.sizes.join(', '));
-      setSelectedCategoryId(initialData.category_id || undefined); // Set initial category
+      setSelectedCategoryId(initialData.category_id || undefined);
       setIsCancellable(initialData.is_cancellable ?? false);
       setCancellationWindowDays(initialData.cancellation_window_days?.toString() || '0');
       setIsReturnable(initialData.is_returnable ?? false);
       setReturnWindowDays(initialData.return_window_days?.toString() || '0');
-      // If initialData has images, assume URL input was used or display them as URLs
       setUseUrlInput(true); 
-      setSelectedFiles([]); // Clear selected files on edit
+      setSelectedFiles([]);
     } else {
-      // Reset for new product
       setUseUrlInput(true);
       setSelectedFiles([]);
-      setSelectedCategoryId(undefined); // Clear selected category for new product
+      setSelectedCategoryId(undefined);
       setIsCancellable(false);
       setCancellationWindowDays('0');
       setIsReturnable(false);
@@ -90,7 +88,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       for (const file of files) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-        const filePath = `public/${fileName}`; // Store in a 'public' subfolder within the bucket
+        const filePath = `public/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('product-images')
@@ -132,11 +130,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
           return;
         }
       } else if (!initialData?.images || initialData.images.length === 0) {
-        // If no new files selected and no initial images, and not using URL input
         showError('Please upload at least one image or provide image URLs.');
         return;
       } else {
-        // If editing and no new files selected, keep existing images
         finalImageUrls = initialData.images;
       }
     }
@@ -155,7 +151,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       rating: rating ? parseFloat(rating) : undefined,
       images: finalImageUrls,
       sizes: sizes.split(',').map(s => s.trim()).filter(s => s !== ''),
-      category_id: selectedCategoryId, // New: Include selected category ID
+      category_id: selectedCategoryId,
       is_cancellable: isCancellable,
       cancellation_window_days: isCancellable ? parseInt(cancellationWindowDays) : 0,
       is_returnable: isReturnable,
@@ -166,9 +162,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border border-card-border shadow-elev">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-foreground">
+        <CardTitle className="text-2xl font-bold text-text-primary-heading">
           {initialData ? 'Edit Product' : 'Add New Product'}
         </CardTitle>
       </CardHeader>
@@ -183,6 +179,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Stylish Cotton Shirt"
               required
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div>
@@ -193,6 +190,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Detailed description of the product"
               rows={4}
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -207,6 +205,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 required
                 min="0"
                 step="0.01"
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
             <div>
@@ -219,6 +218,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 placeholder="e.g., 1299"
                 min="0"
                 step="0.01"
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           </div>
@@ -233,6 +233,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 placeholder="e.g., 30"
                 min="0"
                 max="100"
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
             <div>
@@ -246,6 +247,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 min="1"
                 max="5"
                 step="0.1"
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           </div>
@@ -254,7 +256,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
           <div>
             <Label htmlFor="category">Category</Label>
             <Select onValueChange={setSelectedCategoryId} value={selectedCategoryId}>
-              <SelectTrigger id="category">
+              <SelectTrigger id="category" className="border border-card-border rounded-small focus:ring-accent-rose">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
@@ -268,8 +270,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
           </div>
 
           {/* Image Upload Options */}
-          <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
-            <Label htmlFor="image-upload-toggle" className="flex items-center space-x-2 cursor-pointer">
+          <div className="flex items-center justify-between space-x-2 p-2 border border-card-border rounded-small bg-primary-pale-pink">
+            <Label htmlFor="image-upload-toggle" className="flex items-center space-x-2 cursor-pointer text-text-secondary-body">
               <ImageIcon className="h-5 w-5 text-muted-foreground" />
               <span>Upload Images via URL</span>
             </Label>
@@ -290,6 +292,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
                 rows={5}
                 required={!initialData || initialData.images.length === 0}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           ) : (
@@ -302,15 +305,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 accept="image/*"
                 onChange={handleFileChange}
                 disabled={uploadingImages}
-                className="file:text-primary file:bg-primary-foreground file:border-primary file:hover:bg-primary/90 file:hover:text-primary-foreground"
+                className="file:text-primary file:bg-primary-pale-pink file:border-primary-pale-pink file:hover:bg-secondary-soft-pink file:hover:text-accent-dark border border-card-border rounded-small focus:ring-accent-rose"
               />
               {selectedFiles.length > 0 && (
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-text-secondary-body mt-2">
                   {selectedFiles.length} file(s) selected.
                 </p>
               )}
               {initialData?.images && initialData.images.length > 0 && selectedFiles.length === 0 && (
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-text-secondary-body mt-2">
                   No new files selected. Existing {initialData.images.length} image(s) will be kept.
                 </p>
               )}
@@ -326,12 +329,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
               onChange={(e) => setSizes(e.target.value)}
               placeholder="e.g., S, M, L, XL"
               required
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
 
           {/* Cancellation Settings */}
-          <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
-            <Label htmlFor="isCancellable">Allow Cancellation</Label>
+          <div className="flex items-center justify-between space-x-2 p-2 border border-card-border rounded-small bg-primary-pale-pink">
+            <Label htmlFor="isCancellable" className="text-text-secondary-body">Allow Cancellation</Label>
             <Switch
               id="isCancellable"
               checked={isCancellable}
@@ -348,13 +352,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 onChange={(e) => setCancellationWindowDays(e.target.value)}
                 placeholder="e.g., 7"
                 min="0"
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
 
           {/* Return Settings */}
-          <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
-            <Label htmlFor="isReturnable">Allow Return</Label>
+          <div className="flex items-center justify-between space-x-2 p-2 border border-card-border rounded-small bg-primary-pale-pink">
+            <Label htmlFor="isReturnable" className="text-text-secondary-body">Allow Return</Label>
             <Switch
               id="isReturnable"
               checked={isReturnable}
@@ -371,11 +376,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 onChange={(e) => setReturnWindowDays(e.target.value)}
                 placeholder="e.g., 14"
                 min="0"
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
 
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploadingImages}>
+          <Button type="submit" className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small" disabled={loading || uploadingImages}>
             {loading || uploadingImages ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

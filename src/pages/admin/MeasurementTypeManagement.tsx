@@ -15,7 +15,7 @@ import MeasurementTypeForm from '@/components/admin/MeasurementTypeForm';
 import { getMeasurementTypes, createMeasurementType, updateMeasurementType, deleteMeasurementType, MeasurementType } from '@/utils/measurementTypes';
 import { showError } from '@/utils/toast';
 import { Badge } from '@/components/ui/badge';
-import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
+import { UserMeasurements } from '@/types/checkout';
 
 const MeasurementTypeManagement: React.FC = () => {
   const [measurementTypes, setMeasurementTypes] = useState<MeasurementType[]>([]);
@@ -26,7 +26,6 @@ const MeasurementTypeManagement: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [typeToDelete, setTypeToDelete] = useState<string | null>(null);
 
-  // Define a mapping from UserMeasurements keys to friendly labels for display
   const fieldLabels: Record<keyof UserMeasurements, string> = {
     ladies_size: 'Ladies\' Size',
     men_shirt_length: 'Shirt Length',
@@ -46,8 +45,7 @@ const MeasurementTypeManagement: React.FC = () => {
     men_coat_sleeve_length: 'Coat Sleeve Length',
     men_coat_shoulder: 'Coat Shoulder',
     notes: 'Notes',
-    // Add other fields from UserMeasurements if necessary, ensuring they are in the type
-    id: 'ID', // These are not typically displayed as relevant fields, but included for type safety
+    id: 'ID',
     user_id: 'User ID',
     measurement_type: 'Measurement Type',
     updated_at: 'Updated At',
@@ -111,47 +109,47 @@ const MeasurementTypeManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-foreground">Measurement Type Management</h2>
-        <Button onClick={handleAddType} className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <h2 className="text-3xl font-bold text-text-primary-heading">Measurement Type Management</h2>
+        <Button onClick={handleAddType} className="bg-accent-rose text-white hover:bg-accent-dark rounded-small">
           <PlusCircle className="h-5 w-5 mr-2" /> Add New Type
         </Button>
       </div>
 
-      <Card>
+      <Card className="shadow-elev border border-card-border rounded-default">
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-foreground">All Measurement Types</CardTitle>
+          <CardTitle className="text-xl font-bold text-text-primary-heading">All Measurement Types</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground">Loading measurement types...</p>
+            <p className="text-center text-text-secondary-body">Loading measurement types...</p>
           ) : measurementTypes.length === 0 ? (
-            <p className="text-center text-muted-foreground">No measurement types found. Add a new type to get started!</p>
+            <p className="text-center text-text-secondary-body">No measurement types found. Add a new type to get started!</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Relevant Fields</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-text-primary-heading">Name</TableHead>
+                    <TableHead className="text-text-primary-heading">Description</TableHead>
+                    <TableHead className="text-text-primary-heading">Relevant Fields</TableHead>
+                    <TableHead className="text-right text-text-primary-heading">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {measurementTypes.map((type) => (
                     <TableRow key={type.id}>
-                      <TableCell className="font-medium">{type.name}</TableCell>
-                      <TableCell>{type.description || 'N/A'}</TableCell>
+                      <TableCell className="font-medium text-text-secondary-body">{type.name}</TableCell>
+                      <TableCell className="text-text-secondary-body">{type.description || 'N/A'}</TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {type.relevant_fields && type.relevant_fields.length > 0 ? (
                             type.relevant_fields.map((fieldKey) => (
-                              <Badge key={fieldKey} variant="secondary" className="whitespace-nowrap">
+                              <Badge key={fieldKey} className="bg-primary-pale-pink text-accent-dark whitespace-nowrap">
                                 {fieldLabels[fieldKey] || fieldKey}
                               </Badge>
                             ))
                           ) : (
-                            <span className="text-muted-foreground text-sm">None specified</span>
+                            <span className="text-muted-text text-sm">None specified</span>
                           )}
                         </div>
                       </TableCell>
@@ -174,10 +172,10 @@ const MeasurementTypeManagement: React.FC = () => {
 
       {/* Add/Edit Measurement Type Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="measurement-type-form-title">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-default shadow-elev border border-card-border" aria-labelledby="measurement-type-form-title">
           <DialogHeader>
-            <DialogTitle id="measurement-type-form-title">{editingType ? 'Edit Measurement Type' : 'Add New Measurement Type'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="measurement-type-form-title" className="text-text-primary-heading">{editingType ? 'Edit Measurement Type' : 'Add New Measurement Type'}</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               {editingType ? 'Make changes to the measurement type here.' : 'Fill in the details for a new measurement type.'}
             </DialogDescription>
           </DialogHeader>
@@ -191,16 +189,16 @@ const MeasurementTypeManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent aria-labelledby="measurement-type-delete-title">
+        <DialogContent className="rounded-default shadow-elev border border-card-border" aria-labelledby="measurement-type-delete-title">
           <DialogHeader>
-            <DialogTitle id="measurement-type-delete-title">Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="measurement-type-delete-title" className="text-text-primary-heading">Are you absolutely sure?</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               This action cannot be undone. This will permanently delete the measurement type.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDeleteType}>Delete</Button>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="rounded-small border-card-border">Cancel</Button>
+            <Button variant="destructive" onClick={confirmDeleteType} className="bg-destructive text-white hover:bg-destructive/90 rounded-small">Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -19,7 +19,6 @@ const Dashboard: React.FC = () => {
   const [topCustomers, setTopCustomers] = useState<TopCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Raw data for export
   const [allOrdersData, setAllOrdersData] = useState<any[]>([]);
   const [allProductsData, setAllProductsData] = useState<any[]>([]);
   const [allProfilesData, setAllProfilesData] = useState<any[]>([]);
@@ -27,7 +26,6 @@ const Dashboard: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch basic counts
       const { count: productsCount, error: productsError } = await supabase
         .from('products')
         .select('id', { count: 'exact' });
@@ -46,7 +44,6 @@ const Dashboard: React.FC = () => {
       if (usersError) throw usersError;
       setActiveUsers(usersCount);
 
-      // Fetch and process detailed dashboard data
       const dashboardData = await getAdminDashboardData();
       setIncomeMetrics(dashboardData.income);
       setCancelledOrdersCount(dashboardData.cancelledOrders);
@@ -67,12 +64,11 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     fetchData();
 
-    // Setup Supabase Realtime subscriptions
     const ordersChannel = supabase
       .channel('dashboard_orders_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
         console.log('Realtime order change:', payload);
-        fetchData(); // Re-fetch all data on any order change
+        fetchData();
       })
       .subscribe();
 
@@ -80,7 +76,7 @@ const Dashboard: React.FC = () => {
       .channel('dashboard_products_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
         console.log('Realtime product change:', payload);
-        fetchData(); // Re-fetch all data on any product change
+        fetchData();
       })
       .subscribe();
 
@@ -88,7 +84,7 @@ const Dashboard: React.FC = () => {
       .channel('dashboard_profiles_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
         console.log('Realtime profile change:', payload);
-        fetchData(); // Re-fetch all data on any profile change
+        fetchData();
       })
       .subscribe();
 
@@ -97,7 +93,7 @@ const Dashboard: React.FC = () => {
       supabase.removeChannel(productsChannel);
       supabase.removeChannel(profilesChannel);
     };
-  }, []); // Empty dependency array to run once on mount and cleanup on unmount
+  }, []);
 
   const handleDownloadOrders = () => {
     const columns = [
@@ -153,129 +149,129 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-foreground">Admin Dashboard</h2>
+      <h2 className="text-3xl font-bold text-text-primary-heading">Admin Dashboard</h2>
       {loading ? (
-        <p className="text-center text-muted-foreground">Loading dashboard data...</p>
+        <p className="text-center text-text-secondary-body">Loading dashboard data...</p>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <Card key="total-products-card">
+            <Card key="total-products-card" className="shadow-elev border border-card-border rounded-default">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+                <CardTitle className="text-sm font-medium text-text-primary-heading">Total Products</CardTitle>
                 <Package className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{totalProducts !== null ? totalProducts.toLocaleString() : 'N/A'}</div>
-                <p className="text-xs text-muted-foreground">Overall products in store</p>
+                <div className="text-2xl font-bold text-text-primary-heading">{totalProducts !== null ? totalProducts.toLocaleString() : 'N/A'}</div>
+                <p className="text-xs text-text-secondary-body">Overall products in store</p>
               </CardContent>
             </Card>
-            <Card key="total-orders-card">
+            <Card key="total-orders-card" className="shadow-elev border border-card-border rounded-default">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+                <CardTitle className="text-sm font-medium text-text-primary-heading">Total Orders</CardTitle>
                 <ShoppingBag className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{totalOrders !== null ? totalOrders.toLocaleString() : 'N/A'}</div>
-                <p className="text-xs text-muted-foreground">Overall orders placed</p>
+                <div className="text-2xl font-bold text-text-primary-heading">{totalOrders !== null ? totalOrders.toLocaleString() : 'N/A'}</div>
+                <p className="text-xs text-text-secondary-body">Overall orders placed</p>
               </CardContent>
             </Card>
-            <Card key="active-users-card">
+            <Card key="active-users-card" className="shadow-elev border border-card-border rounded-default">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                <CardTitle className="text-sm font-medium text-text-primary-heading">Active Users</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{activeUsers !== null ? activeUsers.toLocaleString() : 'N/A'}</div>
-                <p className="text-xs text-muted-foreground">Registered users</p>
+                <div className="text-2xl font-bold text-text-primary-heading">{activeUsers !== null ? activeUsers.toLocaleString() : 'N/A'}</div>
+                <p className="text-xs text-text-secondary-body">Registered users</p>
               </CardContent>
             </Card>
-            <Card key="daily-income-card">
+            <Card key="daily-income-card" className="shadow-elev border border-card-border rounded-default">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Today's Income</CardTitle>
+                <CardTitle className="text-sm font-medium text-text-primary-heading">Today's Income</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₹{incomeMetrics.daily.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">Total revenue today</p>
+                <div className="text-2xl font-bold text-text-primary-heading">₹{incomeMetrics.daily.toLocaleString()}</div>
+                <p className="text-xs text-text-secondary-body">Total revenue today</p>
               </CardContent>
             </Card>
           </div>
 
           {/* Income Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <Card key="weekly-income-card">
+            <Card key="weekly-income-card" className="shadow-elev border border-card-border rounded-default">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Weekly Income</CardTitle>
+                <CardTitle className="text-sm font-medium text-text-primary-heading">Weekly Income</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₹{incomeMetrics.weekly.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">Revenue this week</p>
+                <div className="text-2xl font-bold text-text-primary-heading">₹{incomeMetrics.weekly.toLocaleString()}</div>
+                <p className="text-xs text-text-secondary-body">Revenue this week</p>
               </CardContent>
             </Card>
-            <Card key="monthly-income-card">
+            <Card key="monthly-income-card" className="shadow-elev border border-card-border rounded-default">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
+                <CardTitle className="text-sm font-medium text-text-primary-heading">Monthly Income</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₹{incomeMetrics.monthly.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">Revenue this month</p>
+                <div className="text-2xl font-bold text-text-primary-heading">₹{incomeMetrics.monthly.toLocaleString()}</div>
+                <p className="text-xs text-text-secondary-body">Revenue this month</p>
               </CardContent>
             </Card>
-            <Card key="yearly-income-card">
+            <Card key="yearly-income-card" className="shadow-elev border border-card-border rounded-default">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Yearly Income</CardTitle>
+                <CardTitle className="text-sm font-medium text-text-primary-heading">Yearly Income</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">₹{incomeMetrics.yearly.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">Revenue this year</p>
+                <div className="text-2xl font-bold text-text-primary-heading">₹{incomeMetrics.yearly.toLocaleString()}</div>
+                <p className="text-xs text-text-secondary-body">Revenue this year</p>
               </CardContent>
             </Card>
-            <Card key="daily-cancelled-orders-card">
+            <Card key="daily-cancelled-orders-card" className="shadow-elev border border-card-border rounded-default">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Cancelled Orders (Today)</CardTitle>
+                <CardTitle className="text-sm font-medium text-text-primary-heading">Cancelled Orders (Today)</CardTitle>
                 <XCircle className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{cancelledOrdersCount.daily}</div>
-                <p className="text-xs text-muted-foreground">Orders cancelled today</p>
+                <div className="text-2xl font-bold text-text-primary-heading">{cancelledOrdersCount.daily}</div>
+                <p className="text-xs text-text-secondary-body">Orders cancelled today</p>
               </CardContent>
             </Card>
           </div>
 
           {/* Top Selling Products */}
-          <Card key="top-selling-products-card">
+          <Card key="top-selling-products-card" className="shadow-elev border border-card-border rounded-default">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl font-bold text-foreground">Top Selling Products</CardTitle>
-              <Button variant="outline" size="sm" onClick={handleDownloadProducts}>
+              <CardTitle className="text-xl font-bold text-text-primary-heading">Top Selling Products</CardTitle>
+              <Button variant="outline" size="sm" onClick={handleDownloadProducts} className="rounded-small border-card-border">
                 <Download className="h-4 w-4 mr-2" /> Download Products
               </Button>
             </CardHeader>
             <CardContent>
               {topSellingProducts.length === 0 ? (
-                <p className="text-center text-muted-foreground">No products sold yet.</p>
+                <p className="text-center text-text-secondary-body">No products sold yet.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[80px]">Image</TableHead>
-                        <TableHead>Product Name</TableHead>
-                        <TableHead>Quantity Sold</TableHead>
-                        <TableHead className="text-right">Revenue</TableHead>
+                        <TableHead className="w-[80px] text-text-primary-heading">Image</TableHead>
+                        <TableHead className="text-text-primary-heading">Product Name</TableHead>
+                        <TableHead className="text-text-primary-heading">Quantity Sold</TableHead>
+                        <TableHead className="text-right text-text-primary-heading">Revenue</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {topSellingProducts.map((product) => (
                         <TableRow key={`product-${product.id}`}>
                           <TableCell>
-                            <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded-md" />
+                            <img src={product.imageUrl} alt={product.name} className="w-12 h-12 object-cover rounded-small border border-card-border" />
                           </TableCell>
-                          <TableCell className="font-medium">{product.name}</TableCell>
-                          <TableCell>{product.totalQuantitySold}</TableCell>
-                          <TableCell className="text-right">₹{product.totalRevenue.toLocaleString()}</TableCell>
+                          <TableCell className="font-medium text-text-secondary-body">{product.name}</TableCell>
+                          <TableCell className="text-text-secondary-body">{product.totalQuantitySold}</TableCell>
+                          <TableCell className="text-right text-text-secondary-body">₹{product.totalRevenue.toLocaleString()}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -286,34 +282,34 @@ const Dashboard: React.FC = () => {
           </Card>
 
           {/* Top Customers */}
-          <Card key="top-customers-card">
+          <Card key="top-customers-card" className="shadow-elev border border-card-border rounded-default">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl font-bold text-foreground">Top Customers</CardTitle>
-              <Button variant="outline" size="sm" onClick={handleDownloadCustomers}>
+              <CardTitle className="text-xl font-bold text-text-primary-heading">Top Customers</CardTitle>
+              <Button variant="outline" size="sm" onClick={handleDownloadCustomers} className="rounded-small border-card-border">
                 <Download className="h-4 w-4 mr-2" /> Download Customers
               </Button>
             </CardHeader>
             <CardContent>
               {topCustomers.length === 0 ? (
-                <p className="text-center text-muted-foreground">No customer data available yet.</p>
+                <p className="text-center text-text-secondary-body">No customer data available yet.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[80px]">Customer</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Total Orders</TableHead>
-                        <TableHead className="text-right">Total Spent</TableHead>
+                        <TableHead className="text-text-primary-heading">Customer</TableHead>
+                        <TableHead className="text-text-primary-heading">Email</TableHead>
+                        <TableHead className="text-text-primary-heading">Total Orders</TableHead>
+                        <TableHead className="text-right text-text-primary-heading">Total Spent</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {topCustomers.map((customer) => (
                         <TableRow key={`customer-${customer.id}`}>
-                          <TableCell className="font-medium">{customer.name}</TableCell>
-                          <TableCell>{customer.email}</TableCell>
-                          <TableCell>{customer.totalOrders}</TableCell>
-                          <TableCell className="text-right">₹{customer.totalSpent.toLocaleString()}</TableCell>
+                          <TableCell className="font-medium text-text-secondary-body">{customer.name}</TableCell>
+                          <TableCell className="text-text-secondary-body">{customer.email}</TableCell>
+                          <TableCell className="text-text-secondary-body">{customer.totalOrders}</TableCell>
+                          <TableCell className="text-right text-text-secondary-body">₹{customer.totalSpent.toLocaleString()}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -324,18 +320,18 @@ const Dashboard: React.FC = () => {
           </Card>
 
           {/* Data Download Section */}
-          <Card key="data-download-card-section">
+          <Card key="data-download-card-section" className="shadow-elev border border-card-border rounded-default">
             <CardHeader>
-              <CardTitle className="text-xl font-bold text-foreground">Download Data</CardTitle>
+              <CardTitle className="text-xl font-bold text-text-primary-heading">Download Data</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-4">
-              <Button onClick={handleDownloadOrders} variant="secondary">
+              <Button onClick={handleDownloadOrders} variant="secondary" className="rounded-small bg-primary-pale-pink text-accent-dark hover:bg-secondary-soft-pink">
                 <Download className="h-4 w-4 mr-2" /> Download All Orders
               </Button>
-              <Button onClick={handleDownloadProducts} variant="secondary">
+              <Button onClick={handleDownloadProducts} variant="secondary" className="rounded-small bg-primary-pale-pink text-accent-dark hover:bg-secondary-soft-pink">
                 <Download className="h-4 w-4 mr-2" /> Download All Products
               </Button>
-              <Button onClick={handleDownloadCustomers} variant="secondary">
+              <Button onClick={handleDownloadCustomers} variant="secondary" className="rounded-small bg-primary-pale-pink text-accent-dark hover:bg-secondary-soft-pink">
                 <Download className="h-4 w-4 mr-2" /> Download All Customer Profiles
               </Button>
             </CardContent>

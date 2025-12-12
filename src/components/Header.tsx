@@ -24,7 +24,7 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="flex items-center justify-between px-4 py-3 bg-background border-b border-border sticky top-0 z-10"> {/* Changed p-4 to px-4 py-3 */}
+    <header className="flex items-center justify-between px-4 py-3 bg-off-white-page-bg border-b border-card-border sticky top-0 z-10">
       <div className="flex items-center space-x-2">
         {shopLogoUrl ? (
           <img src={shopLogoUrl} alt="Shop Logo" className="w-10 h-10 object-contain" />
@@ -34,22 +34,22 @@ const Header: React.FC = () => {
           </div>
         )}
         <div className="flex flex-col items-start">
-          <Link to="/" className="text-xl font-bold text-foreground leading-none">
+          <Link to="/" className="text-xl font-bold text-text-primary-heading leading-none">
             ASLAM TAILOR
           </Link>
-          <span className="text-sm text-muted-foreground leading-none mt-0.5">& Clothes</span>
+          <span className="text-sm text-text-secondary-body leading-none mt-0.5">& Clothes</span>
         </div>
       </div>
       <div className="flex items-center space-x-4">
         {userRole === 'admin' && (
           <Link to="/admin" className="relative">
-            <UserCog className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
+            <UserCog className="h-6 w-6 text-text-secondary-body hover:text-primary cursor-pointer" />
           </Link>
         )}
         <Link to="/favorites" className="relative">
-          <Heart className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer" />
+          <Heart className="h-6 w-6 text-text-secondary-body hover:text-primary cursor-pointer" />
           {favoritesCount > 0 && (
-            <Badge variant="destructive" className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-xs">
+            <Badge variant="destructive" className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-xs bg-accent-rose text-white">
               {favoritesCount}
             </Badge>
           )}

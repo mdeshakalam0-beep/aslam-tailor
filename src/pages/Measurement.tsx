@@ -23,13 +23,12 @@ const Measurement: React.FC = () => {
 
     try {
       setLoading(true);
-      // Fetch user's most recent measurement
       const { data: measurementsData, error: fetchError } = await supabase
         .from('measurements')
         .select('*')
         .eq('user_id', session.user.id)
-        .order('updated_at', { ascending: false }) // Order by most recent
-        .limit(1); // Get only one result
+        .order('updated_at', { ascending: false })
+        .limit(1);
 
       if (fetchError) {
         throw fetchError;
@@ -38,7 +37,7 @@ const Measurement: React.FC = () => {
       if (measurementsData && measurementsData.length > 0) {
         setInitialMeasurements(measurementsData[0] as UserMeasurements);
       } else {
-        setInitialMeasurements(undefined); // No existing measurements
+        setInitialMeasurements(undefined);
       }
     } catch (err) {
       console.error('Error fetching user data or measurements:', err);
@@ -53,31 +52,28 @@ const Measurement: React.FC = () => {
     fetchUserData();
   }, [session]);
 
-  // A simple onCancel handler for this page
   const handleCancel = () => {
     console.log("Measurement form cancelled.");
-    // In this context, we might just re-fetch or do nothing, as it's a dedicated page.
-    // If there was a list of measurements, we might navigate back.
   };
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
+    <div className="min-h-screen bg-off-white-page-bg pb-16 md:pb-0">
       <Header />
       <main className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-6 text-foreground text-center">Your Measurements</h1>
-        <p className="text-lg text-muted-foreground mb-6 text-center">
+        <h1 className="text-3xl font-bold mb-6 text-text-primary-heading text-center">Your Measurements</h1>
+        <p className="text-lg text-text-secondary-body mb-6 text-center">
           Save your measurements for a perfect fit.
         </p>
 
         {loading ? (
-          <p className="text-center text-muted-foreground">Loading measurements...</p>
+          <p className="text-center text-text-secondary-body">Loading measurements...</p>
         ) : error ? (
           <p className="text-center text-destructive">{error}</p>
         ) : (
           <MeasurementForm
-            measurementId={initialMeasurements?.id} // Pass the ID if available
-            onSave={fetchUserData} // Re-fetch data on save
-            onCancel={handleCancel} // Provide a cancel handler
+            measurementId={initialMeasurements?.id}
+            onSave={fetchUserData}
+            onCancel={handleCancel}
           />
         )}
       </main>

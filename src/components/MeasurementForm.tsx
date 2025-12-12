@@ -22,7 +22,7 @@ import {
 } from '@/utils/measurements';
 
 interface MeasurementFormProps {
-  measurementId?: string; // Optional: if editing an existing measurement
+  measurementId?: string;
   onSave: () => void;
   onCancel: () => void;
 }
@@ -104,9 +104,9 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
       if (id.startsWith('men_') && value !== '') {
         parsedValue = parseFloat(value);
       } else if (id === 'ladies_size') {
-        parsedValue = value === '' ? null : value; // Keep as string or null
+        parsedValue = value === '' ? null : value;
       } else if (value === '') {
-        parsedValue = null; // For number fields, empty string means null
+        parsedValue = null;
       }
       return {
         ...prev,
@@ -117,17 +117,14 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
 
   const handleSelectMeasurementType = (value: string) => {
     setSelectedMeasurementTypeId(value);
-    // Reset relevant fields when measurement type changes
     const selectedType = measurementTypes.find(type => type.name === value);
     if (selectedType) {
-      const newFormData: Partial<Measurement> = { notes: formData.notes }; // Keep notes
+      const newFormData: Partial<Measurement> = { notes: formData.notes };
       selectedType.relevant_fields.forEach(field => {
-        // Initialize relevant fields to null or their current value if editing
         newFormData[field as keyof Measurement] = formData[field as keyof Measurement] || null;
       });
       setFormData(newFormData);
     } else {
-      // If no type selected, clear all measurement fields
       setFormData({ notes: formData.notes });
     }
   };
@@ -158,7 +155,6 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
         measurement_type: selectedMeasurementTypeId,
       };
 
-      // Ensure only relevant fields are saved for the selected type
       const finalMeasurementData: Partial<Measurement> = {
         id: measurementToSave.id,
         user_id: measurementToSave.user_id,
@@ -191,22 +187,22 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
   if (loadingMeasurementTypes || loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-muted-foreground">Loading...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-accent-rose" />
+        <span className="ml-2 text-text-secondary-body">Loading...</span>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-card rounded-lg shadow-sm">
-      <h3 className="text-xl font-semibold text-foreground">
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-card rounded-default shadow-elev border border-card-border">
+      <h3 className="text-xl font-semibold text-text-primary-heading">
         {measurementId ? 'Edit Measurement' : 'Add New Measurement'}
       </h3>
 
       <div>
         <Label htmlFor="measurementType">Measurement Type</Label>
         <Select onValueChange={handleSelectMeasurementType} value={selectedMeasurementTypeId}>
-          <SelectTrigger id="measurementType" className="w-full">
+          <SelectTrigger id="measurementType" className="w-full border-card-border rounded-small focus:ring-accent-rose">
             <SelectValue placeholder="Select your measurement type" />
           </SelectTrigger>
           <SelectContent>
@@ -230,6 +226,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_shirt_length || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -242,6 +239,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_shirt_chest || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -254,6 +252,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_shirt_waist || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -266,6 +265,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_shirt_sleeve_length || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -278,6 +278,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_shirt_shoulder || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -290,6 +291,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_shirt_neck || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -302,6 +304,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_pant_length || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -314,6 +317,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_pant_waist || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -326,6 +330,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_pant_hip || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -338,6 +343,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_pant_thigh || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -350,6 +356,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_pant_bottom || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -362,6 +369,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_coat_length || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -374,6 +382,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_coat_chest || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -386,6 +395,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_coat_waist || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -398,6 +408,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_coat_sleeve_length || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -410,6 +421,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 step="0.1"
                 value={formData.men_coat_shoulder || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -421,6 +433,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
                 type="text"
                 value={formData.ladies_size || ''}
                 onChange={handleInputChange}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
@@ -431,16 +444,17 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
               value={formData.notes || ''}
               onChange={handleInputChange}
               placeholder="Any additional notes about this measurement"
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
         </>
       )}
 
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting} className="rounded-small border-card-border">
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting || !selectedMeasurementTypeId}>
+        <Button type="submit" disabled={isSubmitting || !selectedMeasurementTypeId} className="bg-accent-rose text-white hover:bg-accent-dark rounded-small">
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

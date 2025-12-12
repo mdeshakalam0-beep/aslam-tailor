@@ -36,9 +36,9 @@ const BrandForm: React.FC<BrandFormProps> = ({ initialData, onSubmit, loading })
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border border-card-border shadow-elev">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-foreground">
+        <CardTitle className="text-2xl font-bold text-text-primary-heading">
           {initialData ? 'Edit Brand' : 'Add New Brand'}
         </CardTitle>
       </CardHeader>
@@ -53,6 +53,7 @@ const BrandForm: React.FC<BrandFormProps> = ({ initialData, onSubmit, loading })
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Raymond"
               required
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div>
@@ -64,9 +65,10 @@ const BrandForm: React.FC<BrandFormProps> = ({ initialData, onSubmit, loading })
               onChange={(e) => setOrderIndex(e.target.value)}
               placeholder="e.g., 1"
               min="0"
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
+          <Button type="submit" className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

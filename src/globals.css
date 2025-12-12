@@ -4,93 +4,100 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Colors */
+    --primary-pale-pink: 358 70% 91%; /* #f9d7d8 */
+    --secondary-soft-pink: 350 100% 93%; /* #fed7dc */
+    --accent-rose: 340 39% 50%; /* #b24f6c */
+    --accent-dark: 358 60% 32%; /* #812125 */
+    --text-primary-heading: 15 15% 22%; /* #423731 */
+    --text-secondary-body: 300 1% 35%; /* #5c5a5b */
+    --muted-text: 0 0% 38%; /* #606060 */
+    --off-white-page-bg: 0 0% 95%; /* #f1f1f1 */
+    --card-border: 350 38% 90%; /* #f6d6d9 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Shadcn/UI Mappings to new theme */
+    --background: var(--off-white-page-bg);
+    --foreground: var(--text-primary-heading);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%; /* White for cards */
+    --card-foreground: var(--text-primary-heading);
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --popover: 0 0% 100%; /* White for popovers */
+    --popover-foreground: var(--text-primary-heading);
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --primary: var(--accent-rose); /* Main CTA color */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --secondary: var(--secondary-soft-pink);
+    --secondary-foreground: var(--text-primary-heading);
 
-    --accent: 45 100% 50%;
-    /* Gold/Marigold */
-    --accent-foreground: 222.2 47.4% 11.2%;
-    /* Dark text on gold */
+    --muted: var(--primary-pale-pink); /* For subtle backgrounds */
+    --muted-foreground: var(--text-secondary-body);
 
-    --destructive: 0 84.2% 60.2%;
+    --accent: var(--primary-pale-pink); /* For subtle accents, like product card CTA background */
+    --accent-foreground: var(--accent-dark); /* Dark text on subtle accent */
+
+    --destructive: 0 84.2% 60.2%; /* Keeping original red for destructive actions */
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: var(--card-border);
+    --input: var(--card-border);
+    --ring: var(--accent-rose); /* Focus ring color */
 
-    --radius: 0.5rem;
+    /* Radii */
+    --radius: 0.75rem; /* Default 12px */
+    --radius-small: 0.5rem; /* 8px */
+    --radius-large: 1.5rem; /* 24px */
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Admin Sidebar Specifics (using Text Primary as background) */
+    --sidebar-background: var(--text-primary-heading);
+    --sidebar-foreground: var(--off-white-page-bg);
+    --sidebar-primary: var(--accent-rose);
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: var(--secondary-soft-pink);
+    --sidebar-accent-foreground: var(--text-primary-heading);
+    --sidebar-border: 0 0% 100% / 0.1; /* White with transparency for dark background */
+    --sidebar-ring: var(--accent-rose);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode colors - adjust as needed, currently using light mode palette for consistency */
+    --background: var(--text-primary-heading);
+    --foreground: var(--off-white-page-bg);
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 15 15% 15%; /* Darker card in dark mode */
+    --card-foreground: var(--off-white-page-bg);
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 15 15% 15%;
+    --popover-foreground: var(--off-white-page-bg);
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: var(--accent-rose);
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: var(--secondary-soft-pink);
+    --secondary-foreground: var(--text-primary-heading);
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 15 15% 25%;
+    --muted-foreground: var(--secondary-soft-pink);
 
-    --accent: 45 100% 50%;
-    /* Gold/Marigold */
-    --accent-foreground: 222.2 47.4% 11.2%;
-    /* Dark text on gold */
+    --accent: var(--primary-pale-pink);
+    --accent-foreground: var(--accent-dark);
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 15 15% 30%;
+    --input: 15 15% 30%;
+    --ring: var(--accent-rose);
+
+    --sidebar-background: var(--text-primary-heading);
+    --sidebar-foreground: var(--off-white-page-bg);
+    --sidebar-primary: var(--accent-rose);
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: var(--secondary-soft-pink);
+    --sidebar-accent-foreground: var(--text-primary-heading);
+    --sidebar-border: 0 0% 100% / 0.1;
+    --sidebar-ring: var(--accent-rose);
   }
 }
 

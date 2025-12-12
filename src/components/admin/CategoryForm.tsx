@@ -19,18 +19,17 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmit, load
   const [name, setName] = useState(initialData?.name || '');
   const [imageUrl, setImageUrl] = useState(initialData?.image_url || '');
 
-  const [useUrlInput, setUseUrlInput] = useState(true); // State to toggle between URL and file upload
+  const [useUrlInput, setUseUrlInput] = useState(true);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setName(initialData.name);
-      setImageUrl(initialData.image_url || ''); // Ensure it's always a string
-      setUseUrlInput(true); // Assume URL input for existing categories
-      setSelectedFile(null); // Clear selected file on edit
+      setImageUrl(initialData.image_url || '');
+      setUseUrlInput(true);
+      setSelectedFile(null);
     } else {
-      // Reset for new category
       setName('');
       setImageUrl('');
       setUseUrlInput(true);
@@ -54,7 +53,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmit, load
       const filePath = `public/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('category-images') // Use a dedicated bucket for categories
+        .from('category-images')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
@@ -110,9 +109,9 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmit, load
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border border-card-border shadow-elev">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-foreground">
+        <CardTitle className="text-2xl font-bold text-text-primary-heading">
           {initialData ? 'Edit Category' : 'Add New Category'}
         </CardTitle>
       </CardHeader>
@@ -127,12 +126,12 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmit, load
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Shirts"
               required
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
 
-          {/* Image Upload Options */}
-          <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
-            <Label htmlFor="image-upload-toggle" className="flex items-center space-x-2 cursor-pointer">
+          <div className="flex items-center justify-between space-x-2 p-2 border border-card-border rounded-small bg-primary-pale-pink">
+            <Label htmlFor="image-upload-toggle" className="flex items-center space-x-2 cursor-pointer text-text-secondary-body">
               <ImageIcon className="h-5 w-5 text-muted-foreground" />
               <span>Upload Image via URL</span>
             </Label>
@@ -153,6 +152,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmit, load
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://example.com/category.jpg"
                 required
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           ) : (
@@ -164,22 +164,22 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, onSubmit, load
                 accept="image/*"
                 onChange={handleFileChange}
                 disabled={uploadingImage}
-                className="file:text-primary file:bg-primary-foreground file:border-primary file:hover:bg-primary/90 file:hover:text-primary-foreground"
+                className="file:text-primary file:bg-primary-pale-pink file:border-primary-pale-pink file:hover:bg-secondary-soft-pink file:hover:text-accent-dark border border-card-border rounded-small focus:ring-accent-rose"
               />
               {selectedFile && (
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-text-secondary-body mt-2">
                   {selectedFile.name} selected.
                 </p>
               )}
               {initialData?.image_url && !selectedFile && (
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-text-secondary-body mt-2">
                   No new file selected. Existing image will be kept.
                 </p>
               )}
             </div>
           )}
 
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploadingImage}>
+          <Button type="submit" className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small" disabled={loading || uploadingImage}>
             {loading || uploadingImage ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

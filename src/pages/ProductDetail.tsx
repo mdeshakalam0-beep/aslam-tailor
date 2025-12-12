@@ -78,16 +78,16 @@ const ProductDetail: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-foreground">Loading product details...</p>
+      <div className="min-h-screen flex items-center justify-center bg-off-white-page-bg">
+        <p className="text-text-primary-heading">Loading product details...</p>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-foreground">Product not found.</p>
+      <div className="min-h-screen flex items-center justify-center bg-off-white-page-bg">
+        <p className="text-text-primary-heading">Product not found.</p>
       </div>
     );
   }
@@ -116,6 +116,10 @@ const ProductDetail: React.FC = () => {
   };
 
   const handleAddToCart = () => {
+    if (!session?.user) {
+      showError('Please log in to add items to cart.');
+      return;
+    }
     if (isCustomMeasurementActive) {
       addToCart({
         id: product.id,
@@ -140,6 +144,10 @@ const ProductDetail: React.FC = () => {
   };
 
   const handleBuyNow = () => {
+    if (!session?.user) {
+      showError('Please log in to buy now.');
+      return;
+    }
     if (isCustomMeasurementActive) {
       addToCart({
         id: product.id,
@@ -197,21 +205,14 @@ const ProductDetail: React.FC = () => {
     setLightboxIndex((i) => (i + 1) % product.images.length);
   };
 
-  // WhatsApp share with image + product link (include image URL so clients that preview images can show)
-  const getWhatsAppShareUrl = () => {
-    const productUrl = `${window.location.origin}/products/${product.id}`; // Use /products/:id route
-    const text = `${product.name}\nPrice: ₹${product.price.toLocaleString()}\n\n${product.description.substring(0, 100)}...\n\nCheck it out:`;
-    return `https://wa.me/?text=${encodeURIComponent(text + ' ' + productUrl)}`;
-  };
-
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
+    <div className="min-h-screen bg-off-white-page-bg pb-16 md:pb-0">
       {product && <ProductMetaTags product={product} />} 
       <Header />
       <main className="container mx-auto p-0 md:p-4">
-        <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm space-y-6">
+        <div className="bg-card p-4 md:p-6 rounded-default shadow-elev border border-card-border space-y-6">
           {/* Product Image Carousel */}
-          <div className="relative w-full overflow-hidden rounded-lg">
+          <div className="relative w-full overflow-hidden rounded-default">
             <Carousel
               plugins={[plugin.current]}
               className="w-full"
@@ -221,15 +222,14 @@ const ProductDetail: React.FC = () => {
               <CarouselContent>
                 {product.images.map((image, index) => (
                   <CarouselItem key={index}>
-                    {/* Make image object-contain so any size fits. Clicking opens lightbox */}
                     <div
-                      className="w-full h-64 md:h-96 flex items-center justify-center bg-gray-50 cursor-zoom-in"
+                      className="w-full h-64 md:h-96 flex items-center justify-center bg-primary-pale-pink cursor-zoom-in"
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); openLightboxAt(index); }}
                     >
                       <img
                         src={image}
                         alt={`${product.name} - ${index + 1}`}
-                        className="max-w-full max-h-full object-contain rounded-md"
+                        className="max-w-full max-h-full object-contain rounded-default"
                         loading="lazy"
                       />
                     </div>
@@ -244,29 +244,29 @@ const ProductDetail: React.FC = () => {
           {/* Product Details */}
           <div>
             <div className="flex justify-between items-start mb-2">
-              <h2 className="text-3xl font-bold text-foreground">{product.name}</h2>
-              <Button variant="ghost" size="icon" onClick={handleToggleFavorite} className="text-primary">
+              <h2 className="text-3xl font-bold text-text-primary-heading">{product.name}</h2>
+              <Button variant="ghost" size="icon" onClick={handleToggleFavorite} className="text-accent-rose">
                 {isFavorited ? (
-                  <HeartIconFilled className="h-7 w-7 fill-primary" />
+                  <HeartIconFilled className="h-7 w-7 fill-accent-rose" />
                 ) : (
                   <HeartIconOutline className="h-7 w-7" />
                 )}
               </Button>
             </div>
             <div className="flex items-baseline space-x-2 mb-2">
-              <span className="text-2xl font-bold text-primary">₹{product.price.toLocaleString()}</span>
+              <span className="text-2xl font-bold text-accent-rose">₹{product.price.toLocaleString()}</span>
               {product.originalPrice && (
-                <span className="text-base text-muted-foreground line-through">₹{product.originalPrice.toLocaleString()}</span>
+                <span className="text-base text-text-secondary-body line-through">₹{product.originalPrice.toLocaleString()}</span>
               )}
               {product.discount && (
-                <span className="text-sm font-medium text-green-600 ml-2">{product.discount}% off</span>
+                <span className="text-sm font-medium text-accent-rose ml-2">{product.discount}% off</span>
               )}
             </div>
-            <div className="flex items-center text-sm text-muted-foreground mb-4">
-              <Star className="h-4 w-4 text-yellow-500 mr-1 fill-yellow-500" />
+            <div className="flex items-center text-sm text-text-secondary-body mb-4">
+              <Star className="h-4 w-4 text-accent-rose mr-1 fill-accent-rose" />
               <span>{product.rating} ({product.reviewsCount})</span>
             </div>
-            <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+            <p className="text-text-secondary-body leading-relaxed">{product.description}</p>
           </div>
 
           {/* Share Button */}
@@ -279,8 +279,8 @@ const ProductDetail: React.FC = () => {
 
           {/* Size Selection */}
           <div className={cn("space-y-2")}>
-            <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
-              <Label htmlFor="size-selection-toggle" className="flex items-center space-x-2 cursor-pointer">
+            <div className="flex items-center justify-between space-x-2 p-2 border border-card-border rounded-small bg-primary-pale-pink">
+              <Label htmlFor="size-selection-toggle" className="flex items-center space-x-2 cursor-pointer text-text-secondary-body">
                 <Ruler className="h-5 w-5 text-muted-foreground" />
                 <span>Enable Size Selection</span>
               </Label>
@@ -292,7 +292,7 @@ const ProductDetail: React.FC = () => {
               />
             </div>
             <div className={cn(!isSizeSelectionActive && "opacity-50 pointer-events-none")}>
-              <Label className="text-base font-semibold text-foreground">Select Size</Label>
+              <Label className="text-base font-semibold text-text-primary-heading">Select Size</Label>
               <RadioGroup
                 onValueChange={handleSizeSelect}
                 value={selectedSize}
@@ -304,7 +304,7 @@ const ProductDetail: React.FC = () => {
                     <RadioGroupItem value={size} id={`size-${size}`} className="peer sr-only" />
                     <Label
                       htmlFor={`size-${size}`}
-                      className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-2 px-4 text-sm font-medium uppercase text-popover-foreground shadow-sm hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                      className="flex items-center justify-center rounded-small border-2 border-card-border bg-popover p-2 px-4 text-sm font-medium uppercase text-popover-foreground shadow-sm hover:bg-secondary-soft-pink hover:text-accent-dark peer-data-[state=checked]:border-accent-rose [&:has([data-state=checked])]:border-accent-rose"
                     >
                       {size}
                     </Label>
@@ -315,7 +315,7 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* In-page Measurement Selector */}
-          <div className={cn("pt-6 border-t border-border mt-6")}>
+          <div className={cn("pt-6 border-t border-card-border mt-6")}>
             <ProductMeasurementSelector
               session={session}
               isActive={isCustomMeasurementActive}
@@ -326,10 +326,10 @@ const ProductDetail: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-4">
-            <Button className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleAddToCart}>
+            <Button className="flex-1 bg-accent-rose text-white hover:bg-accent-dark rounded-small" onClick={handleAddToCart}>
               Add to Cart
             </Button>
-            <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleBuyNow}>
+            <Button className="flex-1 bg-primary text-primary-foreground hover:bg-accent-dark rounded-small" onClick={handleBuyNow}>
               Buy Now
             </Button>
           </div>
@@ -337,18 +337,18 @@ const ProductDetail: React.FC = () => {
 
         {/* Product Reviews Section */}
         <section className="mt-8 px-4 md:px-0">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">Customer Reviews ({reviews.length})</h2>
+          <h2 className="text-2xl font-bold mb-4 text-text-primary-heading">Customer Reviews ({reviews.length})</h2>
           {session?.user ? (
             <ProductReviewForm productId={product.id} session={session} onReviewSubmitted={handleReviewSubmitted} />
           ) : (
-            <p className="text-muted-foreground text-center p-4 border rounded-lg bg-card mb-4">
+            <p className="text-text-secondary-body text-center p-4 border border-card-border rounded-default bg-card mb-4">
               <Link to="/login" className="text-primary hover:underline">Log in</Link> to write a review.
             </p>
           )}
 
           <div className="mt-6 space-y-4">
             {reviews.length === 0 ? (
-              <p className="text-muted-foreground text-center p-4 border rounded-lg bg-card">No reviews yet. Be the first to review!</p>
+              <p className="text-text-secondary-body text-center p-4 border border-card-border rounded-default bg-card">No reviews yet. Be the first to review!</p>
             ) : (
               reviews.map((review) => (
                 <ProductReviewCard key={review.id} review={review} />
@@ -359,11 +359,10 @@ const ProductDetail: React.FC = () => {
 
         {/* Recommended Products Section */}
         <section className="mt-8 px-4 md:px-0">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">Recommended Products</h2>
+          <h2 className="text-2xl font-bold mb-4 text-text-primary-heading">Recommended Products</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {recommendedProducts.map((p) => (
-              // use singular route to match your App.tsx routing
-              <Link to={`/products/${p.id}`} key={p.id} className="block"> {/* Changed to /products/:id */}
+              <Link to={`/products/${p.id}`} key={p.id} className="block">
                 <ProductCard product={p} />
               </Link>
             ))}
@@ -383,7 +382,7 @@ const ProductDetail: React.FC = () => {
           <div className="absolute inset-0 bg-black/70" />
 
           <div
-            className="relative z-10 max-w-[96vw] max-h-[96vh] bg-transparent rounded-md overflow-hidden flex flex-col items-stretch"
+            className="relative z-10 max-w-[96vw] max-h-[96vh] bg-transparent rounded-default overflow-hidden flex flex-col items-stretch"
             onClick={(e) => e.stopPropagation()}
           >
             {/* top controls */}
@@ -393,24 +392,23 @@ const ProductDetail: React.FC = () => {
               </button>
 
               <div className="flex items-center gap-2">
-                {/* Removed old WhatsApp share button from here */}
                 <a
                   href={`/products/${product.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-white text-slate-900 font-medium border"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-small bg-white text-text-primary-heading font-medium border border-card-border"
                 >
                   Open Product Page
                 </a>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    const link = `${window.location.origin}/products/${product.id}`; // Changed to /products/:id
+                    const link = `${window.location.origin}/products/${product.id}`;
                     navigator.clipboard?.writeText(link);
                     showSuccess('Product link copied to clipboard!');
                   }}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-white text-slate-900 font-medium border"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-small bg-white text-text-primary-heading font-medium border border-card-border"
                 >
                   Copy Link
                 </button>
@@ -449,8 +447,8 @@ const ProductDetail: React.FC = () => {
                   key={i}
                   onClick={(e) => { e.stopPropagation(); setLightboxIndex(i); }}
                   className={cn(
-                    "rounded-md overflow-hidden border",
-                    i === lightboxIndex ? "border-primary" : "border-transparent"
+                    "rounded-small overflow-hidden border-2",
+                    i === lightboxIndex ? "border-accent-rose" : "border-transparent"
                   )}
                 >
                   <img src={img} alt={`${product.name} thumb ${i+1}`} className="w-20 h-20 object-cover" />

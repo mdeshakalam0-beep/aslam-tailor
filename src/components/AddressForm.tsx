@@ -20,7 +20,7 @@ interface AddressFormProps {
 const AddressForm: React.FC<AddressFormProps> = ({ address, onAddressChange }) => {
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold text-foreground">Shipping Address</h3>
+      <h3 className="text-xl font-semibold text-text-primary-heading">Shipping Address</h3>
       <div>
         <Label htmlFor="fullName">Full Name</Label>
         <Input
@@ -30,6 +30,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onAddressChange }) =
           onChange={(e) => onAddressChange('fullName', e.target.value)}
           placeholder="Enter recipient's full name"
           required
+          className="border border-card-border rounded-small focus:ring-accent-rose"
         />
       </div>
       <div>
@@ -41,6 +42,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onAddressChange }) =
           onChange={(e) => onAddressChange('phone', e.target.value)}
           placeholder="Enter phone number"
           required
+          className="border border-card-border rounded-small focus:ring-accent-rose"
         />
       </div>
       <div>
@@ -51,6 +53,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onAddressChange }) =
           onChange={(e) => onAddressChange('streetAddress', e.target.value)}
           placeholder="House No., Building Name, Street, Village, Road"
           required
+          className="border border-card-border rounded-small focus:ring-accent-rose"
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -63,6 +66,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onAddressChange }) =
             onChange={(e) => onAddressChange('city', e.target.value)}
             placeholder="City"
             required
+            className="border border-card-border rounded-small focus:ring-accent-rose"
           />
         </div>
         <div>
@@ -74,6 +78,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onAddressChange }) =
             onChange={(e) => onAddressChange('state', e.target.value)}
             placeholder="State"
             required
+            className="border border-card-border rounded-small focus:ring-accent-rose"
           />
         </div>
       </div>
@@ -87,6 +92,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onAddressChange }) =
             onChange={(e) => onAddressChange('pincode', e.target.value)}
             placeholder="Pincode"
             required
+            className="border border-card-border rounded-small focus:ring-accent-rose"
           />
         </div>
         <div>
@@ -97,6 +103,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onAddressChange }) =
             value={address.postOffice}
             onChange={(e) => onAddressChange('postOffice', e.target.value)}
             placeholder="Post Office"
+            className="border border-card-border rounded-small focus:ring-accent-rose"
           />
         </div>
       </div>
@@ -108,6 +115,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ address, onAddressChange }) =
           value={address.landmark}
           onChange={(e) => onAddressChange('landmark', e.target.value)}
           placeholder="e.g., Near XYZ Temple"
+          className="border border-card-border rounded-small focus:ring-accent-rose"
         />
       </div>
     </div>

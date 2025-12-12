@@ -25,7 +25,7 @@ const Login = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center bg-off-white-page-bg p-4 relative overflow-hidden"
       style={loginBgImageUrl ? {
         backgroundImage: `url(${loginBgImageUrl})`,
         backgroundSize: 'cover',
@@ -33,7 +33,7 @@ const Login = () => {
       } : {}}
     >
       {loginBgImageUrl && (
-        <div className="absolute inset-0 bg-background opacity-70 z-0"></div>
+        <div className="absolute inset-0 bg-off-white-page-bg opacity-70 z-0"></div>
       )}
       <div className="w-full max-w-md z-10 relative">
         <div className="flex flex-col items-center mb-6">
@@ -44,8 +44,8 @@ const Login = () => {
               A
             </div>
           )}
-          <h1 className="text-3xl font-bold text-center text-foreground leading-none">ASLAM TAILOR</h1>
-          <span className="text-lg text-muted-foreground leading-none mt-1">& Clothes</span>
+          <h1 className="text-3xl font-bold text-text-primary-heading text-center leading-none">ASLAM TAILOR</h1>
+          <span className="text-lg text-text-secondary-body text-center leading-none mt-1">& Clothes</span>
         </div>
         <Auth
           supabaseClient={supabase}
@@ -55,12 +55,16 @@ const Login = () => {
             variables: {
               default: {
                 colors: {
-                  brand: 'hsl(var(--primary))',
-                  brandAccent: 'hsl(var(--accent))',
-                  foreground: 'hsl(0 0% 0%)', // Ensuring foreground text is black
-                  inputBackground: 'hsl(0 0% 100% / 0.8)', // Semi-transparent white background for inputs
-                  inputBorder: 'hsl(var(--border))',
-                  inputFocusBorder: 'hsl(var(--primary))',
+                  brand: 'hsl(var(--accent-rose))',
+                  brandAccent: 'hsl(var(--accent-dark))',
+                  foreground: 'hsl(var(--text-primary-heading))',
+                  inputBackground: 'hsl(0 0% 100% / 0.8)',
+                  inputBorder: 'hsl(var(--card-border))',
+                  inputFocusBorder: 'hsl(var(--accent-rose))',
+                  // Add other colors as needed to match the theme
+                  // buttonBackground: 'hsl(var(--accent-rose))',
+                  // buttonText: 'hsl(0 0% 100%)',
+                  // buttonBackgroundHover: 'hsl(var(--accent-dark))',
                 },
               },
             },

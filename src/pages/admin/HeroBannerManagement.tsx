@@ -82,42 +82,42 @@ const HeroBannerManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-foreground">Hero Banner Management</h2>
-        <Button onClick={handleAddBanner} className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <h2 className="text-3xl font-bold text-text-primary-heading">Hero Banner Management</h2>
+        <Button onClick={handleAddBanner} className="bg-accent-rose text-white hover:bg-accent-dark rounded-small">
           <PlusCircle className="h-5 w-5 mr-2" /> Add New Banner
         </Button>
       </div>
 
-      <Card>
+      <Card className="shadow-elev border border-card-border rounded-default">
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-foreground">All Hero Banners</CardTitle>
+          <CardTitle className="text-xl font-bold text-text-primary-heading">All Hero Banners</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground">Loading banners...</p>
+            <p className="text-center text-text-secondary-body">Loading banners...</p>
           ) : banners.length === 0 ? (
-            <p className="text-center text-muted-foreground">No hero banners found. Add a new banner to get started!</p>
+            <p className="text-center text-text-secondary-body">No hero banners found. Add a new banner to get started!</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[80px]">Image</TableHead>
-                    <TableHead>Headline</TableHead>
-                    <TableHead>CTA Text</TableHead>
-                    <TableHead>Order</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="w-[80px] text-text-primary-heading">Image</TableHead>
+                    <TableHead className="text-text-primary-heading">Headline</TableHead>
+                    <TableHead className="text-text-primary-heading">CTA Text</TableHead>
+                    <TableHead className="text-text-primary-heading">Order</TableHead>
+                    <TableHead className="text-right text-text-primary-heading">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {banners.map((banner) => (
                     <TableRow key={banner.id}>
                       <TableCell>
-                        <img src={banner.image_url} alt={banner.headline} className="w-16 h-12 object-cover rounded-md" />
+                        <img src={banner.image_url} alt={banner.headline} className="w-16 h-12 object-cover rounded-small border border-card-border" />
                       </TableCell>
-                      <TableCell className="font-medium">{banner.headline}</TableCell>
-                      <TableCell>{banner.cta_text}</TableCell>
-                      <TableCell>{banner.order}</TableCell>
+                      <TableCell className="font-medium text-text-secondary-body">{banner.headline}</TableCell>
+                      <TableCell className="text-text-secondary-body">{banner.cta_text}</TableCell>
+                      <TableCell className="text-text-secondary-body">{banner.order}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleEditBanner(banner)}>
                           <Pencil className="h-4 w-4" />
@@ -137,10 +137,10 @@ const HeroBannerManagement: React.FC = () => {
 
       {/* Add/Edit Banner Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="banner-form-title">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-default shadow-elev border border-card-border" aria-labelledby="banner-form-title">
           <DialogHeader>
-            <DialogTitle id="banner-form-title">{editingBanner ? 'Edit Hero Banner' : 'Add New Hero Banner'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="banner-form-title" className="text-text-primary-heading">{editingBanner ? 'Edit Hero Banner' : 'Add New Hero Banner'}</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               {editingBanner ? 'Make changes to the banner here.' : 'Fill in the details for a new hero banner.'}
             </DialogDescription>
           </DialogHeader>
@@ -154,16 +154,16 @@ const HeroBannerManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent aria-labelledby="banner-delete-title">
+        <DialogContent className="rounded-default shadow-elev border border-card-border" aria-labelledby="banner-delete-title">
           <DialogHeader>
-            <DialogTitle id="banner-delete-title">Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="banner-delete-title" className="text-text-primary-heading">Are you absolutely sure?</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               This action cannot be undone. This will permanently delete the hero banner.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDeleteBanner}>Delete</Button>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="rounded-small border-card-border">Cancel</Button>
+            <Button variant="destructive" onClick={confirmDeleteBanner} className="bg-destructive text-white hover:bg-destructive/90 rounded-small">Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

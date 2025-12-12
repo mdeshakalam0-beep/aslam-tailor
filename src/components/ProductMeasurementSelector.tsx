@@ -14,7 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { getMeasurementTypes, MeasurementType } from '@/utils/measurementTypes'; // Import getMeasurementTypes and MeasurementType
+import { getMeasurementTypes, MeasurementType } from '@/utils/measurementTypes';
 
 interface ProductMeasurementSelectorProps {
   session: Session | null;
@@ -23,7 +23,6 @@ interface ProductMeasurementSelectorProps {
   isDisabled: boolean;
 }
 
-// Define a mapping from UserMeasurements keys to friendly labels and input types
 const measurementFieldConfig: Record<keyof UserMeasurements, { label: string; type: 'number' | 'text' | 'select' | 'textarea'; options?: string[] }> = {
   ladies_size: { label: 'Ladies\' Size', type: 'select', options: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Custom'] },
   men_shirt_length: { label: 'Shirt Length (inches)', type: 'number' },
@@ -43,14 +42,12 @@ const measurementFieldConfig: Record<keyof UserMeasurements, { label: string; ty
   men_coat_sleeve_length: { label: 'Coat Sleeve Length (inches)', type: 'number' },
   men_coat_shoulder: { label: 'Coat Shoulder (inches)', type: 'number' },
   notes: { label: 'Additional Notes / Specific Instructions', type: 'textarea' },
-  // These fields are not for user input in this form, but are part of UserMeasurements
   id: { label: 'ID', type: 'text' },
   user_id: { label: 'User ID', type: 'text' },
   measurement_type: { label: 'Measurement Type', type: 'text' },
   updated_at: { label: 'Updated At', type: 'text' },
 };
 
-// Define all possible measurement fields from UserMeasurements with friendly labels and groups
 const allMeasurementFields: Array<{ key: keyof UserMeasurements; label: string; group: string }> = [
   { key: 'ladies_size', label: 'Ladies\' Size', group: 'Women' },
   { key: 'men_shirt_length', label: 'Shirt Length', group: 'Men - Shirt/Kurta/Bandi' },
@@ -99,7 +96,6 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
 
     setLoading(true);
     try {
-      // Fetch user's gender from profiles table
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('gender')
@@ -111,14 +107,13 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
       }
       const userGender = profileData.gender || 'not_specified';
 
-      // Fetch user's most recent measurements
       const { data: measurementsData, error: fetchError } = await supabase
         .from('measurements')
         .select('*')
         .eq('user_id', session.user.id)
-        .order('updated_at', { ascending: false }) // Order by most recent
-        .limit(1) // Get only one result
-        .maybeSingle(); // Use maybeSingle after limiting to 1
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (fetchError) {
         throw fetchError;
@@ -126,7 +121,6 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
 
       if (measurementsData) {
         setCurrentMeasurements(measurementsData as UserMeasurements);
-        // Initialize form values from fetched measurements
         const initialFormValues: Partial<UserMeasurements> = {};
         for (const key in measurementsData) {
           if (Object.prototype.hasOwnProperty.call(measurementsData, key)) {
@@ -135,13 +129,11 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
         }
         setFormValues(initialFormValues);
 
-        // Find the measurement type by name
         const type = measurementTypes.find(t => t.name === measurementsData.measurement_type);
         setSelectedMeasurementTypeId(type?.id || undefined);
       } else {
         setCurrentMeasurements(undefined);
         setFormValues({});
-        // Set default measurement type based on user gender if no measurements exist
         const defaultType = measurementTypes.find(type => type.name.toLowerCase().includes(userGender));
         setSelectedMeasurementTypeId(defaultType?.id || undefined);
       }
@@ -155,7 +147,7 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
   };
 
   useEffect(() => {
-    if (measurementTypes.length > 0) { // Only fetch measurements once types are loaded
+    if (measurementTypes.length > 0) {
       fetchUserMeasurements();
     }
   }, [session, measurementTypes]);
@@ -206,12 +198,10 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
         }
       });
 
-      // Ensure notes are always included if present in formValues, even if not explicitly in relevant_fields
       if (formValues.notes !== undefined) {
         updates.notes = (formValues.notes as string)?.trim() || null;
       }
 
-      // Update user's gender in profiles table based on selected measurement type
       if (currentMeasurementType?.name && session.user) {
         const genderToSet = currentMeasurementType.name.toLowerCase().includes('men') ? 'men' :
                            currentMeasurementType.name.toLowerCase().includes('women') || currentMeasurementType.name.toLowerCase().includes('ladies') ? 'women' : 'not_specified';
@@ -253,12 +243,12 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
   const renderCurrentMeasurementsSummary = () => {
     if (!currentMeasurements || !currentMeasurementType || !currentMeasurementType.relevant_fields) return null;
 
-    const displayedFields = currentMeasurementType.relevant_fields.filter(key => key !== 'notes'); // Notes handled separately
+    const displayedFields = currentMeasurementType.relevant_fields.filter(key => key !== 'notes');
 
     if (displayedFields.length === 0 && !currentMeasurements.notes) return null;
 
     return (
-      <div className="text-sm text-muted-foreground grid grid-cols-2 gap-x-4 gap-y-1">
+      <div className="text-sm text-text-secondary-body grid grid-cols-2 gap-x-4 gap-y-1">
         {displayedFields.map((fieldKey, idx) => {
           const config = measurementFieldConfig[fieldKey];
           const value = currentMeasurements[fieldKey];
@@ -273,7 +263,7 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
 
   const renderMeasurementInputs = () => {
     if (!currentMeasurementType || !currentMeasurementType.relevant_fields) {
-      return <p className="text-muted-foreground">Please select a measurement type to see relevant fields.</p>;
+      return <p className="text-text-secondary-body">Please select a measurement type to see relevant fields.</p>;
     }
 
     const groupedRelevantFields: Record<string, Array<keyof UserMeasurements>> = {};
@@ -287,14 +277,14 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
     return (
       <Accordion type="multiple" className="w-full space-y-4">
         {Object.entries(groupedRelevantFields).map(([group, fieldKeys]) => {
-          if (group === 'General' && fieldKeys.includes('notes')) return null; // Notes handled separately
+          if (group === 'General' && fieldKeys.includes('notes')) return null;
 
           return (
-            <AccordionItem key={group} value={`item-${group}`} className="rounded-md border bg-card shadow-sm transition-all duration-200">
-              <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-foreground transition-all hover:bg-muted hover:no-underline [&[data-state=open]>svg]:rotate-180" disabled={isDisabled || !isActive}>
+            <AccordionItem key={group} value={`item-${group}`} className="rounded-default border border-card-border bg-card shadow-elev transition-all duration-200">
+              <AccordionTrigger className="flex w-full items-center justify-between px-4 py-3 text-lg font-semibold text-text-primary-heading transition-all hover:bg-primary-pale-pink hover:no-underline [&[data-state=open]>svg]:rotate-180" disabled={isDisabled || !isActive}>
                 {group}
               </AccordionTrigger>
-              <AccordionContent className="p-4 border-t bg-background rounded-b-md">
+              <AccordionContent className="p-4 border-t border-card-border bg-off-white-page-bg rounded-b-default">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {fieldKeys.map((fieldKey) => {
                     const config = measurementFieldConfig[fieldKey];
@@ -315,6 +305,7 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
                             min="0"
                             step="0.1"
                             disabled={isDisabled || !isActive}
+                            className="border border-card-border rounded-small focus:ring-accent-rose"
                           />
                         )}
                         {config.type === 'text' && (
@@ -325,11 +316,12 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
                             onChange={(e) => handleInputChange(fieldKey, e.target.value)}
                             placeholder={`Enter ${config.label.toLowerCase()}`}
                             disabled={isDisabled || !isActive}
+                            className="border border-card-border rounded-small focus:ring-accent-rose"
                           />
                         )}
                         {config.type === 'select' && config.options && (
                           <Select onValueChange={(val) => handleInputChange(fieldKey, val)} value={value} disabled={isDisabled || !isActive}>
-                            <SelectTrigger id={fieldKey} className="w-full">
+                            <SelectTrigger id={fieldKey} className="w-full border-card-border rounded-small focus:ring-accent-rose">
                               <SelectValue placeholder={`Select ${config.label.toLowerCase()}`} />
                             </SelectTrigger>
                             <SelectContent>
@@ -353,8 +345,8 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
 
   if (!session) {
     return (
-      <Card className="mt-6">
-        <CardContent className="p-6 text-center text-muted-foreground">
+      <Card className="mt-6 shadow-elev border border-card-border rounded-default">
+        <CardContent className="p-6 text-center text-text-secondary-body">
           Please log in to manage your measurements.
         </CardContent>
       </Card>
@@ -363,9 +355,9 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
 
   if (loading) {
     return (
-      <Card className="mt-6">
-        <CardContent className="p-6 text-center text-muted-foreground flex items-center justify-center">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading your measurements...
+      <Card className="mt-6 shadow-elev border border-card-border rounded-default">
+        <CardContent className="p-6 text-center text-text-secondary-body flex items-center justify-center">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin text-accent-rose" /> Loading your measurements...
         </CardContent>
       </Card>
     );
@@ -374,11 +366,11 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
   const isFormDisabled = isDisabled || !isActive;
 
   return (
-    <Card className="mt-6">
+    <Card className="mt-6 shadow-elev border border-card-border rounded-default">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xl font-bold text-foreground">Your Measurements</CardTitle>
+        <CardTitle className="text-xl font-bold text-text-primary-heading">Your Measurements</CardTitle>
         <div className="flex items-center space-x-2">
-          <Label htmlFor="measurement-toggle">Enable Custom Measurements</Label>
+          <Label htmlFor="measurement-toggle" className="text-text-secondary-body">Enable Custom Measurements</Label>
           <Switch
             id="measurement-toggle"
             checked={isActive}
@@ -389,11 +381,10 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
       </CardHeader>
       <CardContent className={cn(isFormDisabled && "opacity-50 pointer-events-none")}>
         <form onSubmit={handleSaveMeasurements} className="space-y-6">
-          {/* Measurement Type Selection */}
           <div className="space-y-2">
-            <Label className="text-base font-semibold text-foreground">Select Measurement Type</Label>
+            <Label className="text-base font-semibold text-text-primary-heading">Select Measurement Type</Label>
             <Select onValueChange={setSelectedMeasurementTypeId} value={selectedMeasurementTypeId} disabled={isFormDisabled}>
-              <SelectTrigger id="measurementType" className="w-full">
+              <SelectTrigger id="measurementType" className="w-full border-card-border rounded-small focus:ring-accent-rose">
                 <SelectValue placeholder="Select your measurement type" />
               </SelectTrigger>
               <SelectContent>
@@ -406,23 +397,21 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
             </Select>
           </div>
 
-          {/* Display current measurements summary */}
           {renderCurrentMeasurementsSummary() && (
-            <div className="p-4 border rounded-md bg-muted/50">
-              <h3 className="font-semibold text-foreground mb-2">Currently Saved:</h3>
+            <div className="p-4 border border-card-border rounded-small bg-primary-pale-pink">
+              <h3 className="font-semibold text-text-primary-heading mb-2">Currently Saved:</h3>
               {renderCurrentMeasurementsSummary()}
               {currentMeasurements?.notes && (
-                <p className="text-sm text-muted-foreground mt-2">Notes: {currentMeasurements.notes}</p>
+                <p className="text-sm text-text-secondary-body mt-2">Notes: {currentMeasurements.notes}</p>
               )}
             </div>
           )}
 
           {renderMeasurementInputs()}
 
-          {/* Additional Notes Box - always available if 'notes' is a relevant field */}
           {currentMeasurementType?.relevant_fields.includes('notes') && (
             <div className="space-y-2">
-              <Label htmlFor="notes" className="text-base font-semibold text-foreground">
+              <Label htmlFor="notes" className="text-base font-semibold text-text-primary-heading">
                 {measurementFieldConfig.notes.label}
               </Label>
               <Textarea
@@ -432,11 +421,12 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
                 placeholder="e.g., Please make the shirt slightly loose, or provide specific measurements not listed above."
                 rows={5}
                 disabled={isFormDisabled}
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           )}
 
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={saving || isFormDisabled}>
+          <Button type="submit" className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small" disabled={saving || isFormDisabled}>
             {saving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

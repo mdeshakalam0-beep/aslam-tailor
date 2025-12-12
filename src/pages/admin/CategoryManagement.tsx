@@ -82,38 +82,38 @@ const CategoryManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-foreground">Category Management</h2>
-        <Button onClick={handleAddCategory} className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <h2 className="text-3xl font-bold text-text-primary-heading">Category Management</h2>
+        <Button onClick={handleAddCategory} className="bg-accent-rose text-white hover:bg-accent-dark rounded-small">
           <PlusCircle className="h-5 w-5 mr-2" /> Add New Category
         </Button>
       </div>
 
-      <Card>
+      <Card className="shadow-elev border border-card-border rounded-default">
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-foreground">All Categories</CardTitle>
+          <CardTitle className="text-xl font-bold text-text-primary-heading">All Categories</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground">Loading categories...</p>
+            <p className="text-center text-text-secondary-body">Loading categories...</p>
           ) : categories.length === 0 ? (
-            <p className="text-center text-muted-foreground">No categories found. Add a new category to get started!</p>
+            <p className="text-center text-text-secondary-body">No categories found. Add a new category to get started!</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[80px]">Image</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="w-[80px] text-text-primary-heading">Image</TableHead>
+                    <TableHead className="text-text-primary-heading">Name</TableHead>
+                    <TableHead className="text-right text-text-primary-heading">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {categories.map((category) => (
                     <TableRow key={category.id}>
                       <TableCell>
-                        <img src={category.image_url} alt={category.name} className="w-12 h-12 object-cover rounded-md" />
+                        <img src={category.image_url} alt={category.name} className="w-12 h-12 object-cover rounded-small border border-card-border" />
                       </TableCell>
-                      <TableCell className="font-medium">{category.name}</TableCell>
+                      <TableCell className="font-medium text-text-secondary-body">{category.name}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleEditCategory(category)}>
                           <Pencil className="h-4 w-4" />
@@ -133,10 +133,10 @@ const CategoryManagement: React.FC = () => {
 
       {/* Add/Edit Category Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="category-form-title">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-default shadow-elev border border-card-border" aria-labelledby="category-form-title">
           <DialogHeader>
-            <DialogTitle id="category-form-title">{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="category-form-title" className="text-text-primary-heading">{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               {editingCategory ? 'Make changes to the category here.' : 'Fill in the details for a new category.'}
             </DialogDescription>
           </DialogHeader>
@@ -150,16 +150,16 @@ const CategoryManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent aria-labelledby="category-delete-title">
+        <DialogContent className="rounded-default shadow-elev border border-card-border" aria-labelledby="category-delete-title">
           <DialogHeader>
-            <DialogTitle id="category-delete-title">Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="category-delete-title" className="text-text-primary-heading">Are you absolutely sure?</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               This action cannot be undone. This will permanently delete the category.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDeleteCategory}>Delete</Button>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="rounded-small border-card-border">Cancel</Button>
+            <Button variant="destructive" onClick={confirmDeleteCategory} className="bg-destructive text-white hover:bg-destructive/90 rounded-small">Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

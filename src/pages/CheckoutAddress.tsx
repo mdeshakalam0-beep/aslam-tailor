@@ -8,12 +8,12 @@ import { ArrowLeft } from 'lucide-react';
 import AddressForm from '@/components/AddressForm';
 import { showError } from '@/utils/toast';
 import { CheckoutAddress, CheckoutItem } from '@/types/checkout';
-import { supabase } from '@/integrations/supabase/client'; // Import supabase
-import { useSession } from '@/components/SessionContextProvider'; // Import useSession
+import { supabase } from '@/integrations/supabase/client';
+import { useSession } from '@/components/SessionContextProvider';
 
 const CheckoutAddress: React.FC = () => {
   const navigate = useNavigate();
-  const { session } = useSession(); // Use session to check if user is logged in
+  const { session } = useSession();
   const [address, setAddress] = useState<CheckoutAddress>({
     fullName: '',
     phone: '',
@@ -32,19 +32,18 @@ const CheckoutAddress: React.FC = () => {
       setCartItems(JSON.parse(storedCart));
     } else {
       showError('No items in cart to checkout. Please add items to cart first.');
-      navigate('/cart'); // Redirect if cart is empty
+      navigate('/cart');
     }
 
     const fetchAndSetAddress = async () => {
       if (session?.user) {
-        // Try to fetch address from user's profile
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('first_name, last_name, phone, street_address, city, state, pincode, post_office, landmark')
           .eq('id', session.user.id)
           .single();
 
-        if (profileError && profileError.code !== 'PGRST116') { // PGRST116 means no rows found
+        if (profileError && profileError.code !== 'PGRST116') {
           console.error('Error fetching profile address:', profileError);
           showError('Failed to load saved address.');
         }
@@ -62,7 +61,6 @@ const CheckoutAddress: React.FC = () => {
           });
         }
       } else {
-        // If not logged in, or no profile address, check local storage for previous checkout address
         const storedAddress = localStorage.getItem('checkout_address_details');
         if (storedAddress) {
           setAddress(JSON.parse(storedAddress));
@@ -101,7 +99,7 @@ const CheckoutAddress: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
+    <div className="min-h-screen bg-off-white-page-bg pb-16 md:pb-0">
       <Header />
       <main className="container mx-auto p-4">
         <div className="flex items-center mb-4">
@@ -110,12 +108,12 @@ const CheckoutAddress: React.FC = () => {
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h1 className="text-2xl font-bold text-foreground ml-2">Shipping Address</h1>
+          <h1 className="text-2xl font-bold text-text-primary-heading ml-2">Shipping Address</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <Card className="p-4 shadow-sm">
+            <Card className="p-4 shadow-elev border border-card-border">
               <CardContent>
                 <AddressForm address={address} onAddressChange={handleAddressChange} />
               </CardContent>
@@ -123,27 +121,27 @@ const CheckoutAddress: React.FC = () => {
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="p-4 shadow-sm sticky top-24">
+            <Card className="p-4 shadow-elev border border-card-border sticky top-24">
               <CardHeader>
-                <CardTitle className="text-xl font-bold text-foreground">Order Summary</CardTitle>
+                <CardTitle className="text-xl font-bold text-text-primary-heading">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="flex justify-between text-muted-foreground">
+                <div className="flex justify-between text-text-secondary-body">
                   <span>Subtotal ({cartItems.length} items)</span>
                   <span>₹{calculateSubtotal().toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-muted-foreground">
+                <div className="flex justify-between text-text-secondary-body">
                   <span>Shipping</span>
                   <span>Free</span>
                 </div>
-                <div className="flex justify-between font-bold text-lg text-foreground border-t pt-2 mt-2">
+                <div className="flex justify-between font-bold text-lg text-text-primary-heading border-t border-card-border pt-2 mt-2">
                   <span>Total</span>
                   <span>₹{calculateSubtotal().toLocaleString()}</span>
                 </div>
               </CardContent>
               <CardFooter>
                 <Button
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small"
                   onClick={handleContinueToPayment}
                   disabled={cartItems.length === 0}
                 >

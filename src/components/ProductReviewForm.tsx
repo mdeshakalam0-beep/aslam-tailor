@@ -82,8 +82,8 @@ const ProductReviewForm: React.FC<ProductReviewFormProps> = ({ productId, sessio
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded-lg bg-background shadow-sm">
-      <h3 className="text-xl font-bold text-foreground">Write Your Review</h3>
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 border border-card-border rounded-default bg-card shadow-elev">
+      <h3 className="text-xl font-bold text-text-primary-heading">Write Your Review</h3>
       <div>
         <Label htmlFor="rating">Your Rating</Label>
         <div className="flex items-center space-x-1 mt-1">
@@ -92,7 +92,7 @@ const ProductReviewForm: React.FC<ProductReviewFormProps> = ({ productId, sessio
               key={i}
               className={cn(
                 "h-6 w-6 cursor-pointer transition-colors",
-                i < rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'
+                i < rating ? 'text-accent-rose fill-accent-rose' : 'text-muted-foreground'
               )}
               onClick={() => handleStarClick(i)}
             />
@@ -107,11 +107,12 @@ const ProductReviewForm: React.FC<ProductReviewFormProps> = ({ productId, sessio
           onChange={(e) => setReviewText(e.target.value)}
           placeholder="Share your thoughts about this product..."
           rows={4}
-          required={!selectedImage} // Required if no image is selected
+          required={!selectedImage}
+          className="border border-card-border rounded-small focus:ring-accent-rose"
         />
       </div>
       <div>
-        <Label htmlFor="reviewImage" className="flex items-center space-x-2 cursor-pointer">
+        <Label htmlFor="reviewImage" className="flex items-center space-x-2 cursor-pointer text-text-secondary-body">
           <ImageIcon className="h-5 w-5 text-muted-foreground" />
           <span>Upload Photo (Optional)</span>
         </Label>
@@ -121,13 +122,13 @@ const ProductReviewForm: React.FC<ProductReviewFormProps> = ({ productId, sessio
           accept="image/*"
           onChange={handleImageChange}
           disabled={loading}
-          className="file:text-primary file:bg-primary-foreground file:border-primary file:hover:bg-primary/90 file:hover:text-primary-foreground mt-2"
+          className="file:text-primary file:bg-primary-pale-pink file:border-primary-pale-pink file:hover:bg-secondary-soft-pink file:hover:text-accent-dark mt-2 border border-card-border rounded-small focus:ring-accent-rose"
         />
         {selectedImage && (
-          <p className="text-sm text-muted-foreground mt-1">{selectedImage.name} selected.</p>
+          <p className="text-sm text-text-secondary-body mt-1">{selectedImage.name} selected.</p>
         )}
       </div>
-      <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
+      <Button type="submit" className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small" disabled={loading}>
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

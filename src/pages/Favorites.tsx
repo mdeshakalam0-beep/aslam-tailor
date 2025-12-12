@@ -40,7 +40,6 @@ const Favorites: React.FC = () => {
       const productsPromises = favoriteProductIds.map(id => getProductById(id));
       const resolvedProducts = await Promise.all(productsPromises);
 
-      // Filter out undefined products and ensure uniqueness by product.id
       const uniqueProductsMap = new Map<string, Product>();
       resolvedProducts.forEach(product => {
         if (product && !uniqueProductsMap.has(product.id)) {
@@ -57,16 +56,16 @@ const Favorites: React.FC = () => {
   }, [session]);
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
+    <div className="min-h-screen bg-off-white-page-bg pb-16 md:pb-0">
       <Header />
       <main className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-6 text-foreground text-center">Your Favorites</h1>
+        <h1 className="text-3xl font-bold mb-6 text-text-primary-heading text-center">Your Favorites</h1>
 
         {loading ? (
-          <p className="text-center text-muted-foreground">Loading favorites...</p>
+          <p className="text-center text-text-secondary-body">Loading favorites...</p>
         ) : favoriteProducts.length === 0 ? (
-          <div className="text-center p-8 bg-card rounded-lg shadow-sm">
-            <p className="text-lg text-muted-foreground mb-4">You haven't favorited any products yet.</p>
+          <div className="text-center p-8 bg-card rounded-default shadow-elev border border-card-border">
+            <p className="text-lg text-text-secondary-body mb-4">You haven't favorited any products yet.</p>
             <Link to="/" className="text-primary hover:underline">
               Start Browsing
             </Link>

@@ -9,7 +9,7 @@ const BrandRibbon: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const plugin = useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: false, playOnInit: true, speed: 10 }) // Delay set to 3000ms, speed set to 10
+    Autoplay({ delay: 3000, stopOnInteraction: false, playOnInit: true, speed: 10 })
   );
 
   useEffect(() => {
@@ -24,27 +24,26 @@ const BrandRibbon: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full py-2 bg-primary text-primary-foreground text-center text-sm overflow-hidden">
+      <div className="w-full py-2 bg-accent-rose text-white text-center text-sm overflow-hidden">
         <p>Loading brands...</p>
       </div>
     );
   }
 
   if (brands.length === 0) {
-    return null; // Don't render if no brands are available
+    return null;
   }
 
-  // Duplicate brands to ensure continuous loop without visible breaks
   const duplicatedBrands = [...brands, ...brands, ...brands];
 
   return (
-    <div className="w-full bg-primary text-primary-foreground py-2 overflow-hidden">
+    <div className="w-full bg-accent-rose text-white py-2 overflow-hidden">
       <Carousel
         plugins={[plugin.current]}
         opts={{
           align: "start",
           loop: true,
-          dragFree: true, // Allow free dragging
+          dragFree: true,
         }}
         className="w-full"
       >
@@ -52,7 +51,7 @@ const BrandRibbon: React.FC = () => {
           {duplicatedBrands.map((brand, index) => (
             <CarouselItem key={`${brand.id}-${index}`} className="pl-4 basis-auto">
               <div className="flex items-center justify-center p-1">
-                <span className="text-sm font-medium whitespace-nowrap px-4 py-1 rounded-full bg-primary-foreground text-primary">
+                <span className="text-sm font-medium whitespace-nowrap px-4 py-1 rounded-full bg-white text-accent-dark">
                   {brand.name}
                 </span>
               </div>

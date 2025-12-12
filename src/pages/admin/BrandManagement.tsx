@@ -82,36 +82,36 @@ const BrandManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-foreground">Brand Management</h2>
-        <Button onClick={handleAddBrand} className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <h2 className="text-3xl font-bold text-text-primary-heading">Brand Management</h2>
+        <Button onClick={handleAddBrand} className="bg-accent-rose text-white hover:bg-accent-dark rounded-small">
           <PlusCircle className="h-5 w-5 mr-2" /> Add New Brand
         </Button>
       </div>
 
-      <Card>
+      <Card className="shadow-elev border border-card-border rounded-default">
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-foreground">All Brands</CardTitle>
+          <CardTitle className="text-xl font-bold text-text-primary-heading">All Brands</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground">Loading brands...</p>
+            <p className="text-center text-text-secondary-body">Loading brands...</p>
           ) : brands.length === 0 ? (
-            <p className="text-center text-muted-foreground">No brands found. Add a new brand to get started!</p>
+            <p className="text-center text-text-secondary-body">No brands found. Add a new brand to get started!</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Order</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-text-primary-heading">Name</TableHead>
+                    <TableHead className="text-text-primary-heading">Order</TableHead>
+                    <TableHead className="text-right text-text-primary-heading">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {brands.map((brand) => (
                     <TableRow key={brand.id}>
-                      <TableCell className="font-medium">{brand.name}</TableCell>
-                      <TableCell>{brand.order_index}</TableCell>
+                      <TableCell className="font-medium text-text-secondary-body">{brand.name}</TableCell>
+                      <TableCell className="text-text-secondary-body">{brand.order_index}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleEditBrand(brand)}>
                           <Pencil className="h-4 w-4" />
@@ -131,10 +131,10 @@ const BrandManagement: React.FC = () => {
 
       {/* Add/Edit Brand Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="brand-form-title">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-default shadow-elev border border-card-border" aria-labelledby="brand-form-title">
           <DialogHeader>
-            <DialogTitle id="brand-form-title">{editingBrand ? 'Edit Brand' : 'Add New Brand'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="brand-form-title" className="text-text-primary-heading">{editingBrand ? 'Edit Brand' : 'Add New Brand'}</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               {editingBrand ? 'Make changes to the brand here.' : 'Fill in the details for a new brand.'}
             </DialogDescription>
           </DialogHeader>
@@ -148,16 +148,16 @@ const BrandManagement: React.FC = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent aria-labelledby="brand-delete-title">
+        <DialogContent className="rounded-default shadow-elev border border-card-border" aria-labelledby="brand-delete-title">
           <DialogHeader>
-            <DialogTitle id="brand-delete-title">Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
+            <DialogTitle id="brand-delete-title" className="text-text-primary-heading">Are you absolutely sure?</DialogTitle>
+            <DialogDescription className="text-text-secondary-body">
               This action cannot be undone. This will permanently delete the brand.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDeleteBrand}>Delete</Button>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)} className="rounded-small border-card-border">Cancel</Button>
+            <Button variant="destructive" onClick={confirmDeleteBrand} className="bg-destructive text-white hover:bg-destructive/90 rounded-small">Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,104 +1,104 @@
-import axios from 'axios';
-import { showError, showSuccess } from '@/utils/toast';
-import { CheckoutAddress, CheckoutItem, UserMeasurements } from '@/types/checkout';
+// src/utils/shiprocket.ts
+export interface AddressDetails {
+  fullName: string;
+  phone: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  pincode: string;
+  postOffice?: string;
+  landmark?: string;
+}
 
-// Replace with your backend URL
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'; 
-
-const api = axios.create({
-  baseURL: BACKEND_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+export interface CheckoutItemSimple {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  price: number;
+  quantity: number;
+  selectedSize?: string;
+}
 
 export interface ShiprocketOrderPayload {
-  order_id: string;
-  order_date: string; // YYYY-MM-DD HH:MM
+  order_id: string | number;
+  order_date: string; // "YYYY-MM-DD HH:MM"
   customer_email: string;
-  address_details: CheckoutAddress;
-  items: Array<{
-    id: string;
-    name: string;
-    imageUrl: string;
-    price: number;
-    quantity: number;
-    selectedSize?: string;
-  }>;
+  address_details: AddressDetails;
+  items: CheckoutItemSimple[];
   total_amount: number;
-  payment_method: string; // 'cod' or 'prepaid'
-  user_measurements?: UserMeasurements | null;
+  payment_method: string;
+  user_measurements?: any;
 }
 
 export interface ShiprocketOrderResponse {
-  message: string;
-  order_id: number;
-  shipment_id: number;
-  status: string;
-  status_code: number;
-  awb_code: string;
-  courier_company_id: number;
-  courier_name: string;
-  is_recommendation: boolean;
-  // Add other fields as per Shiprocket's response
+  message?: string;
+  order_id?: number | string;
+  shipment_id?: number | string;
+  status?: string;
+  status_code?: number;
+  awb_code?: string;
+  courier_name?: string;
+  [k: string]: any;
 }
 
-export interface CourierServiceabilityPayload {
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+
+export async function createShiprocketOrder(payload: ShiprocketOrderPayload): Promise<ShiprocketOrderResponse | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/create-order`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.message || `Shiprocket create-order failed: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data as ShiprocketOrderResponse;
+  } catch (error) {
+    console.error('createShiprocketOrder error:', error);
+    throw error;
+  }
+}
+
+export async function loginShiprocket(): Promise<any> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/login-shiprocket`, {
+      method: 'POST'
+    });
+    return res.ok ? await res.json() : null;
+  } catch (err) {
+    console.error('loginShiprocket error:', err);
+    return null;
+  }
+}
+
+export async function checkCourierService(body: {
   pickup_postcode: string;
   delivery_postcode: string;
-  weight: number; // in kg
-  cod_amount: number; // COD amount if applicable
-  order_amount: number; // Total order amount
-  dimensions?: {
-    length: number;
-    breadth: number;
-    height: number;
-  };
-}
-
-export interface CourierServiceabilityResponse {
-  status: number;
-  message: string;
-  data: {
-    available_courier_companies: Array<{
-      courier_company_id: string;
-      courier_name: string;
-      // ... other courier details
-    }>;
-    // ... other serviceability data
-  };
-}
-
-/**
- * Sends customer checkout order to the backend to create a Shiprocket order.
- * @param payload The order data to send to Shiprocket.
- * @returns Shiprocket's order creation response.
- */
-export const createShiprocketOrder = async (payload: ShiprocketOrderPayload): Promise<ShiprocketOrderResponse | null> => {
+  weight: number;
+  cod_amount: number;
+  order_amount: number;
+  dimensions?: { length: number; breadth: number; height: number; };
+}) {
   try {
-    const response = await api.post('/create-order', payload);
-    showSuccess('Shiprocket order created successfully!');
-    return response.data as ShiprocketOrderResponse;
-  } catch (error) {
-    console.error('Error creating Shiprocket order:', error);
-    showError('Failed to create Shiprocket order. Please try again.');
-    return null;
+    const res = await fetch(`${BACKEND_URL}/check-courier`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.message || `Serviceability check failed: ${res.status}`);
+    }
+    return await res.json();
+  } catch (err) {
+    console.error('checkCourierService error:', err);
+    throw err;
   }
-};
-
-/**
- * Checks available courier services via the backend.
- * @param payload The shipment details for serviceability check.
- * @returns Available courier services.
- */
-export const checkCourierServices = async (payload: CourierServiceabilityPayload): Promise<CourierServiceabilityResponse | null> => {
-  try {
-    const response = await api.post('/check-courier', payload);
-    showSuccess('Courier serviceability checked!');
-    return response.data as CourierServiceabilityResponse;
-  } catch (error) {
-    console.error('Error checking courier serviceability:', error);
-    showError('Failed to check courier serviceability. Please try again.');
-    return null;
-  }
-};
+}

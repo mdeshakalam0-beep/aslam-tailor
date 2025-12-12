@@ -19,7 +19,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
   const [imageUrl, setImageUrl] = useState(initialData?.image_url || '');
   const [headline, setHeadline] = useState(initialData?.headline || '');
   const [ctaText, setCtaText] = useState(initialData?.cta_text || '');
-  const [ctaLink, setCtaLink] = useState<string | null>(initialData?.cta_link || null); // Made optional
+  const [ctaLink, setCtaLink] = useState<string | null>(initialData?.cta_link || null);
   const [order, setOrder] = useState(initialData?.order?.toString() || '0');
 
   const [useUrlInput, setUseUrlInput] = useState(true);
@@ -28,12 +28,12 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
 
   useEffect(() => {
     if (initialData) {
-      setImageUrl(initialData.image_url || ''); // Ensure it's always a string
+      setImageUrl(initialData.image_url || '');
       setHeadline(initialData.headline);
       setCtaText(initialData.cta_text);
-      setCtaLink(initialData.cta_link || null); // Ensure it's null if empty
+      setCtaLink(initialData.cta_link || null);
       setOrder(initialData.order?.toString() || '0');
-      setUseUrlInput(true); // Assume URL input for existing banners
+      setUseUrlInput(true);
       setSelectedFile(null);
     } else {
       setUseUrlInput(true);
@@ -57,7 +57,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
       const filePath = `public/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('banner-images') // Use a dedicated bucket for banners
+        .from('banner-images')
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
@@ -108,7 +108,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
       image_url: finalImageUrl,
       headline,
       cta_text: ctaText,
-      cta_link: ctaLink || '', // Ensure it's an empty string if null for database
+      cta_link: ctaLink || '',
       order: parseInt(order),
     };
 
@@ -116,17 +116,16 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border border-card-border shadow-elev">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-foreground">
+        <CardTitle className="text-2xl font-bold text-text-primary-heading">
           {initialData ? 'Edit Hero Banner' : 'Add New Hero Banner'}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Image Upload Options */}
-          <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
-            <Label htmlFor="image-upload-toggle" className="flex items-center space-x-2 cursor-pointer">
+          <div className="flex items-center justify-between space-x-2 p-2 border border-card-border rounded-small bg-primary-pale-pink">
+            <Label htmlFor="image-upload-toggle" className="flex items-center space-x-2 cursor-pointer text-text-secondary-body">
               <ImageIcon className="h-5 w-5 text-muted-foreground" />
               <span>Upload Image via URL</span>
             </Label>
@@ -147,6 +146,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://example.com/banner.jpg"
                 required
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           ) : (
@@ -158,15 +158,15 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
                 accept="image/*"
                 onChange={handleFileChange}
                 disabled={uploadingImage}
-                className="file:text-primary file:bg-primary-foreground file:border-primary file:hover:bg-primary/90 file:hover:text-primary-foreground"
+                className="file:text-primary file:bg-primary-pale-pink file:border-primary-pale-pink file:hover:bg-secondary-soft-pink file:hover:text-accent-dark border border-card-border rounded-small focus:ring-accent-rose"
               />
               {selectedFile && (
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-text-secondary-body mt-2">
                   {selectedFile.name} selected.
                 </p>
               )}
               {initialData?.image_url && !selectedFile && (
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-text-secondary-body mt-2">
                   No new file selected. Existing image will be kept.
                 </p>
               )}
@@ -182,6 +182,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
               onChange={(e) => setHeadline(e.target.value)}
               placeholder="e.g., View Latest Collection"
               required
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div>
@@ -193,6 +194,7 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
               onChange={(e) => setCtaText(e.target.value)}
               placeholder="e.g., Shop Now"
               required
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div>
@@ -200,10 +202,10 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
             <Input
               id="ctaLink"
               type="url"
-              value={ctaLink || ''} // Ensure value is always a string
-              onChange={(e) => setCtaLink(e.target.value || null)} // Set to null if empty
+              value={ctaLink || ''}
+              onChange={(e) => setCtaLink(e.target.value || null)}
               placeholder="e.g., /products"
-              // Removed 'required' attribute
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div>
@@ -215,9 +217,10 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
               onChange={(e) => setOrder(e.target.value)}
               placeholder="e.g., 1"
               min="0"
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploadingImage}>
+          <Button type="submit" className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small" disabled={loading || uploadingImage}>
             {loading || uploadingImage ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -10,7 +10,7 @@ interface UserProfile {
   id: string;
   first_name: string;
   last_name: string;
-  email: string; // Now fetching real email
+  email: string;
   role: string;
   updated_at: string;
 }
@@ -24,10 +24,9 @@ const UserManagement: React.FC = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        // Fetch profiles including the new email column
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, first_name, last_name, email, role, updated_at'); // Select email
+          .select('id, first_name, last_name, email, role, updated_at');
 
         if (profilesError) throw profilesError;
         
@@ -51,46 +50,47 @@ const UserManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-foreground">User Management</h2>
-      <Card>
+      <h2 className="text-3xl font-bold text-text-primary-heading">User Management</h2>
+      <Card className="shadow-elev border border-card-border rounded-default">
         <CardHeader>
-          <CardTitle className="text-xl font-bold text-foreground">All Users</CardTitle>
+          <CardTitle className="text-xl font-bold text-text-primary-heading">All Users</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-center text-muted-foreground">Loading users...</p>
+            <p className="text-center text-text-secondary-body">Loading users...</p>
           ) : error ? (
             <p className="text-center text-destructive">{error}</p>
           ) : users.length === 0 ? (
-            <p className="text-center text-muted-foreground">No users found.</p>
+            <p className="text-center text-text-secondary-body">No users found.</p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>User ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Last Updated</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-text-primary-heading">User ID</TableHead>
+                    <TableHead className="text-text-primary-heading">Name</TableHead>
+                    <TableHead className="text-text-primary-heading">Email</TableHead>
+                    <TableHead className="text-text-primary-heading">Role</TableHead>
+                    <TableHead className="text-text-primary-heading">Last Updated</TableHead>
+                    <TableHead className="text-right text-text-primary-heading">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {users.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium">{user.id.substring(0, 8)}</TableCell>
-                      <TableCell>{`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'N/A'}</TableCell>
-                      <TableCell>{user.email || 'N/A'}</TableCell> {/* Display real email */}
+                      <TableCell className="font-medium text-text-secondary-body">{user.id.substring(0, 8)}</TableCell>
+                      <TableCell className="text-text-secondary-body">{`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'N/A'}</TableCell>
+                      <TableCell className="text-text-secondary-body">{user.email || 'N/A'}</TableCell>
                       <TableCell>
-                        <Badge variant={getRoleBadgeVariant(user.role)}>
+                        <Badge variant={getRoleBadgeVariant(user.role)} className={
+                          user.role === 'admin' ? 'bg-accent-rose text-white' : 'bg-primary-pale-pink text-accent-dark'
+                        }>
                           {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                         </Badge>
                       </TableCell>
-                      <TableCell>{format(new Date(user.updated_at), 'PPP')}</TableCell>
+                      <TableCell className="text-text-secondary-body">{format(new Date(user.updated_at), 'PPP')}</TableCell>
                       <TableCell className="text-right">
-                        {/* Add action buttons here, e.g., Edit Role, Deactivate */}
-                        <span className="text-muted-foreground text-sm">Edit / Deactivate</span>
+                        <span className="text-muted-text text-sm">Edit / Deactivate</span>
                       </TableCell>
                     </TableRow>
                   ))}

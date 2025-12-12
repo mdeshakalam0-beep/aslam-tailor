@@ -36,8 +36,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
       setSearchResults(results);
       onSearch(results, searchTerm);
       setLoading(false);
-      setShowResults(true); // Show results after search
-    }, 300); // Debounce for 300ms
+      setShowResults(true);
+    }, 300);
 
     return () => {
       if (debounceTimeoutRef.current) {
@@ -71,38 +71,38 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
 
   return (
     <div className="relative p-4" ref={searchBarRef}>
-      <Search className="absolute left-7 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+      <Search className="absolute left-7 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-text" />
       <Input
         type="text"
         placeholder="Search products, designs, fabrics..."
-        className="w-full pl-12 pr-4 py-2 rounded-full border border-input focus:ring-2 focus:ring-primary focus:border-transparent"
+        className="w-full pl-12 pr-4 py-2 rounded-large border border-card-border focus:ring-2 focus:ring-accent-rose focus:border-transparent text-text-secondary-body"
         value={searchTerm}
         onChange={handleInputChange}
         onFocus={handleFocus}
       />
       {loading && (
         <div className="absolute right-7 top-1/2 -translate-y-1/2">
-          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <Loader2 className="h-5 w-5 animate-spin text-accent-rose" />
         </div>
       )}
 
       {showResults && searchResults.length > 0 && searchTerm.trim() !== '' && (
-        <Card className="absolute top-full left-4 right-4 mt-2 z-20 shadow-lg max-h-80 overflow-y-auto">
+        <Card className="absolute top-full left-4 right-4 mt-2 z-20 shadow-elev max-h-80 overflow-y-auto border border-card-border rounded-default">
           <div className="p-2">
             {searchResults.map((product) => (
               <Link
                 key={product.id}
                 to={`/products/${product.id}`}
-                className="flex items-center p-2 hover:bg-muted rounded-md transition-colors"
+                className="flex items-center p-2 hover:bg-primary-pale-pink rounded-small transition-colors"
                 onClick={() => {
                   setShowResults(false);
-                  setSearchTerm(''); // Clear search term after selection
+                  setSearchTerm('');
                 }}
               >
-                <img src={product.imageUrl} alt={product.name} className="w-10 h-10 object-cover rounded-md mr-3" />
+                <img src={product.imageUrl} alt={product.name} className="w-10 h-10 object-cover rounded-small mr-3 border border-card-border" />
                 <div>
-                  <p className="font-medium text-foreground">{product.name}</p>
-                  <p className="text-sm text-muted-foreground">₹{product.price.toLocaleString()}</p>
+                  <p className="font-medium text-text-primary-heading">{product.name}</p>
+                  <p className="text-sm text-text-secondary-body">₹{product.price.toLocaleString()}</p>
                 </div>
               </Link>
             ))}

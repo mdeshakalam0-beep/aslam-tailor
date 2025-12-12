@@ -8,7 +8,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { Link } from 'react-router-dom';
 import { getProducts, Product } from '@/utils/products';
-import BrandRibbon from '@/components/BrandRibbon'; // Import BrandRibbon
+import BrandRibbon from '@/components/BrandRibbon';
 
 const Index: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -39,22 +39,22 @@ const Index: React.FC = () => {
   const displayMessage = activeSearchTerm.trim() !== '' ? 'No products found matching your search.' : 'No products available.';
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
+    <div className="min-h-screen bg-off-white-page-bg pb-16 md:pb-0">
       <Header />
-      <main className="container mx-auto p-0 md:p-2"> {/* Changed md:p-4 to md:p-2 */}
-        <div className="space-y-4 md:space-y-6"> {/* Adjusted space-y for smaller gap */}
+      <main className="container mx-auto p-0 md:p-2">
+        <div className="space-y-4 md:space-y-6">
           <BrandRibbon />
           <HeroCarousel />
           <SearchBar onSearch={handleSearchResults} />
           <CategoryChips />
 
           <section className="px-4 md:px-0">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">{displaySectionTitle}</h2>
-            {loading && activeSearchTerm === '' ? ( // Only show loading for popular products, not for search
-              <p className="text-center text-muted-foreground">Loading products...</p>
+            <h2 className="text-2xl font-bold mb-4 text-text-primary-heading">{displaySectionTitle}</h2>
+            {loading && activeSearchTerm === '' ? (
+              <p className="text-text-secondary-body">Loading products...</p>
             ) : productsToDisplay.length === 0 ? (
-              <div className="text-center p-8 bg-card rounded-lg shadow-sm">
-                <p className="text-lg text-muted-foreground mb-4">{displayMessage}</p>
+              <div className="text-center p-8 bg-card rounded-lg shadow-elev border border-card-border">
+                <p className="text-lg text-text-secondary-body mb-4">{displayMessage}</p>
                 {activeSearchTerm !== '' && (
                   <Link to="/" className="text-primary hover:underline" onClick={() => setActiveSearchTerm('')}>
                     Clear Search & View All Products

@@ -10,7 +10,7 @@ import { AppPopup, uploadAppPopupImage } from '@/utils/appPopups';
 import { showError } from '@/utils/toast';
 
 interface AppPopupFormProps {
-  initialData: AppPopup; // Changed to be always defined
+  initialData: AppPopup;
   onSubmit: (data: Omit<AppPopup, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
   loading: boolean;
 }
@@ -29,7 +29,6 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
   const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
-    // initialData is now guaranteed to be an object, so no need for if (initialData)
     setTitle(initialData.title);
     setDescription(initialData.description || '');
     setImageUrl(initialData.image_url || '');
@@ -37,7 +36,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
     setCtaLink(initialData.cta_link || '');
     setOrder(initialData.order.toString());
     setIsActive(initialData.is_active);
-    setUseUrlInput(true); // Assume URL input for existing banners
+    setUseUrlInput(true);
     setSelectedFile(null);
   }, [initialData]);
 
@@ -63,7 +62,7 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
           showError('Image upload failed. Please try again.');
           return;
         }
-      } else if (!initialData.image_url) { // No optional chaining needed here
+      } else if (!initialData.image_url) {
         showError('Please upload an image or provide an image URL.');
         return;
       }
@@ -88,10 +87,10 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border border-card-border shadow-elev">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-foreground">
-          {initialData.id ? 'Edit App Pop-up' : 'Add New App Pop-up'} {/* Check initialData.id */}
+        <CardTitle className="text-2xl font-bold text-text-primary-heading">
+          {initialData.id ? 'Edit App Pop-up' : 'Add New App Pop-up'}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -101,26 +100,27 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="title"
               type="text"
-              value={String(title)} // Explicitly cast to String
+              value={String(title)}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Special Offer!"
               required
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div>
             <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
               id="description"
-              value={String(description)} // Explicitly cast to String
+              value={String(description)}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="A short description for the pop-up."
               rows={3}
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
 
-          {/* Image Upload Options */}
-          <div className="flex items-center justify-between space-x-2 p-2 border rounded-md bg-muted/50">
-            <Label htmlFor="image-upload-toggle" className="flex items-center space-x-2 cursor-pointer">
+          <div className="flex items-center justify-between space-x-2 p-2 border border-card-border rounded-small bg-primary-pale-pink">
+            <Label htmlFor="image-upload-toggle" className="flex items-center space-x-2 cursor-pointer text-text-secondary-body">
               <ImageIcon className="h-5 w-5 text-muted-foreground" />
               <span>Upload Image via URL</span>
             </Label>
@@ -137,9 +137,10 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
               <Input
                 id="imageUrl"
                 type="url"
-                value={String(imageUrl)} // Explicitly cast to String
+                value={String(imageUrl)}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="https://example.com/popup.jpg"
+                className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
           ) : (
@@ -151,15 +152,15 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
                 accept="image/*"
                 onChange={handleFileChange}
                 disabled={uploadingImage}
-                className="file:text-primary file:bg-primary-foreground file:border-primary file:hover:bg-primary/90 file:hover:text-primary-foreground"
+                className="file:text-primary file:bg-primary-pale-pink file:border-primary-pale-pink file:hover:bg-secondary-soft-pink file:hover:text-accent-dark border border-card-border rounded-small focus:ring-accent-rose"
               />
               {selectedFile && (
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-text-secondary-body mt-2">
                   {selectedFile.name} selected.
                 </p>
               )}
-              {initialData.image_url && !selectedFile && ( // No optional chaining needed here
-                <p className="text-sm text-muted-foreground mt-2">
+              {initialData.image_url && !selectedFile && (
+                <p className="text-sm text-text-secondary-body mt-2">
                   No new file selected. Existing image will be kept.
                 </p>
               )}
@@ -171,9 +172,10 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="ctaText"
               type="text"
-              value={String(ctaText)} // Explicitly cast to String
+              value={String(ctaText)}
               onChange={(e) => setCtaText(e.target.value)}
               placeholder="e.g., Shop Now"
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div>
@@ -181,9 +183,10 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="ctaLink"
               type="url"
-              value={String(ctaLink)} // Explicitly cast to String
+              value={String(ctaLink)}
               onChange={(e) => setCtaLink(e.target.value)}
               placeholder="e.g., /products/123"
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div>
@@ -191,10 +194,11 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
             <Input
               id="order"
               type="number"
-              value={String(order)} // Explicitly cast to String
+              value={String(order)}
               onChange={(e) => setOrder(e.target.value)}
               placeholder="e.g., 1"
               min="0"
+              className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -203,15 +207,15 @@ const AppPopupForm: React.FC<AppPopupFormProps> = ({ initialData, onSubmit, load
               checked={isActive}
               onCheckedChange={setIsActive}
             />
-            <Label htmlFor="isActive">Is Active</Label>
+            <Label htmlFor="isActive" className="text-text-secondary-body">Is Active</Label>
           </div>
-          <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploadingImage}>
+          <Button type="submit" className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small" disabled={loading || uploadingImage}>
             {loading || uploadingImage ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {uploadingImage ? 'Uploading Image...' : 'Saving...'}
               </>
-            ) : (initialData.id ? 'Update Pop-up' : 'Add Pop-up')} {/* Check initialData.id */}
+            ) : (initialData.id ? 'Update Pop-up' : 'Add Pop-up')}
           </Button>
         </form>
       </CardContent>

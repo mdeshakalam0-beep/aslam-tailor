@@ -31,14 +31,14 @@ const CategoryProducts: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-foreground">Loading products...</p>
+      <div className="min-h-screen flex items-center justify-center bg-off-white-page-bg">
+        <p className="text-text-primary-heading">Loading products...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
+    <div className="min-h-screen bg-off-white-page-bg pb-16 md:pb-0">
       <Header />
       <main className="container mx-auto p-0 md:p-4">
         <div className="flex items-center p-4 md:p-0 mb-4">
@@ -47,15 +47,15 @@ const CategoryProducts: React.FC = () => {
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h1 className="text-2xl font-bold text-foreground ml-2">
+          <h1 className="text-2xl font-bold text-text-primary-heading ml-2">
             {category ? category.name : 'Category'} Products
           </h1>
         </div>
 
         <section className="px-4 md:px-0">
           {products.length === 0 ? (
-            <div className="text-center p-8 bg-card rounded-lg shadow-sm">
-              <p className="text-lg text-muted-foreground mb-4">No products found in this category.</p>
+            <div className="text-center p-8 bg-card rounded-default shadow-elev border border-card-border">
+              <p className="text-lg text-text-secondary-body mb-4">No products found in this category.</p>
               <Link to="/" className="text-primary hover:underline">
                 Continue Shopping
               </Link>

@@ -9,10 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { showSuccess, showError } from '@/utils/toast';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
-import { UserCircle2, MessageCircle } from 'lucide-react'; // For a placeholder avatar and WhatsApp icon
-import { Textarea } from '@/components/ui/textarea'; // Import Textarea
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'; // Import Accordion components
-import { getAppSettings } from '@/utils/appSettings'; // Import getAppSettings
+import { UserCircle2, MessageCircle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { getAppSettings } from '@/utils/appSettings';
 
 const Profile: React.FC = () => {
   const { session } = useSession();
@@ -23,7 +23,6 @@ const Profile: React.FC = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  // New state for address fields
   const [phone, setPhone] = useState<string | null>(null);
   const [streetAddress, setStreetAddress] = useState<string | null>(null);
   const [city, setCity] = useState<string | null>(null);
@@ -32,7 +31,6 @@ const Profile: React.FC = () => {
   const [postOffice, setPostOffice] = useState<string | null>(null);
   const [landmark, setLandmark] = useState<string | null>(null);
 
-  // New state for WhatsApp numbers
   const [whatsappNumber1, setWhatsappNumber1] = useState<string | null>(null);
   const [whatsappNumber2, setWhatsappNumber2] = useState<string | null>(null);
 
@@ -41,7 +39,7 @@ const Profile: React.FC = () => {
       getProfile();
       setEmail(session.user?.email || null);
     }
-    fetchAppSettingsForContact(); // Fetch WhatsApp numbers on component mount
+    fetchAppSettingsForContact();
   }, [session]);
 
   const fetchAppSettingsForContact = async () => {
@@ -76,7 +74,6 @@ const Profile: React.FC = () => {
         setFirstName(data.first_name);
         setLastName(data.last_name);
         setAvatarUrl(data.avatar_url);
-        // Set new address fields
         setPhone(data.phone);
         setStreetAddress(data.street_address);
         setCity(data.city);
@@ -103,9 +100,8 @@ const Profile: React.FC = () => {
         id: user.id,
         first_name: firstName,
         last_name: lastName,
-        avatar_url: newAvatarUrl !== undefined ? newAvatarUrl : avatarUrl, // Use newAvatarUrl if provided, otherwise current state
+        avatar_url: newAvatarUrl !== undefined ? newAvatarUrl : avatarUrl,
         updated_at: new Date().toISOString(),
-        // Include new address fields
         phone: phone,
         street_address: streetAddress,
         city: city,
@@ -115,7 +111,6 @@ const Profile: React.FC = () => {
         landmark: landmark,
       };
 
-      // Explicitly specify onConflict for upsert to ensure it uses the primary key for conflict resolution
       const { error } = await supabase.from('profiles').upsert(updates, { onConflict: 'id' });
 
       if (error) {
@@ -152,9 +147,8 @@ const Profile: React.FC = () => {
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
       const uploadedAvatarUrl = data.publicUrl;
-      setAvatarUrl(uploadedAvatarUrl); // Update local state
+      setAvatarUrl(uploadedAvatarUrl);
       showSuccess('Avatar uploaded successfully!');
-      // Automatically update profile with new avatar URL, passing it directly
       await updateProfile({ preventDefault: () => {} } as React.FormEvent, uploadedAvatarUrl);
     } catch (error) {
       console.error('Error uploading avatar:', error);
@@ -173,13 +167,8 @@ const Profile: React.FC = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) {
-        // If the error indicates a missing session or forbidden,
-        // treat it as a successful logout from the client's perspective
-        // and let SessionContextProvider handle the redirect.
         if (error.message.includes('Auth session missing') || error.status === 403) {
           console.warn('Logout failed with Auth session missing or 403, forcing client-side logout.');
-          // Manually clear session data if signOut failed with 403
-          // This will trigger onAuthStateChange with null in SessionContextProvider
           await supabase.auth.setSession(null); 
           showSuccess('Logged out successfully!');
           return;
@@ -194,16 +183,16 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0">
+    <div className="min-h-screen bg-off-white-page-bg pb-16 md:pb-0">
       <Header />
       <main className="container mx-auto p-4">
-        <Card className="max-w-md mx-auto">
+        <Card className="max-w-md mx-auto shadow-elev border border-card-border rounded-default">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center text-foreground">Your Profile</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center text-text-primary-heading">Your Profile</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <p className="text-center text-muted-foreground">Loading profile...</p>
+              <p className="text-center text-text-secondary-body">Loading profile...</p>
             ) : (
               <form onSubmit={updateProfile} className="space-y-4">
                 <div className="flex flex-col items-center space-y-4">
@@ -211,7 +200,7 @@ const Profile: React.FC = () => {
                     <img
                       src={avatarUrl}
                       alt="Avatar"
-                      className="w-24 h-24 rounded-full object-contain border-2 border-primary p-1"
+                      className="w-24 h-24 rounded-full object-contain border-2 border-accent-rose p-1"
                     />
                   ) : (
                     <UserCircle2 className="w-24 h-24 text-muted-foreground" />
@@ -230,7 +219,7 @@ const Profile: React.FC = () => {
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={email || ''} disabled className="bg-muted" />
+                  <Input id="email" type="email" value={email || ''} disabled className="bg-muted border-card-border rounded-small" />
                 </div>
                 <div>
                   <Label htmlFor="firstName">First Name</Label>
@@ -240,6 +229,7 @@ const Profile: React.FC = () => {
                     value={firstName || ''}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Enter your first name"
+                    className="border border-card-border rounded-small focus:ring-accent-rose"
                   />
                 </div>
                 <div>
@@ -250,13 +240,14 @@ const Profile: React.FC = () => {
                     value={lastName || ''}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Enter your last name"
+                    className="border border-card-border rounded-small focus:ring-accent-rose"
                   />
                 </div>
 
                 {/* Address Section using Accordion */}
-                <Accordion type="single" collapsible className="w-full border-t pt-4 mt-4">
+                <Accordion type="single" collapsible className="w-full border-t border-card-border pt-4 mt-4">
                   <AccordionItem value="address-section" className="border-b-0">
-                    <AccordionTrigger className="text-xl font-semibold text-foreground hover:no-underline py-2">
+                    <AccordionTrigger className="text-xl font-semibold text-text-primary-heading hover:no-underline py-2">
                       Your Saved Address
                     </AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-4">
@@ -268,6 +259,7 @@ const Profile: React.FC = () => {
                           value={phone || ''}
                           onChange={(e) => setPhone(e.target.value)}
                           placeholder="Enter phone number"
+                          className="border border-card-border rounded-small focus:ring-accent-rose"
                         />
                       </div>
                       <div>
@@ -277,6 +269,7 @@ const Profile: React.FC = () => {
                           value={streetAddress || ''}
                           onChange={(e) => setStreetAddress(e.target.value)}
                           placeholder="House No., Building Name, Street, Village, Road"
+                          className="border border-card-border rounded-small focus:ring-accent-rose"
                         />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -288,6 +281,7 @@ const Profile: React.FC = () => {
                             value={city || ''}
                             onChange={(e) => setCity(e.target.value)}
                             placeholder="City"
+                            className="border border-card-border rounded-small focus:ring-accent-rose"
                           />
                         </div>
                         <div>
@@ -298,6 +292,7 @@ const Profile: React.FC = () => {
                             value={state || ''}
                             onChange={(e) => setState(e.target.value)}
                             placeholder="State"
+                            className="border border-card-border rounded-small focus:ring-accent-rose"
                           />
                         </div>
                       </div>
@@ -310,6 +305,7 @@ const Profile: React.FC = () => {
                             value={pincode || ''}
                             onChange={(e) => setPincode(e.target.value)}
                             placeholder="Pincode"
+                            className="border border-card-border rounded-small focus:ring-accent-rose"
                           />
                         </div>
                         <div>
@@ -320,6 +316,7 @@ const Profile: React.FC = () => {
                             value={postOffice || ''}
                             onChange={(e) => setPostOffice(e.target.value)}
                             placeholder="Post Office"
+                            className="border border-card-border rounded-small focus:ring-accent-rose"
                           />
                         </div>
                       </div>
@@ -331,6 +328,7 @@ const Profile: React.FC = () => {
                           value={landmark || ''}
                           onChange={(e) => setLandmark(e.target.value)}
                           placeholder="e.g., Near XYZ Temple"
+                          className="border border-card-border rounded-small focus:ring-accent-rose"
                         />
                       </div>
                     </AccordionContent>
@@ -339,17 +337,17 @@ const Profile: React.FC = () => {
 
                 {/* New: Contact Admin Section */}
                 {(whatsappNumber1 || whatsappNumber2) && (
-                  <Accordion type="single" collapsible className="w-full border-t pt-4 mt-4">
+                  <Accordion type="single" collapsible className="w-full border-t border-card-border pt-4 mt-4">
                     <AccordionItem value="contact-admin-section" className="border-b-0">
-                      <AccordionTrigger className="text-xl font-semibold text-foreground hover:no-underline py-2">
+                      <AccordionTrigger className="text-xl font-semibold text-text-primary-heading hover:no-underline py-2">
                         Contact Admin
                       </AccordionTrigger>
                       <AccordionContent className="space-y-3 pt-4">
-                        <p className="text-muted-foreground text-sm">
+                        <p className="text-text-secondary-body text-sm">
                           किसी भी समस्या या प्रश्न के लिए, आप हमारे एडमिन से WhatsApp पर संपर्क कर सकते हैं:
                         </p>
                         {whatsappNumber1 && (
-                          <Button asChild variant="outline" className="w-full justify-start bg-green-500 text-white hover:bg-green-600">
+                          <Button asChild variant="outline" className="w-full justify-start bg-green-500 text-white hover:bg-green-600 rounded-small">
                             <a href={`https://wa.me/${whatsappNumber1.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
                               <MessageCircle className="h-5 w-5 mr-2" />
                               WhatsApp Admin 1: {whatsappNumber1}
@@ -357,7 +355,7 @@ const Profile: React.FC = () => {
                           </Button>
                         )}
                         {whatsappNumber2 && (
-                          <Button asChild variant="outline" className="w-full justify-start bg-green-500 text-white hover:bg-green-600">
+                          <Button asChild variant="outline" className="w-full justify-start bg-green-500 text-white hover:bg-green-600 rounded-small">
                             <a href={`https://wa.me/${whatsappNumber2.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
                               <MessageCircle className="h-5 w-5 mr-2" />
                               WhatsApp Admin 2: {whatsappNumber2}
@@ -369,12 +367,12 @@ const Profile: React.FC = () => {
                   </Accordion>
                 )}
 
-                <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading || uploading}>
+                <Button type="submit" className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small" disabled={loading || uploading}>
                   {loading ? 'Saving...' : 'Update Profile'}
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full mt-2 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  className="w-full mt-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-small"
                   onClick={handleLogout}
                   disabled={loading || uploading}
                 >
