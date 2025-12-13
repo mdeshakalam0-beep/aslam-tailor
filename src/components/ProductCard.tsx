@@ -13,7 +13,7 @@ interface ProductCardProps {
     name: string;
     imageUrl: string;
     price: number;
-    stitchingPrice?: number; // New: Added stitching price field
+    stitchingPrice?: number;
     originalPrice?: number;
     discount?: number;
     rating: number;
@@ -21,7 +21,7 @@ interface ProductCardProps {
     recentPurchase?: string;
     sizes?: string[];
   };
-  showStitchingPrice?: boolean; // New: Prop to toggle price display
+  showStitchingPrice?: boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, showStitchingPrice = false }) => {
@@ -35,7 +35,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showStitchingPrice =
     ? product.price + (product.stitchingPrice || 0) 
     : product.price;
 
-  // Logic to calculate original price (if exists) + stitching for display consistency
   const finalOriginalPrice = product.originalPrice 
     ? (isStitchingActive ? product.originalPrice + (product.stitchingPrice || 0) : product.originalPrice)
     : undefined;
@@ -61,14 +60,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showStitchingPrice =
 
     const selectedSize = product.sizes[0];
 
+    // Yahan par changes kiye gaye hain:
     addToCart({
       id: product.id,
       name: product.name,
       imageUrl: product.imageUrl,
-      price: finalPrice, // Passing the calculated price (with or without stitching)
+      price: finalPrice, // Total price (Cloth + Stitching if active)
       selectedSize: selectedSize,
-      // Optional: You can pass metadata here if your cart supports it
-      // withStitching: isStitchingActive 
+      withStitching: isStitchingActive, // Yeh line bataegi ki stitching included hai ya nahi
     });
   };
 
@@ -118,7 +117,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showStitchingPrice =
               <span className="text-xs font-medium text-accent-rose ml-1">{product.discount}% off</span>
             )}
             
-            {/* Visual indicator for stitching */}
             {isStitchingActive && (
               <span className="text-[10px] bg-accent-rose/10 text-accent-rose px-1.5 py-0.5 rounded-full font-medium ml-1">
                 + Stitching
