@@ -15,6 +15,9 @@ const Index: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [activeSearchTerm, setActiveSearchTerm] = useState('');
   const [heroActive, setHeroActive] = useState(false);
+  
+  // New State for stitching toggle
+  const [viewWithStitching, setViewWithStitching] = useState(false);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -77,9 +80,37 @@ const Index: React.FC = () => {
           </div>
 
           <section className="px-4 md:px-0">
-            <h2 className="text-2xl md:text-3xl font-bold mb-5 text-text-primary">
-              {displaySectionTitle}
-            </h2>
+            {/* Header Area with Stitching Toggle */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
+              <h2 className="text-2xl md:text-3xl font-bold text-text-primary">
+                {displaySectionTitle}
+              </h2>
+
+              {/* STITCHING TOGGLE BUTTON */}
+              <div 
+                className="flex items-center bg-white border border-card-border rounded-full p-1 cursor-pointer w-fit shadow-sm"
+                onClick={() => setViewWithStitching(!viewWithStitching)}
+              >
+                <button
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    !viewWithStitching 
+                      ? 'bg-accent-rose text-white shadow-md' 
+                      : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  Cloth Only
+                </button>
+                <button
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    viewWithStitching 
+                      ? 'bg-accent-rose text-white shadow-md' 
+                      : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  With Stitching
+                </button>
+              </div>
+            </div>
 
             {loading && activeSearchTerm === '' ? (
               <p className="text-text-secondary">
@@ -107,9 +138,14 @@ const Index: React.FC = () => {
                   <Link
                     to={`/products/${product.id}`}
                     key={product.id}
+                    state={{ withStitching: viewWithStitching }} // Passing choice to details page
                     className="block"
                   >
-                    <ProductCard product={product} />
+                    {/* Passing the stitching state to ProductCard to update price display */}
+                    <ProductCard 
+                      product={product} 
+                      showStitchingPrice={viewWithStitching} 
+                    />
                   </Link>
                 ))}
               </div>
