@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Star, Heart as HeartIconFilled, Heart as HeartIconOutline, Ruler, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Star, Heart as HeartIconFilled, Heart as HeartIconOutline, Ruler, X, ChevronLeft, ChevronRight, Scissors } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -27,6 +27,7 @@ const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { session } = useSession();
   const navigate = useNavigate();
+  const location = useLocation(); // To check state passed from previous page
   const [product, setProduct] = useState<Product | undefined>(undefined);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<ProductReview[]>([]);
@@ -35,6 +36,9 @@ const ProductDetail: React.FC = () => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [isCustomMeasurementActive, setIsCustomMeasurementActive] = useState(false);
   const [isSizeSelectionActive, setIsSizeSelectionActive] = useState(true);
+
+  // New State for Stitching Option
+  const [isStitchingSelected, setIsStitchingSelected] = useState(false);
 
   // lightbox state
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -55,6 +59,12 @@ const ProductDetail: React.FC = () => {
       setRecommendedProducts(fetchedRecommended);
       const fetchedReviews = await getReviewsForProduct(fetchedProduct.id);
       setReviews(fetchedReviews);
+      
+      // Auto-select stitching if user came from listing page with stitching toggle ON
+      const state = location.state as { withStitching?: boolean };
+      if (state?.withStitching && (fetchedProduct.stitchingPrice || 0) > 0) {
+        setIsStitchingSelected(true);
+      }
     }
     setLoading(false);
   };
@@ -92,6 +102,15 @@ const ProductDetail: React.FC = () => {
     );
   }
 
+  // Price Calculation Logic
+  const currentPrice = isStitchingSelected && product.stitchingPrice
+    ? product.price + product.stitchingPrice
+    : product.price;
+
+  const currentOriginalPrice = product.originalPrice 
+    ? (isStitchingSelected && product.stitchingPrice ? product.originalPrice + product.stitchingPrice : product.originalPrice)
+    : undefined;
+
   const handleSizeSelect = (size: string) => {
     setSelectedSize(size);
     setIsCustomMeasurementActive(false);
@@ -112,6 +131,8 @@ const ProductDetail: React.FC = () => {
     if (isActive) {
       setSelectedSize(undefined);
       setIsSizeSelectionActive(false);
+      // Optional: Auto-enable stitching when custom measurements are active?
+      // setIsStitchingSelected(true); 
     }
   };
 
@@ -120,27 +141,23 @@ const ProductDetail: React.FC = () => {
       showError('Please log in to add items to cart.');
       return;
     }
-    if (isCustomMeasurementActive) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        imageUrl: product.images[0],
-        price: product.price,
-        selectedSize: "Custom Fit",
-      });
-      showSuccess('Product added to cart with custom measurement option!');
-    } else if (isSizeSelectionActive && selectedSize) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        imageUrl: product.images[0],
-        price: product.price,
-        selectedSize: selectedSize,
-      });
-      showSuccess('Product added to cart!');
-    } else {
+    
+    // Logic to ensure size is selected only if measurements are NOT active
+    if (!isCustomMeasurementActive && isSizeSelectionActive && !selectedSize) {
       showError('Please select a size or enable custom measurements.');
+      return;
     }
+
+    const sizeToAdd = isCustomMeasurementActive ? "Custom Fit" : selectedSize;
+
+    addToCart({
+      id: product.id,
+      name: product.name,
+      imageUrl: product.images[0],
+      price: currentPrice, // Updated price
+      selectedSize: sizeToAdd,
+      withStitching: isStitchingSelected, // Pass stitching status
+    });
   };
 
   const handleBuyNow = () => {
@@ -148,28 +165,23 @@ const ProductDetail: React.FC = () => {
       showError('Please log in to buy now.');
       return;
     }
-    if (isCustomMeasurementActive) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        imageUrl: product.images[0],
-        price: product.price,
-        selectedSize: "Custom Fit",
-      });
-      showSuccess('Product added to cart with custom measurement option!');
-      navigate('/cart');
-    } else if (isSizeSelectionActive && selectedSize) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        imageUrl: product.images[0],
-        price: product.price,
-        selectedSize: selectedSize,
-      });
-      navigate('/cart');
-    } else {
+
+    if (!isCustomMeasurementActive && isSizeSelectionActive && !selectedSize) {
       showError('Please select a size or enable custom measurements.');
+      return;
     }
+
+    const sizeToAdd = isCustomMeasurementActive ? "Custom Fit" : selectedSize;
+
+    addToCart({
+      id: product.id,
+      name: product.name,
+      imageUrl: product.images[0],
+      price: currentPrice, // Updated price
+      selectedSize: sizeToAdd,
+      withStitching: isStitchingSelected, // Pass stitching status
+    });
+    navigate('/cart');
   };
 
   const handleToggleFavorite = async () => {
@@ -253,15 +265,18 @@ const ProductDetail: React.FC = () => {
                 )}
               </Button>
             </div>
+            
+            {/* Price Display */}
             <div className="flex items-baseline space-x-2 mb-2">
-              <span className="text-2xl font-bold text-accent-rose">₹{product.price.toLocaleString()}</span>
-              {product.originalPrice && (
-                <span className="text-base text-text-secondary-body line-through">₹{product.originalPrice.toLocaleString()}</span>
+              <span className="text-2xl font-bold text-accent-rose">₹{currentPrice.toLocaleString()}</span>
+              {currentOriginalPrice && (
+                <span className="text-base text-text-secondary-body line-through">₹{currentOriginalPrice.toLocaleString()}</span>
               )}
-              {product.discount && (
+              {product.discount && !isStitchingSelected && (
                 <span className="text-sm font-medium text-accent-rose ml-2">{product.discount}% off</span>
               )}
             </div>
+
             <div className="flex items-center text-sm text-text-secondary-body mb-4">
               <Star className="h-4 w-4 text-accent-rose mr-1 fill-accent-rose" />
               <span>{product.rating} ({product.reviewsCount})</span>
@@ -269,10 +284,34 @@ const ProductDetail: React.FC = () => {
             <p className="text-text-secondary-body leading-relaxed">{product.description}</p>
           </div>
 
+          {/* Stitching Option Toggle */}
+          {(product.stitchingPrice || 0) > 0 && (
+            <div className="p-4 bg-primary-pale-pink/50 rounded-lg border border-accent-rose/20 mt-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white rounded-full text-accent-rose">
+                    <Scissors size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-text-primary-heading">Add Stitching Service</h4>
+                    <p className="text-sm text-text-secondary-body">
+                      Get it stitched for just <span className="font-bold text-accent-rose">₹{product.stitchingPrice}</span>
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={isStitchingSelected}
+                  onCheckedChange={setIsStitchingSelected}
+                  className="data-[state=checked]:bg-accent-rose"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Share Button */}
           <ShareButton
             title={product.name}
-            text={`Check out this amazing product: ${product.name} for ₹${product.price.toLocaleString()}!`}
+            text={`Check out this amazing product: ${product.name} for ₹${currentPrice.toLocaleString()}!`}
             url={`${window.location.origin}/products/${product.id}`}
             imageUrl={product.images[0]}
           />
@@ -362,7 +401,12 @@ const ProductDetail: React.FC = () => {
           <h2 className="text-2xl font-bold mb-4 text-text-primary-heading">Recommended Products</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {recommendedProducts.map((p) => (
-              <Link to={`/products/${p.id}`} key={p.id} className="block">
+              <Link 
+                to={`/products/${p.id}`} 
+                key={p.id} 
+                className="block"
+                // Pass stitching choice if needed, but usually recommended items reset to default
+              >
                 <ProductCard product={p} />
               </Link>
             ))}
