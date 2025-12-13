@@ -7,6 +7,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   selectedSize?: string;
+  withStitching?: boolean; // New: Added stitching flag
 }
 
 const CART_STORAGE_KEY = 'aslam_tailor_cart';
@@ -37,8 +38,13 @@ export const saveCartItems = (cartItems: CartItem[]) => {
 
 export const addToCart = (product: Omit<CartItem, 'quantity'>, quantity: number = 1) => {
   const cartItems = getCartItems();
+  
+  // Update logic: Check ID, Size, AND Stitching status
   const existingItemIndex = cartItems.findIndex(
-    (item) => item.id === product.id && item.selectedSize === product.selectedSize
+    (item) => 
+      item.id === product.id && 
+      item.selectedSize === product.selectedSize &&
+      (item.withStitching || false) === (product.withStitching || false)
   );
 
   if (existingItemIndex > -1) {
@@ -47,13 +53,29 @@ export const addToCart = (product: Omit<CartItem, 'quantity'>, quantity: number 
     cartItems.push({ ...product, quantity });
   }
   saveCartItems(cartItems);
-  showSuccess(`${product.name} added to cart!`);
+  
+  // Custom message based on stitching choice
+  const message = product.withStitching 
+    ? `${product.name} (with Stitching) added to cart!` 
+    : `${product.name} added to cart!`;
+    
+  showSuccess(message);
 };
 
-export const updateCartItemQuantity = (itemId: string, selectedSize: string | undefined, quantity: number) => {
+// Update logic: Added withStitching parameter to identify correct item
+export const updateCartItemQuantity = (
+  itemId: string, 
+  selectedSize: string | undefined, 
+  withStitching: boolean | undefined, 
+  quantity: number
+) => {
   let cartItems = getCartItems();
+  
   const itemIndex = cartItems.findIndex(
-    (item) => item.id === itemId && item.selectedSize === selectedSize
+    (item) => 
+      item.id === itemId && 
+      item.selectedSize === selectedSize &&
+      (item.withStitching || false) === (withStitching || false)
   );
 
   if (itemIndex > -1) {
@@ -69,11 +91,22 @@ export const updateCartItemQuantity = (itemId: string, selectedSize: string | un
   return cartItems;
 };
 
-export const removeCartItem = (itemId: string, selectedSize: string | undefined) => {
+// Update logic: Added withStitching parameter to identify correct item
+export const removeCartItem = (
+  itemId: string, 
+  selectedSize: string | undefined,
+  withStitching: boolean | undefined
+) => {
   let cartItems = getCartItems();
+  
   cartItems = cartItems.filter(
-    (item) => !(item.id === itemId && item.selectedSize === selectedSize)
+    (item) => !(
+      item.id === itemId && 
+      item.selectedSize === selectedSize &&
+      (item.withStitching || false) === (withStitching || false)
+    )
   );
+  
   saveCartItems(cartItems);
   showSuccess('Item removed from cart.');
   return cartItems;
