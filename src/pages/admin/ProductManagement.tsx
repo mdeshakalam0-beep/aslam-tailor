@@ -105,6 +105,7 @@ const ProductManagement: React.FC = () => {
                     <TableHead className="w-[80px]">Image</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Price</TableHead>
+                    <TableHead>Stitching Price</TableHead> {/* New Column Added */}
                     <TableHead>Rating</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -117,6 +118,12 @@ const ProductManagement: React.FC = () => {
                       </TableCell>
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell>₹{product.price.toLocaleString()}</TableCell>
+                      {/* Display Stitching Price */}
+                      <TableCell>
+                        {product.stitchingPrice && product.stitchingPrice > 0 
+                          ? `₹${product.stitchingPrice.toLocaleString()}` 
+                          : <span className="text-muted-foreground text-sm">-</span>}
+                      </TableCell>
                       <TableCell>{product.rating?.toFixed(1) || 'N/A'}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleEditProduct(product)}>
@@ -137,7 +144,7 @@ const ProductManagement: React.FC = () => {
 
       {/* Add/Edit Product Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="product-form-title"> {/* Added max-h and overflow-y */}
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto" aria-labelledby="product-form-title">
           <DialogHeader>
             <DialogTitle id="product-form-title">{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
             <DialogDescription>
