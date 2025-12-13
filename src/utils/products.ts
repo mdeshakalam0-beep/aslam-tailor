@@ -5,6 +5,7 @@ export interface Product {
   id: string;
   imageUrl: string; // Primary image URL
   price: number;
+  stitchingPrice?: number; // New: Price for stitching
   originalPrice?: number;
   discount?: number;
   rating: number;
@@ -43,6 +44,7 @@ export const getProducts = async (): Promise<Product[]> => {
       name: item.name,
       imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300', // Use first image as primary
       price: item.price ?? 0, // Ensure price is always a number
+      stitchingPrice: item.stitching_price ?? 0, // New: Map stitching price
       originalPrice: item.original_price ?? undefined,
       discount: item.discount ?? undefined,
       rating: item.rating ?? 0, // Default to 0 if null
@@ -92,6 +94,7 @@ export const getProductById = async (id: string | undefined): Promise<Product | 
         name: data.name,
         imageUrl: data.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
         price: data.price ?? 0, // Ensure price is always a number
+        stitchingPrice: data.stitching_price ?? 0, // New: Map stitching price
         originalPrice: data.original_price ?? undefined,
         discount: data.discount ?? undefined,
         rating: data.rating ?? 0, // Default to 0 if null
@@ -138,6 +141,7 @@ export const getProductsByCategory = async (categoryId: string): Promise<Product
       name: item.name,
       imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
       price: item.price ?? 0, // Ensure price is always a number
+      stitchingPrice: item.stitching_price ?? 0, // New: Map stitching price
       originalPrice: item.original_price ?? undefined,
       discount: item.discount ?? undefined,
       rating: item.rating ?? 0, // Default to 0 if null
@@ -187,6 +191,7 @@ export const getRecommendedProducts = async (currentProductId: string, currentPr
           name: item.name,
           imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
           price: item.price ?? 0,
+          stitchingPrice: item.stitching_price ?? 0, // New: Map stitching price
           originalPrice: item.original_price ?? undefined,
           discount: item.discount ?? undefined,
           rating: item.rating ?? 0,
@@ -228,6 +233,7 @@ export const getRecommendedProducts = async (currentProductId: string, currentPr
           name: item.name,
           imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
           price: item.price ?? 0,
+          stitchingPrice: item.stitching_price ?? 0, // New: Map stitching price
           originalPrice: item.original_price ?? undefined,
           discount: item.discount ?? undefined,
           rating: item.rating ?? 0,
@@ -284,6 +290,7 @@ export const searchProducts = async (query: string, limit: number = 10): Promise
       name: item.name,
       imageUrl: item.image_urls[0] || 'https://picsum.photos/seed/placeholder/300/300',
       price: item.price ?? 0,
+      stitchingPrice: item.stitching_price ?? 0, // New: Map stitching price
       originalPrice: item.original_price ?? undefined,
       discount: item.discount ?? undefined,
       rating: item.rating ?? 0,
@@ -317,6 +324,7 @@ export const createProduct = async (productData: Omit<Product, 'id' | 'imageUrl'
         name: productData.name,
         description: productData.description,
         price: productData.price,
+        stitching_price: productData.stitchingPrice, // New: Insert stitching price
         original_price: productData.originalPrice,
         discount: productData.discount,
         rating: productData.rating,
@@ -351,6 +359,7 @@ export const updateProduct = async (id: string, productData: Partial<Omit<Produc
         name: productData.name,
         description: productData.description,
         price: productData.price,
+        stitching_price: productData.stitchingPrice, // New: Update stitching price
         original_price: productData.originalPrice,
         discount: productData.discount,
         rating: productData.rating,
