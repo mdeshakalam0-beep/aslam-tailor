@@ -13,6 +13,7 @@ interface ProductCardProps {
     name: string;
     imageUrl: string;
     price: number;
+    stitchingPrice?: number; // New: Added stitching price field
     originalPrice?: number;
     discount?: number;
     rating: number;
@@ -20,11 +21,24 @@ interface ProductCardProps {
     recentPurchase?: string;
     sizes?: string[];
   };
+  showStitchingPrice?: boolean; // New: Prop to toggle price display
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, showStitchingPrice = false }) => {
   const { session } = useSession();
   const [isFavorited, setIsFavorited] = useState(false);
+
+  // Logic to calculate final price based on stitching selection
+  const isStitchingActive = showStitchingPrice && (product.stitchingPrice || 0) > 0;
+  
+  const finalPrice = isStitchingActive 
+    ? product.price + (product.stitchingPrice || 0) 
+    : product.price;
+
+  // Logic to calculate original price (if exists) + stitching for display consistency
+  const finalOriginalPrice = product.originalPrice 
+    ? (isStitchingActive ? product.originalPrice + (product.stitchingPrice || 0) : product.originalPrice)
+    : undefined;
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -51,8 +65,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       id: product.id,
       name: product.name,
       imageUrl: product.imageUrl,
-      price: product.price,
+      price: finalPrice, // Passing the calculated price (with or without stitching)
       selectedSize: selectedSize,
+      // Optional: You can pass metadata here if your cart supports it
+      // withStitching: isStitchingActive 
     });
   };
 
@@ -91,13 +107,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <CardContent className="p-3">
         <h3 className="text-base font-semibold text-text-primary-heading truncate">{product.name}</h3>
         <div className="flex items-center justify-between mt-1">
-          <div className="flex items-baseline space-x-1">
-            <span className="text-lg font-bold text-accent-rose">₹{product.price.toLocaleString()}</span>
-            {product.originalPrice && (
-              <span className="text-sm text-text-secondary-body line-through">₹{product.originalPrice.toLocaleString()}</span>
+          <div className="flex flex-wrap items-baseline gap-x-1">
+            <span className="text-lg font-bold text-accent-rose">₹{finalPrice.toLocaleString()}</span>
+            
+            {finalOriginalPrice && (
+              <span className="text-sm text-text-secondary-body line-through">₹{finalOriginalPrice.toLocaleString()}</span>
             )}
-            {product.discount && (
+            
+            {product.discount && !isStitchingActive && (
               <span className="text-xs font-medium text-accent-rose ml-1">{product.discount}% off</span>
+            )}
+            
+            {/* Visual indicator for stitching */}
+            {isStitchingActive && (
+              <span className="text-[10px] bg-accent-rose/10 text-accent-rose px-1.5 py-0.5 rounded-full font-medium ml-1">
+                + Stitching
+              </span>
             )}
           </div>
         </div>
