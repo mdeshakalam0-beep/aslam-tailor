@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { MinusCircle, PlusCircle, Trash2 } from 'lucide-react';
 import { CartItem, getCartItems, updateCartItemQuantity, removeCartItem } from '@/utils/cart';
 import { showError } from '@/utils/toast';
-import { CheckoutItem } from '@/types/checkout';
 
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -19,12 +18,14 @@ const Cart: React.FC = () => {
   }, []);
 
   const handleQuantityChange = (item: CartItem, newQuantity: number) => {
-    const updatedCart = updateCartItemQuantity(item.id, item.selectedSize, newQuantity);
+    // Updated: Passing item.withStitching to identify the correct item
+    const updatedCart = updateCartItemQuantity(item.id, item.selectedSize, item.withStitching, newQuantity);
     setCartItems(updatedCart);
   };
 
   const handleRemoveItem = (item: CartItem) => {
-    const updatedCart = removeCartItem(item.id, item.selectedSize);
+    // Updated: Passing item.withStitching to identify the correct item
+    const updatedCart = removeCartItem(item.id, item.selectedSize, item.withStitching);
     setCartItems(updatedCart);
   };
 
@@ -63,14 +64,25 @@ const Cart: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {cartItems.map((item) => (
-                    <div key={`${item.id}-${item.selectedSize}`} className="flex items-center p-2 border border-card-border rounded-small bg-white">
+                    // Updated Key to include stitching status (prevents conflicts)
+                    <div key={`${item.id}-${item.selectedSize}-${item.withStitching}`} className="flex items-center p-2 border border-card-border rounded-small bg-white">
                       <img src={item.imageUrl} alt={item.name} className="w-20 h-20 object-cover rounded-small mr-4" />
                       <div className="flex-1">
-                        <h2 className="text-lg font-semibold text-text-primary-heading">{item.name}</h2>
-                        <p className="text-text-secondary-body text-sm">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h2 className="text-lg font-semibold text-text-primary-heading">{item.name}</h2>
+                          {/* Stitching Badge */}
+                          {item.withStitching && (
+                            <span className="text-xs bg-accent-rose/10 text-accent-rose px-2 py-0.5 rounded-full font-medium border border-accent-rose/20">
+                              With Stitching
+                            </span>
+                          )}
+                        </div>
+                        
+                        <p className="text-text-secondary-body text-sm mt-1">
                           {item.selectedSize && `Size: ${item.selectedSize}`}
                         </p>
                         <p className="text-accent-rose font-bold mt-1">₹{item.price.toLocaleString()}</p>
+                        
                         <div className="flex items-center mt-2 space-x-2">
                           <Button
                             variant="outline"
