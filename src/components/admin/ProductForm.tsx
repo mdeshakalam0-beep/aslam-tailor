@@ -22,6 +22,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
   const [name, setName] = useState(initialData?.name || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [price, setPrice] = useState(initialData?.price.toString() || '');
+  // New State for Stitching Price
+  const [stitchingPrice, setStitchingPrice] = useState(initialData?.stitchingPrice?.toString() || '');
   const [originalPrice, setOriginalPrice] = useState(initialData?.originalPrice?.toString() || '');
   const [discount, setDiscount] = useState(initialData?.discount?.toString() || '');
   const [rating, setRating] = useState(initialData?.rating?.toString() || '');
@@ -52,6 +54,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       setName(initialData.name);
       setDescription(initialData.description);
       setPrice(initialData.price.toString());
+      setStitchingPrice(initialData.stitchingPrice?.toString() || ''); // Load stitching price
       setOriginalPrice(initialData.originalPrice?.toString() || '');
       setDiscount(initialData.discount?.toString() || '');
       setRating(initialData.rating?.toString() || '');
@@ -68,6 +71,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       setUseUrlInput(true);
       setSelectedFiles([]);
       setSelectedCategoryId(undefined);
+      setStitchingPrice(''); // Reset stitching price
       setIsCancellable(false);
       setCancellationWindowDays('0');
       setIsReturnable(false);
@@ -146,6 +150,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       name,
       description,
       price: parseFloat(price),
+      stitchingPrice: stitchingPrice ? parseFloat(stitchingPrice) : undefined, // Include stitching price
       originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
       discount: discount ? parseInt(discount) : undefined,
       rating: rating ? parseFloat(rating) : undefined,
@@ -193,9 +198,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
               className="border border-card-border rounded-small focus:ring-accent-rose"
             />
           </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="price">Price (₹)</Label>
+              <Label htmlFor="price">Price (₹) (Only Cloth)</Label>
               <Input
                 id="price"
                 type="number"
@@ -208,7 +214,25 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
+            
+            {/* Added Stitching Price Input */}
             <div>
+              <Label htmlFor="stitchingPrice">Stitching Price (₹) (Optional)</Label>
+              <Input
+                id="stitchingPrice"
+                type="number"
+                value={stitchingPrice}
+                onChange={(e) => setStitchingPrice(e.target.value)}
+                placeholder="e.g., 300"
+                min="0"
+                step="0.01"
+                className="border border-card-border rounded-small focus:ring-accent-rose"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+             <div>
               <Label htmlFor="originalPrice">Original Price (₹) (Optional)</Label>
               <Input
                 id="originalPrice"
@@ -221,8 +245,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="discount">Discount (%) (Optional)</Label>
               <Input
@@ -236,6 +258,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="rating">Rating (1-5) (Optional)</Label>
               <Input
@@ -250,23 +275,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
                 className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
-          </div>
-
-          {/* Category Selection */}
-          <div>
-            <Label htmlFor="category">Category</Label>
-            <Select onValueChange={setSelectedCategoryId} value={selectedCategoryId}>
-              <SelectTrigger id="category" className="border border-card-border rounded-small focus:ring-accent-rose">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+             {/* Category Selection */}
+            <div>
+              <Label htmlFor="category">Category</Label>
+              <Select onValueChange={setSelectedCategoryId} value={selectedCategoryId}>
+                <SelectTrigger id="category" className="border border-card-border rounded-small focus:ring-accent-rose">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Image Upload Options */}
