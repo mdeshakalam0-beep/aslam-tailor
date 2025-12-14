@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/components/SessionContextProvider';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { showSuccess, showError } from '@/utils/toast';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
-import { UserCircle2, MessageCircle } from 'lucide-react';
+import { 
+  UserCircle2, 
+  MessageCircle, 
+  Camera, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  User, 
+  LogOut, 
+  Save, 
+  Home, 
+  Building2 
+} from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { getAppSettings } from '@/utils/appSettings';
@@ -183,205 +193,260 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-off-white-page-bg pb-16 md:pb-0">
+    <div className="min-h-screen bg-off-white-page-bg pb-24 md:pb-8">
       <Header />
-      <main className="container mx-auto p-4">
-        <Card className="max-w-md mx-auto shadow-elev border border-card-border rounded-default">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center text-text-primary-heading">Your Profile</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <p className="text-center text-text-secondary-body">Loading profile...</p>
-            ) : (
-              <form onSubmit={updateProfile} className="space-y-4">
-                <div className="flex flex-col items-center space-y-4">
+      
+      <main className="container mx-auto px-4 pt-6 max-w-lg">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+             <p className="text-text-secondary-body animate-pulse">Loading profile...</p>
+          </div>
+        ) : (
+          <form onSubmit={updateProfile} className="space-y-6 relative">
+            
+            {/* 1. Header & Avatar Section */}
+            <div className="flex flex-col items-center">
+              <div className="relative group">
+                <div className="w-28 h-28 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-100">
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
                       alt="Avatar"
-                      className="w-24 h-24 rounded-full object-contain border-2 border-accent-rose p-1"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <UserCircle2 className="w-24 h-24 text-muted-foreground" />
+                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                       <UserCircle2 className="w-16 h-16 text-gray-400" />
+                    </div>
                   )}
-                  <Label htmlFor="avatar" className="cursor-pointer text-primary hover:underline">
-                    {uploading ? 'Uploading...' : 'Upload Avatar'}
-                    <Input
-                      id="avatar"
-                      type="file"
-                      accept="image/*"
-                      onChange={uploadAvatar}
-                      disabled={uploading}
-                      className="hidden"
-                    />
-                  </Label>
                 </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={email || ''} disabled className="bg-muted border-card-border rounded-small" />
-                </div>
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                
+                {/* Camera Icon Button */}
+                <Label 
+                  htmlFor="avatar" 
+                  className="absolute bottom-1 right-1 bg-accent-rose text-white p-2 rounded-full cursor-pointer shadow-md hover:bg-accent-dark transition-colors"
+                >
+                  <Camera size={16} />
                   <Input
-                    id="firstName"
-                    type="text"
-                    value={firstName || ''}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Enter your first name"
-                    className="border border-card-border rounded-small focus:ring-accent-rose"
+                    id="avatar"
+                    type="file"
+                    accept="image/*"
+                    onChange={uploadAvatar}
+                    disabled={uploading}
+                    className="hidden"
                   />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    value={lastName || ''}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Enter your last name"
-                    className="border border-card-border rounded-small focus:ring-accent-rose"
-                  />
-                </div>
+                </Label>
+              </div>
 
-                {/* Address Section using Accordion */}
-                <Accordion type="single" collapsible className="w-full border-t border-card-border pt-4 mt-4">
+              <div className="mt-4 text-center">
+                 <h2 className="text-2xl font-bold text-text-primary-heading">
+                    {firstName || 'User'} {lastName || ''}
+                 </h2>
+                 <p className="text-text-secondary-body flex items-center justify-center gap-1.5 mt-1 text-sm">
+                    <Mail size={14} />
+                    {email}
+                 </p>
+              </div>
+            </div>
+
+            {/* 2. Personal Info Section */}
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-card-border/60">
+                <h3 className="text-sm font-semibold text-text-secondary-body uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <User size={16} className="text-accent-rose"/> Personal Info
+                </h3>
+                <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="firstName" className="text-xs text-muted-foreground">First Name</Label>
+                            <Input
+                                id="firstName"
+                                type="text"
+                                value={firstName || ''}
+                                onChange={(e) => setFirstName(e.target.value)}
+                                className="bg-gray-50 border-gray-200 rounded-xl focus:ring-accent-rose focus:border-accent-rose"
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="lastName" className="text-xs text-muted-foreground">Last Name</Label>
+                            <Input
+                                id="lastName"
+                                type="text"
+                                value={lastName || ''}
+                                onChange={(e) => setLastName(e.target.value)}
+                                className="bg-gray-50 border-gray-200 rounded-xl focus:ring-accent-rose focus:border-accent-rose"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 3. Address Section (Clean Accordion) */}
+            <div className="bg-white rounded-2xl shadow-sm border border-card-border/60 overflow-hidden">
+                <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="address-section" className="border-b-0">
-                    <AccordionTrigger className="text-xl font-semibold text-text-primary-heading hover:no-underline py-2">
-                      Your Saved Address
+                    <AccordionTrigger className="px-5 py-4 hover:bg-gray-50 hover:no-underline transition-colors group">
+                        <div className="flex items-center gap-3 text-left">
+                            <div className="p-2 bg-pink-50 rounded-lg text-accent-rose group-hover:bg-pink-100 transition-colors">
+                                <MapPin size={20} />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-text-primary-heading">Saved Address</h3>
+                                <p className="text-xs text-text-secondary-body">Manage delivery location</p>
+                            </div>
+                        </div>
                     </AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-4">
-                      <div>
-                        <Label htmlFor="phone">Phone Number</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={phone || ''}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="Enter phone number"
-                          className="border border-card-border rounded-small focus:ring-accent-rose"
-                        />
+                    <AccordionContent className="px-5 pb-5 space-y-4">
+                      
+                      <div className="space-y-1.5">
+                        <Label htmlFor="phone" className="text-xs text-muted-foreground">Phone Number</Label>
+                        <div className="relative">
+                            <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                            <Input
+                            id="phone"
+                            type="tel"
+                            value={phone || ''}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="pl-9 bg-gray-50 border-gray-200 rounded-xl"
+                            placeholder="Phone number"
+                            />
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="streetAddress">Street Address / Village / Road</Label>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="streetAddress" className="text-xs text-muted-foreground">Street Address / Road</Label>
                         <Textarea
                           id="streetAddress"
                           value={streetAddress || ''}
                           onChange={(e) => setStreetAddress(e.target.value)}
-                          placeholder="House No., Building Name, Street, Village, Road"
-                          className="border border-card-border rounded-small focus:ring-accent-rose"
+                          placeholder="House No, Street, Area"
+                          className="bg-gray-50 border-gray-200 rounded-xl min-h-[80px]"
                         />
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="city">City</Label>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="city" className="text-xs text-muted-foreground">City</Label>
                           <Input
                             id="city"
-                            type="text"
                             value={city || ''}
                             onChange={(e) => setCity(e.target.value)}
-                            placeholder="City"
-                            className="border border-card-border rounded-small focus:ring-accent-rose"
+                            className="bg-gray-50 border-gray-200 rounded-xl"
                           />
                         </div>
-                        <div>
-                          <Label htmlFor="state">State</Label>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="state" className="text-xs text-muted-foreground">State</Label>
                           <Input
                             id="state"
-                            type="text"
                             value={state || ''}
                             onChange={(e) => setState(e.target.value)}
-                            placeholder="State"
-                            className="border border-card-border rounded-small focus:ring-accent-rose"
+                            className="bg-gray-50 border-gray-200 rounded-xl"
                           />
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="pincode">Pincode</Label>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="pincode" className="text-xs text-muted-foreground">Pincode</Label>
                           <Input
                             id="pincode"
-                            type="text"
                             value={pincode || ''}
                             onChange={(e) => setPincode(e.target.value)}
-                            placeholder="Pincode"
-                            className="border border-card-border rounded-small focus:ring-accent-rose"
+                            className="bg-gray-50 border-gray-200 rounded-xl"
                           />
                         </div>
-                        <div>
-                          <Label htmlFor="postOffice">Post Office (Optional)</Label>
-                          <Input
-                            id="postOffice"
-                            type="text"
-                            value={postOffice || ''}
-                            onChange={(e) => setPostOffice(e.target.value)}
-                            placeholder="Post Office"
-                            className="border border-card-border rounded-small focus:ring-accent-rose"
-                          />
+                        <div className="space-y-1.5">
+                            <Label htmlFor="landmark" className="text-xs text-muted-foreground">Landmark</Label>
+                            <Input
+                                id="landmark"
+                                value={landmark || ''}
+                                onChange={(e) => setLandmark(e.target.value)}
+                                className="bg-gray-50 border-gray-200 rounded-xl"
+                            />
                         </div>
                       </div>
-                      <div>
-                        <Label htmlFor="landmark">Landmark / Near / Famous (Optional)</Label>
-                        <Input
-                          id="landmark"
-                          type="text"
-                          value={landmark || ''}
-                          onChange={(e) => setLandmark(e.target.value)}
-                          placeholder="e.g., Near XYZ Temple"
-                          className="border border-card-border rounded-small focus:ring-accent-rose"
-                        />
+                      
+                      <div className="space-y-1.5">
+                          <Label htmlFor="postOffice" className="text-xs text-muted-foreground">Post Office (Optional)</Label>
+                          <div className="relative">
+                            <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                            <Input
+                                id="postOffice"
+                                value={postOffice || ''}
+                                onChange={(e) => setPostOffice(e.target.value)}
+                                className="pl-9 bg-gray-50 border-gray-200 rounded-xl"
+                            />
+                          </div>
                       </div>
+
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+            </div>
 
-                {/* New: Contact Admin Section */}
-                {(whatsappNumber1 || whatsappNumber2) && (
-                  <Accordion type="single" collapsible className="w-full border-t border-card-border pt-4 mt-4">
-                    <AccordionItem value="contact-admin-section" className="border-b-0">
-                      <AccordionTrigger className="text-xl font-semibold text-text-primary-heading hover:no-underline py-2">
-                        Contact Admin
-                      </AccordionTrigger>
-                      <AccordionContent className="space-y-3 pt-4">
-                        <p className="text-text-secondary-body text-sm">
-                          किसी भी समस्या या प्रश्न के लिए, आप हमारे एडमिन से WhatsApp पर संपर्क कर सकते हैं:
-                        </p>
-                        {whatsappNumber1 && (
-                          <Button asChild variant="outline" className="w-full justify-start bg-green-500 text-white hover:bg-green-600 rounded-small">
-                            <a href={`https://wa.me/${whatsappNumber1.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                              <MessageCircle className="h-5 w-5 mr-2" />
-                              WhatsApp Admin 1: {whatsappNumber1}
-                            </a>
-                          </Button>
-                        )}
-                        {whatsappNumber2 && (
-                          <Button asChild variant="outline" className="w-full justify-start bg-green-500 text-white hover:bg-green-600 rounded-small">
-                            <a href={`https://wa.me/${whatsappNumber2.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                              <MessageCircle className="h-5 w-5 mr-2" />
-                              WhatsApp Admin 2: {whatsappNumber2}
-                            </a>
-                          </Button>
-                        )}
-                      </AccordionContent>
+            {/* 4. Support Section */}
+            {(whatsappNumber1 || whatsappNumber2) && (
+             <div className="bg-white rounded-2xl shadow-sm border border-card-border/60 overflow-hidden">
+                <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="contact-section" className="border-b-0">
+                        <AccordionTrigger className="px-5 py-4 hover:bg-gray-50 hover:no-underline transition-colors group">
+                            <div className="flex items-center gap-3 text-left">
+                                <div className="p-2 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-100 transition-colors">
+                                    <MessageCircle size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-text-primary-heading">Help & Support</h3>
+                                    <p className="text-xs text-text-secondary-body">Contact us on WhatsApp</p>
+                                </div>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-5 pb-5 space-y-3">
+                            {whatsappNumber1 && (
+                            <Button asChild variant="outline" className="w-full justify-start h-auto py-3 px-4 border-green-200 bg-green-50 text-green-700 hover:bg-green-100 rounded-xl">
+                                <a href={`https://wa.me/${whatsappNumber1.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                                <div className="bg-green-500 rounded-full p-1 text-white"><MessageCircle size={14} fill="currentColor" /></div>
+                                <span className="font-medium">Chat with Admin 1</span>
+                                </a>
+                            </Button>
+                            )}
+                            {whatsappNumber2 && (
+                            <Button asChild variant="outline" className="w-full justify-start h-auto py-3 px-4 border-green-200 bg-green-50 text-green-700 hover:bg-green-100 rounded-xl">
+                                <a href={`https://wa.me/${whatsappNumber2.replace(/\+/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3">
+                                <div className="bg-green-500 rounded-full p-1 text-white"><MessageCircle size={14} fill="currentColor" /></div>
+                                <span className="font-medium">Chat with Admin 2</span>
+                                </a>
+                            </Button>
+                            )}
+                        </AccordionContent>
                     </AccordionItem>
-                  </Accordion>
-                )}
+                </Accordion>
+             </div>
+            )}
 
-                <Button type="submit" className="w-full bg-accent-rose text-white hover:bg-accent-dark rounded-small" disabled={loading || uploading}>
-                  {loading ? 'Saving...' : 'Update Profile'}
+            {/* 5. Action Buttons */}
+            <div className="pt-4 flex flex-col gap-3">
+                <Button 
+                    type="submit" 
+                    className="w-full h-12 text-base bg-accent-rose hover:bg-accent-dark text-white rounded-xl shadow-md shadow-accent-rose/20 transition-all active:scale-[0.98]" 
+                    disabled={loading || uploading}
+                >
+                    <Save className="w-4 h-4 mr-2" />
+                    {loading ? 'Saving Changes...' : 'Save Changes'}
                 </Button>
+                
                 <Button
-                  variant="outline"
-                  className="w-full mt-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-small"
+                  variant="ghost"
+                  type="button"
+                  className="w-full h-12 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl"
                   onClick={handleLogout}
                   disabled={loading || uploading}
                 >
+                  <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </Button>
-              </form>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+
+          </form>
+        )}
       </main>
       <BottomNavigation />
     </div>
