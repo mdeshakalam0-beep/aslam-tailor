@@ -9,7 +9,7 @@ import { format, isBefore, isAfter } from 'date-fns';
 import { UserMeasurements } from '@/types/checkout';
 import { supabase } from '@/integrations/supabase/client';
 import { showError, showSuccess } from '@/utils/toast';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Scissors } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   AlertDialog,
@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
+// Updated Interface to include stitching status
 interface OrderItem {
   id: string;
   name: string;
@@ -30,6 +31,7 @@ interface OrderItem {
   price: number;
   quantity: number;
   selectedSize?: string;
+  withStitching?: boolean; // New: Added stitching flag
 }
 
 interface AddressDetails {
@@ -349,7 +351,18 @@ const OrderDetailsPage: React.FC = () => {
                   <div key={index} className="flex items-center space-x-4">
                     <img src={item.imageUrl} alt={item.name} className="w-16 h-16 object-cover rounded-small" />
                     <div className="flex-1">
-                      <p className="font-medium text-text-primary-heading">{item.name}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium text-text-primary-heading">{item.name}</p>
+                        
+                        {/* VISUAL INDICATOR FOR STITCHING */}
+                        {item.withStitching && (
+                          <Badge variant="secondary" className="bg-accent-rose/10 text-accent-rose text-[10px] border border-accent-rose/20 h-5 px-1.5 flex items-center gap-1">
+                            <Scissors size={10} />
+                            With Stitching
+                          </Badge>
+                        )}
+                      </div>
+                      
                       <p className="text-sm text-text-secondary-body">
                         Quantity: {item.quantity} {item.selectedSize && `(Size: ${item.selectedSize})`}
                       </p>

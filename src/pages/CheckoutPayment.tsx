@@ -146,6 +146,8 @@ const CheckoutPayment: React.FC = () => {
     setLoadingCheckout(true);
     try {
       const totalAmount = calculateTotalAmount();
+      
+      // Update: Added 'withStitching' to the order items sent to Supabase
       const orderItems = cartItems.map(item => ({
         product_id: item.id,
         name: item.name,
@@ -153,6 +155,7 @@ const CheckoutPayment: React.FC = () => {
         price: item.price,
         quantity: item.quantity,
         selectedSize: item.selectedSize,
+        withStitching: item.withStitching || false, // Crucial: Saves stitching status to DB
       }));
 
       const orderDate = new Date();
