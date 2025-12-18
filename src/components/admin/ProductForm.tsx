@@ -146,11 +146,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       return;
     }
 
+    // Logic Updated: Stitching Price is Mandatory, Cloth Price is Optional
+    const parsedStitchingPrice = parseFloat(stitchingPrice);
+
+    if (!stitchingPrice || isNaN(parsedStitchingPrice) || parsedStitchingPrice <= 0) {
+      showError('Stitching Price is required and must be greater than 0.');
+      return;
+    }
+
+    // If Cloth price is not provided, set it to 0
+    const parsedPrice = price ? parseFloat(price) : 0;
+
     const productData = {
       name,
       description,
-      price: parseFloat(price),
-      stitchingPrice: stitchingPrice ? parseFloat(stitchingPrice) : undefined, // Include stitching price
+      price: parsedPrice,
+      stitchingPrice: parsedStitchingPrice, 
       originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
       discount: discount ? parseInt(discount) : undefined,
       rating: rating ? parseFloat(rating) : undefined,
@@ -200,31 +211,32 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Cloth Price - NOW OPTIONAL */}
             <div>
-              <Label htmlFor="price">Price (₹) (Only Cloth)</Label>
+              <Label htmlFor="price">Price (₹) (Only Cloth) - Optional</Label>
               <Input
                 id="price"
                 type="number"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="e.g., 899"
-                required
+                placeholder="e.g., 899 (Leave blank if N/A)"
                 min="0"
                 step="0.01"
                 className="border border-card-border rounded-small focus:ring-accent-rose"
               />
             </div>
             
-            {/* Added Stitching Price Input */}
+            {/* Stitching Price - NOW REQUIRED */}
             <div>
-              <Label htmlFor="stitchingPrice">Stitching Price (₹) (Optional)</Label>
+              <Label htmlFor="stitchingPrice">Stitching Price (₹) *</Label>
               <Input
                 id="stitchingPrice"
                 type="number"
                 value={stitchingPrice}
                 onChange={(e) => setStitchingPrice(e.target.value)}
                 placeholder="e.g., 300"
-                min="0"
+                required
+                min="1"
                 step="0.01"
                 className="border border-card-border rounded-small focus:ring-accent-rose"
               />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, Heart as HeartIconFilled, Heart as HeartIconOutline } from 'lucide-react';
+import { Star, Heart as HeartIconFilled, Heart as HeartIconOutline, Scissors } from 'lucide-react';
 import { addToCart } from '@/utils/cart';
 import { showError } from '@/utils/toast';
 import { isProductFavorited, addFavorite, removeFavorite } from '@/utils/favorites';
@@ -28,16 +28,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showStitchingPrice =
   const { session } = useSession();
   const [isFavorited, setIsFavorited] = useState(false);
 
-  // Logic to calculate final price based on stitching selection
-  const isStitchingActive = showStitchingPrice && (product.stitchingPrice || 0) > 0;
+  // --- LOGIC UPDATE START ---
   
-  const finalPrice = isStitchingActive 
-    ? product.price + (product.stitchingPrice || 0) 
-    : product.price;
+  const basePrice = product.price || 0;
+  const stitchPrice = product.stitchingPrice || 0;
 
+  // Check if this is a "Service Only" product (Cloth Price is 0)
+  const isServiceOnly = basePrice === 0 && stitchPrice > 0;
+
+  // Determine if stitching should be active
+  // It is active if:
+  // 1. The user toggled it ON (showStitchingPrice) AND stitching price exists
+  // 2. OR if it is a Service Only product (force active)
+  const isStitchingActive = (showStitchingPrice && stitchPrice > 0) || isServiceOnly;
+  
+  // Calculate Final Price
+  const finalPrice = isStitchingActive 
+    ? basePrice + stitchPrice 
+    : basePrice;
+
+  // Calculate Original Price (MRP) Logic
   const finalOriginalPrice = product.originalPrice 
-    ? (isStitchingActive ? product.originalPrice + (product.stitchingPrice || 0) : product.originalPrice)
+    ? (isStitchingActive ? product.originalPrice + stitchPrice : product.originalPrice)
     : undefined;
+
+  // --- LOGIC UPDATE END ---
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -60,14 +75,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showStitchingPrice =
 
     const selectedSize = product.sizes[0];
 
-    // Yahan par changes kiye gaye hain:
     addToCart({
       id: product.id,
       name: product.name,
       imageUrl: product.imageUrl,
-      price: finalPrice, // Total price (Cloth + Stitching if active)
+      price: finalPrice, // Calculated price
       selectedSize: selectedSize,
-      withStitching: isStitchingActive, // Yeh line bataegi ki stitching included hai ya nahi
+      withStitching: isStitchingActive, // Passes true if stitching is selected or forced
     });
   };
 
@@ -117,9 +131,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, showStitchingPrice =
               <span className="text-xs font-medium text-accent-rose ml-1">{product.discount}% off</span>
             )}
             
+            {/* Visual indicator logic updated */}
             {isStitchingActive && (
-              <span className="text-[10px] bg-accent-rose/10 text-accent-rose px-1.5 py-0.5 rounded-full font-medium ml-1">
-                + Stitching
+              <span className="text-[10px] bg-accent-rose/10 text-accent-rose px-1.5 py-0.5 rounded-full font-medium ml-1 flex items-center gap-0.5">
+                {isServiceOnly ? (
+                    // If Cloth Price is 0, show this
+                    <>
+                        <Scissors size={10} /> Stitching Service
+                    </>
+                ) : (
+                    // If Cloth + Stitching, show this
+                    "+ Stitching"
+                )}
               </span>
             )}
           </div>

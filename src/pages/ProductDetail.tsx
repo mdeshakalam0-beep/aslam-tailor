@@ -60,10 +60,19 @@ const ProductDetail: React.FC = () => {
       const fetchedReviews = await getReviewsForProduct(fetchedProduct.id);
       setReviews(fetchedReviews);
       
-      // Auto-select stitching if user came from listing page with stitching toggle ON
-      const state = location.state as { withStitching?: boolean };
-      if (state?.withStitching && (fetchedProduct.stitchingPrice || 0) > 0) {
+      // LOGIC UPDATE: Handle Optional Cloth Price
+      const clothPrice = fetchedProduct.price || 0;
+      const stitchingPrice = fetchedProduct.stitchingPrice || 0;
+
+      // If Cloth Price is 0 (Service Only), force stitching selected
+      if (clothPrice === 0 && stitchingPrice > 0) {
         setIsStitchingSelected(true);
+      } else {
+        // Normal behavior: Check if user came with pre-selection
+        const state = location.state as { withStitching?: boolean };
+        if (state?.withStitching && stitchingPrice > 0) {
+          setIsStitchingSelected(true);
+        }
       }
     }
     setLoading(false);
@@ -103,12 +112,19 @@ const ProductDetail: React.FC = () => {
   }
 
   // Price Calculation Logic
-  const currentPrice = isStitchingSelected && product.stitchingPrice
-    ? product.price + product.stitchingPrice
-    : product.price;
+  // Ensure we treat undefined/null as 0
+  const basePrice = product.price || 0;
+  const stitchPrice = product.stitchingPrice || 0;
 
-  const currentOriginalPrice = product.originalPrice 
-    ? (isStitchingSelected && product.stitchingPrice ? product.originalPrice + product.stitchingPrice : product.originalPrice)
+  const currentPrice = isStitchingSelected 
+    ? basePrice + stitchPrice
+    : basePrice;
+
+  // Calculate Original Price (MRP)
+  const baseOriginalPrice = product.originalPrice || 0;
+  
+  const currentOriginalPrice = baseOriginalPrice > 0
+    ? (isStitchingSelected ? baseOriginalPrice + stitchPrice : baseOriginalPrice)
     : undefined;
 
   const handleSizeSelect = (size: string) => {
@@ -131,8 +147,6 @@ const ProductDetail: React.FC = () => {
     if (isActive) {
       setSelectedSize(undefined);
       setIsSizeSelectionActive(false);
-      // Optional: Auto-enable stitching when custom measurements are active?
-      // setIsStitchingSelected(true); 
     }
   };
 
@@ -285,7 +299,9 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* Stitching Option Toggle */}
-          {(product.stitchingPrice || 0) > 0 && (
+          {/* Logic: Only show toggle if there is a base Cloth Price AND Stitching Price. 
+              If Cloth Price is 0, we don't show toggle (it's forced ON). */}
+          {(product.stitchingPrice || 0) > 0 && (product.price || 0) > 0 && (
             <div className="p-4 bg-primary-pale-pink/50 rounded-lg border border-accent-rose/20 mt-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -306,6 +322,14 @@ const ProductDetail: React.FC = () => {
                 />
               </div>
             </div>
+          )}
+          
+          {/* Visual Indicator if Stitching Only Product (Cloth Price is 0) */}
+          {(product.price || 0) === 0 && (product.stitchingPrice || 0) > 0 && (
+             <div className="p-3 bg-accent-rose/10 rounded-lg border border-accent-rose/20 mt-4 flex items-center gap-2 text-accent-rose text-sm font-medium">
+                <Scissors size={18} />
+                <span>Stitching Service Included</span>
+             </div>
           )}
 
           {/* Share Button */}
