@@ -89,23 +89,35 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
       {showResults && searchResults.length > 0 && searchTerm.trim() !== '' && (
         <Card className="absolute top-full left-4 right-4 mt-2 z-20 shadow-elev max-h-80 overflow-y-auto border border-card-border rounded-default">
           <div className="p-2">
-            {searchResults.map((product) => (
-              <Link
-                key={product.id}
-                to={`/products/${product.id}`}
-                className="flex items-center p-2 hover:bg-primary-pale-pink rounded-small transition-colors"
-                onClick={() => {
-                  setShowResults(false);
-                  setSearchTerm('');
-                }}
-              >
-                <img src={product.imageUrl} alt={product.name} className="w-10 h-10 object-cover rounded-small mr-3 border border-card-border" />
-                <div>
-                  <p className="font-medium text-text-primary-heading">{product.name}</p>
-                  <p className="text-sm text-text-secondary-body">₹{product.price.toLocaleString()}</p>
-                </div>
-              </Link>
-            ))}
+            {searchResults.map((product) => {
+              // Logic to decide which price to display
+              const hasClothPrice = (product.price || 0) > 0;
+              const displayPrice = hasClothPrice ? product.price : (product.stitchingPrice || 0);
+
+              return (
+                <Link
+                  key={product.id}
+                  to={`/products/${product.id}`}
+                  className="flex items-center p-2 hover:bg-primary-pale-pink rounded-small transition-colors"
+                  onClick={() => {
+                    setShowResults(false);
+                    setSearchTerm('');
+                  }}
+                >
+                  <img src={product.imageUrl} alt={product.name} className="w-10 h-10 object-cover rounded-small mr-3 border border-card-border" />
+                  <div>
+                    <p className="font-medium text-text-primary-heading">{product.name}</p>
+                    <p className="text-sm text-text-secondary-body flex items-center gap-1">
+                      ₹{displayPrice.toLocaleString()}
+                      {/* Show label if it's stitching price only */}
+                      {!hasClothPrice && (product.stitchingPrice || 0) > 0 && (
+                        <span className="text-xs text-accent-rose">(Stitching)</span>
+                      )}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </Card>
       )}
