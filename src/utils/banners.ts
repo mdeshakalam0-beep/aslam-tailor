@@ -4,9 +4,6 @@ import { showSuccess, showError } from '@/utils/toast';
 export interface HeroBanner {
   id: string;
   image_url: string;
-  headline: string;
-  cta_text: string;
-  cta_link: string;
   order: number;
   created_at?: string;
   updated_at?: string;

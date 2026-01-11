@@ -51,16 +51,7 @@ const HeroCarousel: React.FC = () => {
           {slides.map((slide, index) => (
             <CarouselItem key={index}>
               <div className="relative w-full h-[200px] md:h-[400px] bg-cover bg-center" style={{ backgroundImage: `url(${slide.image_url})` }}>
-                <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center p-4">
-                  <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">
-                    {slide.headline}
-                  </h2>
-                  <Button asChild className="bg-accent-rose text-white hover:bg-accent-dark rounded-large px-7 py-3 shadow-elev">
-                    <Link to={slide.cta_link}>
-                      {slide.cta_text}
-                    </Link>
-                  </Button>
-                </div>
+                {/* Removed headline, cta_text, cta_link display */}
               </div>
             </CarouselItem>
           ))}

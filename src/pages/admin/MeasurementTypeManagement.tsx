@@ -26,7 +26,8 @@ const MeasurementTypeManagement: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [typeToDelete, setTypeToDelete] = useState<string | null>(null);
 
-  const fieldLabels: Record<keyof UserMeasurements, string> = {
+  // Filtered field labels for display in the table
+  const fieldLabels: Record<Exclude<keyof UserMeasurements, 'id' | 'user_id' | 'measurement_type' | 'updated_at'>, string> = {
     ladies_size: 'Ladies\' Size',
     men_shirt_length: 'Shirt Length',
     men_shirt_chest: 'Shirt Chest',
@@ -45,10 +46,6 @@ const MeasurementTypeManagement: React.FC = () => {
     men_coat_sleeve_length: 'Coat Sleeve Length',
     men_coat_shoulder: 'Coat Shoulder',
     notes: 'Notes',
-    id: 'ID',
-    user_id: 'User ID',
-    measurement_type: 'Measurement Type',
-    updated_at: 'Updated At',
   };
 
   const fetchMeasurementTypes = async () => {
@@ -145,7 +142,7 @@ const MeasurementTypeManagement: React.FC = () => {
                           {type.relevant_fields && type.relevant_fields.length > 0 ? (
                             type.relevant_fields.map((fieldKey) => (
                               <Badge key={fieldKey} className="bg-primary-pale-pink text-accent-dark whitespace-nowrap">
-                                {fieldLabels[fieldKey] || fieldKey}
+                                {fieldLabels[fieldKey as Exclude<keyof UserMeasurements, 'id' | 'user_id' | 'measurement_type' | 'updated_at'>] || fieldKey}
                               </Badge>
                             ))
                           ) : (

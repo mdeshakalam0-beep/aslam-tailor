@@ -54,7 +54,7 @@ const Index: React.FC = () => {
       : 'No products available.';
 
   return (
-    <div className="min-h-screen bg-bg-offwhite pb-16 md:pb-0">
+    <div className="min-h-screen bg-off-white-page-bg pb-16 md:pb-0">
       <Header />
 
       <main className="container mx-auto px-0 md:px-2">
@@ -82,7 +82,7 @@ const Index: React.FC = () => {
           <section className="px-4 md:px-0">
             {/* Header Area with Stitching Toggle */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
-              <h2 className="text-2xl md:text-3xl font-bold text-text-primary">
+              <h2 className="text-2xl md:text-3xl font-bold text-text-primary-heading">
                 {displaySectionTitle}
               </h2>
 
@@ -95,7 +95,7 @@ const Index: React.FC = () => {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     !viewWithStitching 
                       ? 'bg-accent-rose text-white shadow-md' 
-                      : 'text-text-secondary hover:text-text-primary'
+                      : 'text-text-secondary-body hover:text-text-primary-heading'
                   }`}
                 >
                   Cloth Only
@@ -104,7 +104,7 @@ const Index: React.FC = () => {
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                     viewWithStitching 
                       ? 'bg-accent-rose text-white shadow-md' 
-                      : 'text-text-secondary hover:text-text-primary'
+                      : 'text-text-secondary-body hover:text-text-primary-heading'
                   }`}
                 >
                   With Stitching
@@ -113,12 +113,12 @@ const Index: React.FC = () => {
             </div>
 
             {loading && activeSearchTerm === '' ? (
-              <p className="text-text-secondary">
+              <p className="text-text-secondary-body">
                 Loading products...
               </p>
             ) : productsToDisplay.length === 0 ? (
               <div className="text-center p-10 bg-white rounded-2xl shadow-elev border border-card-border">
-                <p className="text-lg text-text-secondary mb-5">
+                <p className="text-lg text-text-secondary-body mb-5">
                   {displayMessage}
                 </p>
 

@@ -103,8 +103,6 @@ const HeroBannerManagement: React.FC = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[80px] text-text-primary-heading">Image</TableHead>
-                    <TableHead className="text-text-primary-heading">Headline</TableHead>
-                    <TableHead className="text-text-primary-heading">CTA Text</TableHead>
                     <TableHead className="text-text-primary-heading">Order</TableHead>
                     <TableHead className="text-right text-text-primary-heading">Actions</TableHead>
                   </TableRow>
@@ -113,10 +111,8 @@ const HeroBannerManagement: React.FC = () => {
                   {banners.map((banner) => (
                     <TableRow key={banner.id}>
                       <TableCell>
-                        <img src={banner.image_url} alt={banner.headline} className="w-16 h-12 object-cover rounded-small border border-card-border" />
+                        <img src={banner.image_url} alt={`Banner ${banner.id}`} className="w-16 h-12 object-cover rounded-small border border-card-border" />
                       </TableCell>
-                      <TableCell className="font-medium text-text-secondary-body">{banner.headline}</TableCell>
-                      <TableCell className="text-text-secondary-body">{banner.cta_text}</TableCell>
                       <TableCell className="text-text-secondary-body">{banner.order}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleEditBanner(banner)}>

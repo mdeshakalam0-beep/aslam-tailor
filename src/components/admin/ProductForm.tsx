@@ -68,14 +68,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSubmit, loadin
       setUseUrlInput(true); 
       setSelectedFiles([]);
     } else {
-      setUseUrlInput(true);
-      setSelectedFiles([]);
-      setSelectedCategoryId(undefined);
+      setName('');
+      setDescription('');
+      setPrice('');
       setStitchingPrice(''); // Reset stitching price
+      setOriginalPrice('');
+      setDiscount('');
+      setRating('');
+      setImageUrls('');
+      setSizes('');
+      setSelectedCategoryId(undefined);
       setIsCancellable(false);
       setCancellationWindowDays('0');
       setIsReturnable(false);
       setReturnWindowDays('0');
+      setUseUrlInput(true); 
+      setSelectedFiles([]);
     }
   }, [initialData]);
 

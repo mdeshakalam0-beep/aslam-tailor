@@ -5,7 +5,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MinusCircle, PlusCircle, Trash2 } from 'lucide-react';
+import { MinusCircle, PlusCircle, Trash2, Scissors } from 'lucide-react'; // Import Scissors icon
 import { CartItem, getCartItems, updateCartItemQuantity, removeCartItem } from '@/utils/cart';
 import { showError } from '@/utils/toast';
 
@@ -72,8 +72,8 @@ const Cart: React.FC = () => {
                           <h2 className="text-lg font-semibold text-text-primary-heading">{item.name}</h2>
                           {/* Stitching Badge */}
                           {item.withStitching && (
-                            <span className="text-xs bg-accent-rose/10 text-accent-rose px-2 py-0.5 rounded-full font-medium border border-accent-rose/20">
-                              With Stitching
+                            <span className="text-xs bg-accent-rose/10 text-accent-rose px-2 py-0.5 rounded-full font-medium border border-accent-rose/20 flex items-center gap-1">
+                              <Scissors size={10} /> With Stitching
                             </span>
                           )}
                         </div>

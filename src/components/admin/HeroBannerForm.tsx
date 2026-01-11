@@ -17,9 +17,6 @@ interface HeroBannerFormProps {
 
 const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, loading }) => {
   const [imageUrl, setImageUrl] = useState(initialData?.image_url || '');
-  const [headline, setHeadline] = useState(initialData?.headline || '');
-  const [ctaText, setCtaText] = useState(initialData?.cta_text || '');
-  const [ctaLink, setCtaLink] = useState<string | null>(initialData?.cta_link || null);
   const [order, setOrder] = useState(initialData?.order?.toString() || '0');
 
   const [useUrlInput, setUseUrlInput] = useState(true);
@@ -29,13 +26,12 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
   useEffect(() => {
     if (initialData) {
       setImageUrl(initialData.image_url || '');
-      setHeadline(initialData.headline);
-      setCtaText(initialData.cta_text);
-      setCtaLink(initialData.cta_link || null);
       setOrder(initialData.order?.toString() || '0');
       setUseUrlInput(true);
       setSelectedFile(null);
     } else {
+      setImageUrl('');
+      setOrder('0');
       setUseUrlInput(true);
       setSelectedFile(null);
     }
@@ -106,9 +102,6 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
 
     const bannerData = {
       image_url: finalImageUrl,
-      headline,
-      cta_text: ctaText,
-      cta_link: ctaLink || '',
       order: parseInt(order),
     };
 
@@ -173,41 +166,6 @@ const HeroBannerForm: React.FC<HeroBannerFormProps> = ({ initialData, onSubmit, 
             </div>
           )}
 
-          <div>
-            <Label htmlFor="headline">Headline</Label>
-            <Input
-              id="headline"
-              type="text"
-              value={headline}
-              onChange={(e) => setHeadline(e.target.value)}
-              placeholder="e.g., View Latest Collection"
-              required
-              className="border border-card-border rounded-small focus:ring-accent-rose"
-            />
-          </div>
-          <div>
-            <Label htmlFor="ctaText">Call to Action Text</Label>
-            <Input
-              id="ctaText"
-              type="text"
-              value={ctaText}
-              onChange={(e) => setCtaText(e.target.value)}
-              placeholder="e.g., Shop Now"
-              required
-              className="border border-card-border rounded-small focus:ring-accent-rose"
-            />
-          </div>
-          <div>
-            <Label htmlFor="ctaLink">Call to Action Link (URL) (Optional)</Label>
-            <Input
-              id="ctaLink"
-              type="url"
-              value={ctaLink || ''}
-              onChange={(e) => setCtaLink(e.target.value || null)}
-              placeholder="e.g., /products"
-              className="border border-card-border rounded-small focus:ring-accent-rose"
-            />
-          </div>
           <div>
             <Label htmlFor="order">Display Order (Lower number appears first)</Label>
             <Input
