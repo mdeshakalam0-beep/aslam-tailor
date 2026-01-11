@@ -14,12 +14,12 @@ import { Loader2 } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 import { useSession } from '@/components/SessionContextProvider';
 import {
-  Measurement,
   MeasurementType,
   getMeasurementTypes,
   upsertMeasurement,
   getMeasurementById,
 } from '@/utils/measurements';
+import { UserMeasurements } from '@/types/checkout'; // Import UserMeasurements
 
 interface MeasurementFormProps {
   measurementId?: string;
@@ -34,8 +34,9 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
   const [selectedMeasurementTypeId, setSelectedMeasurementTypeId] = useState<string>('');
   const [measurementTypes, setMeasurementTypes] = useState<MeasurementType[]>([]);
   const [loadingMeasurementTypes, setLoadingMeasurementTypes] = useState(true);
-  const [formData, setFormData] = useState<Partial<Measurement>>({
+  const [formData, setFormData] = useState<Partial<UserMeasurements>>({ // Changed to Partial<UserMeasurements>
     notes: '',
+    ladies_size: null,
     men_shirt_length: null,
     men_shirt_chest: null,
     men_shirt_waist: null,
@@ -52,7 +53,6 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
     men_coat_waist: null,
     men_coat_sleeve_length: null,
     men_coat_shoulder: null,
-    ladies_size: null,
   });
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,7 +77,28 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
         const measurement = await getMeasurementById(measurementId);
         if (measurement) {
           setSelectedMeasurementTypeId(measurement.measurement_type || '');
-          setFormData(measurement);
+          // Map fetched Measurement to Partial<UserMeasurements>
+          const mappedData: Partial<UserMeasurements> = {
+            notes: measurement.notes,
+            ladies_size: measurement.ladies_size,
+            men_shirt_length: measurement.men_shirt_length,
+            men_shirt_chest: measurement.men_shirt_chest,
+            men_shirt_waist: measurement.men_shirt_waist,
+            men_shirt_sleeve_length: measurement.men_shirt_sleeve_length,
+            men_shirt_shoulder: measurement.men_shirt_shoulder,
+            men_shirt_neck: measurement.men_shirt_neck,
+            men_pant_length: measurement.men_pant_length,
+            men_pant_waist: measurement.men_pant_waist,
+            men_pant_hip: measurement.men_pant_hip,
+            men_pant_thigh: measurement.men_pant_thigh,
+            men_pant_bottom: measurement.men_pant_bottom,
+            men_coat_length: measurement.men_coat_length,
+            men_coat_chest: measurement.men_coat_chest,
+            men_coat_waist: measurement.men_coat_waist,
+            men_coat_sleeve_length: measurement.men_coat_sleeve_length,
+            men_coat_shoulder: measurement.men_coat_shoulder,
+          };
+          setFormData(mappedData);
         } else {
           showError('Measurement not found.');
           onCancel();
@@ -101,6 +122,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
     const { id, value } = e.target;
     setFormData((prev) => {
       let parsedValue: string | number | null = value;
+      // Check if the field is a numeric measurement field
       if (id.startsWith('men_') && value !== '') {
         parsedValue = parseFloat(value);
       } else if (id === 'ladies_size') {
@@ -110,7 +132,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
       }
       return {
         ...prev,
-        [id]: parsedValue,
+        [id as keyof UserMeasurements]: parsedValue, // Cast to keyof UserMeasurements
       };
     });
   };
@@ -119,9 +141,12 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
     setSelectedMeasurementTypeId(value);
     const selectedType = measurementTypes.find(type => type.name === value);
     if (selectedType) {
-      const newFormData: Partial<Measurement> = { notes: formData.notes };
+      const newFormData: Partial<UserMeasurements> = { notes: formData.notes };
       selectedType.relevant_fields.forEach(field => {
-        newFormData[field as keyof Measurement] = formData[field as keyof Measurement] || null;
+        // Only copy relevant fields that are actual measurement values
+        if (field !== 'id' && field !== 'user_id' && field !== 'measurement_type' && field !== 'updated_at') {
+          newFormData[field] = formData[field] || null;
+        }
       });
       setFormData(newFormData);
     } else {
@@ -149,22 +174,23 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ measurementId, onSave
         return;
       }
 
-      const measurementToSave: Partial<Measurement> = {
+      const measurementToSave: Partial<UserMeasurements> = {
         ...formData,
         user_id: userId,
-        measurement_type: selectedMeasurementTypeId,
+        measurement_type: (selectedMeasurementTypeId as UserMeasurements['measurement_type']), // Cast to correct type
       };
 
-      const finalMeasurementData: Partial<Measurement> = {
-        id: measurementToSave.id,
+      const finalMeasurementData: Partial<UserMeasurements> = {
+        id: measurementId, // Keep existing ID if editing
         user_id: measurementToSave.user_id,
         measurement_type: measurementToSave.measurement_type,
         notes: measurementToSave.notes,
       };
 
       selectedType.relevant_fields.forEach(field => {
-        if (measurementToSave[field as keyof Measurement] !== undefined) {
-          finalMeasurementData[field as keyof Measurement] = measurementToSave[field as keyof Measurement];
+        // Only copy relevant fields that are actual measurement values
+        if (field !== 'id' && field !== 'user_id' && field !== 'measurement_type' && field !== 'updated_at' && measurementToSave[field] !== undefined) {
+          finalMeasurementData[field] = measurementToSave[field];
         }
       });
 

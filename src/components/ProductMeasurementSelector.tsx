@@ -23,7 +23,8 @@ interface ProductMeasurementSelectorProps {
   isDisabled: boolean;
 }
 
-const measurementFieldConfig: Record<keyof UserMeasurements, { label: string; type: 'number' | 'text' | 'select' | 'textarea'; options?: string[] }> = {
+// Only include user-editable measurement fields in this config
+const measurementFieldConfig: Record<Exclude<keyof UserMeasurements, 'id' | 'user_id' | 'measurement_type' | 'updated_at'>, { label: string; type: 'number' | 'text' | 'select' | 'textarea'; options?: string[] }> = {
   ladies_size: { label: 'Ladies\' Size', type: 'select', options: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Custom'] },
   men_shirt_length: { label: 'Shirt Length (inches)', type: 'number' },
   men_shirt_chest: { label: 'Shirt Chest (inches)', type: 'number' },
@@ -42,10 +43,6 @@ const measurementFieldConfig: Record<keyof UserMeasurements, { label: string; ty
   men_coat_sleeve_length: { label: 'Coat Sleeve Length (inches)', type: 'number' },
   men_coat_shoulder: { label: 'Coat Shoulder (inches)', type: 'number' },
   notes: { label: 'Additional Notes / Specific Instructions', type: 'textarea' },
-  id: { label: 'ID', type: 'text' },
-  user_id: { label: 'User ID', type: 'text' },
-  measurement_type: { label: 'Measurement Type', type: 'text' },
-  updated_at: { label: 'Updated At', type: 'text' },
 };
 
 const allMeasurementFields: Array<{ key: keyof UserMeasurements; label: string; group: string }> = [
@@ -120,11 +117,14 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
       }
 
       if (measurementsData) {
-        setCurrentMeasurements(measurementsData as UserMeasurements);
+        setCurrentMeasurements(measurementsData as UserMeasurements); // Cast to UserMeasurements
         const initialFormValues: Partial<UserMeasurements> = {};
         for (const key in measurementsData) {
           if (Object.prototype.hasOwnProperty.call(measurementsData, key)) {
-            initialFormValues[key as keyof UserMeasurements] = measurementsData[key as keyof UserMeasurements];
+            // Only copy fields that are part of UserMeasurements and not system fields
+            if (key !== 'id' && key !== 'user_id' && key !== 'updated_at') {
+              initialFormValues[key as keyof UserMeasurements] = measurementsData[key as keyof UserMeasurements];
+            }
           }
         }
         setFormValues(initialFormValues);
@@ -180,12 +180,12 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
     try {
       const updates: Partial<UserMeasurements> = {
         user_id: session.user.id,
-        measurement_type: currentMeasurementType?.name || null,
+        measurement_type: (currentMeasurementType?.name as UserMeasurements['measurement_type']) || null, // Cast to correct type
         updated_at: new Date().toISOString(),
       };
 
       currentMeasurementType?.relevant_fields.forEach(fieldKey => {
-        const config = measurementFieldConfig[fieldKey];
+        const config = measurementFieldConfig[fieldKey as Exclude<keyof UserMeasurements, 'id' | 'user_id' | 'measurement_type' | 'updated_at'>];
         if (config) {
           let value = formValues[fieldKey];
           if (config.type === 'number') {
@@ -193,7 +193,7 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
           } else if (config.type === 'text' || config.type === 'select' || config.type === 'textarea') {
             updates[fieldKey] = (value as string)?.trim() || null;
           } else {
-            updates[fieldKey] = value;
+            updates[fieldKey] = value as any; // Explicitly cast to any for dynamic assignment
           }
         }
       });
@@ -250,7 +250,7 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
     return (
       <div className="text-sm text-text-secondary-body grid grid-cols-2 gap-x-4 gap-y-1">
         {displayedFields.map((fieldKey, idx) => {
-          const config = measurementFieldConfig[fieldKey];
+          const config = measurementFieldConfig[fieldKey as Exclude<keyof UserMeasurements, 'id' | 'user_id' | 'measurement_type' | 'updated_at'>];
           const value = currentMeasurements[fieldKey];
           if (value === null || value === undefined) return null;
           return (
@@ -287,7 +287,7 @@ const ProductMeasurementSelector: React.FC<ProductMeasurementSelectorProps> = ({
               <AccordionContent className="p-4 border-t border-card-border bg-off-white-page-bg rounded-b-default">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {fieldKeys.map((fieldKey) => {
-                    const config = measurementFieldConfig[fieldKey];
+                    const config = measurementFieldConfig[fieldKey as Exclude<keyof UserMeasurements, 'id' | 'user_id' | 'measurement_type' | 'updated_at'>];
                     if (!config || fieldKey === 'notes') return null;
 
                     const value = (formValues[fieldKey] ?? '').toString();

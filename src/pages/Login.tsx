@@ -107,7 +107,7 @@ const Login = () => {
                     colors: {
                       brand: 'hsl(var(--accent-rose))',
                       brandAccent: 'hsl(var(--accent-dark))',
-                      foreground: 'hsl(var(--text-primary-heading))',
+                      // Removed 'foreground' as it's not a valid property here.
                       inputBackground: 'hsl(0 0% 100% / 0.8)',
                       inputBorder: 'hsl(var(--card-border))',
                       inputFocusBorder: 'hsl(var(--accent-rose))',

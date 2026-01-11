@@ -9,7 +9,7 @@ const BrandRibbon: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   const plugin = useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: false, playOnInit: true, speed: 10 })
+    Autoplay({ delay: 3000, stopOnInteraction: false, playOnInit: true }) // Removed speed: 10
   );
 
   useEffect(() => {

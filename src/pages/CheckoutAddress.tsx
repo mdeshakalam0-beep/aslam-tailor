@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import AddressForm from '@/components/AddressForm';
 import { showError } from '@/utils/toast';
-import { CheckoutAddress, CheckoutItem } from '@/types/checkout';
+import type { CheckoutAddress, CheckoutItem } from '@/types/checkout'; // Changed to type-only import
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/components/SessionContextProvider';
 

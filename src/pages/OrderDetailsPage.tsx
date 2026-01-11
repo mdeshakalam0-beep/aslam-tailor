@@ -113,14 +113,14 @@ const OrderDetailsPage: React.FC = () => {
     }
   };
 
-  const getStatusBadgeVariant = (status: string) => {
+  const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
       case 'completed': return 'default';
       case 'pending': return 'secondary';
       case 'shipped': return 'outline';
       case 'cancelled': return 'destructive';
-      case 'processing': return 'accent';
-      case 'returned': return 'warning';
+      case 'processing': return 'secondary'; // Mapped 'accent' to 'secondary'
+      case 'returned': return 'outline'; // Mapped 'warning' to 'outline'
       default: return 'secondary';
     }
   };

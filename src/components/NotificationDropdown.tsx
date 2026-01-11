@@ -39,10 +39,11 @@ const NotificationDropdown: React.FC = () => {
         schema: 'public', 
         table: 'notifications',
       }, (payload) => {
-        if (payload.new?.user_id === null || payload.new?.user_id === session?.user?.id) {
+        const newNotification = payload.new as Notification; // Cast to Notification type
+        if (newNotification?.user_id === null || newNotification?.user_id === session?.user?.id) {
           console.log('Realtime notification received:', payload);
           fetchAndSetNotifications();
-          if (payload.eventType === 'INSERT' && !payload.new?.is_read) {
+          if (payload.eventType === 'INSERT' && !newNotification?.is_read) {
             audioRef.current?.play();
           }
         }
